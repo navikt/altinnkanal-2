@@ -4,11 +4,11 @@ import javax.xml.ws.Endpoint;
 
 public class BootstrapROBEA {
 
-    public static void main(String[] args) {
+    public static void main(String[] args) throws Exception {
         new BootstrapROBEA().start();
     }
 
-    public void start() {
+    public void start() throws Exception {
         OnlineBatchReceiverSoapImpl onlineBatchReceiverSoap = new OnlineBatchReceiverSoapImpl();
         String address = "http://localhost:8080/altinnkanal/OnlineBatchReceiverSoap";
         Endpoint.publish(address, onlineBatchReceiverSoap);
