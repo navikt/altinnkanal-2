@@ -6,19 +6,21 @@ public class TopicMapping {
     private String serviceCode;
     private String serviceEditionCode;
     private String topic;
-    private String user;
-    private LocalDateTime updated;
+    private Boolean enabled;
+    private String lastChangedBy;
+    private LocalDateTime lastChangedDate;
     private String comment;
 
     public TopicMapping() {}
 
-    public TopicMapping(String serviceCode, String serviceEditionCode, String topic, String user, LocalDateTime updated,
-                        String comment) {
+    public TopicMapping(String serviceCode, String serviceEditionCode, String topic, Boolean enabled, String lastChangedBy,
+                        LocalDateTime lastChangedDate, String comment) {
         this.serviceCode = serviceCode;
         this.serviceEditionCode = serviceEditionCode;
         this.topic = topic;
-        this.user = user;
-        this.updated = updated;
+        this.enabled = enabled;
+        this.lastChangedBy = lastChangedBy;
+        this.lastChangedDate = lastChangedDate;
         this.comment = comment;
     }
 
@@ -34,12 +36,16 @@ public class TopicMapping {
         return topic;
     }
 
-    public String getUser() {
-        return user;
+    public Boolean isEnabled() {
+        return enabled;
     }
 
-    public LocalDateTime getUpdated() {
-        return updated;
+    public String getLastChangedBy() {
+        return lastChangedBy;
+    }
+
+    public LocalDateTime getLastChangedDate() {
+        return lastChangedDate;
     }
 
     public String getComment() {
@@ -58,12 +64,16 @@ public class TopicMapping {
         this.topic = topic;
     }
 
-    public void setUser(String user) {
-        this.user = user;
+    public void setEnabled(Boolean enabled) {
+        this.enabled = enabled;
     }
 
-    public void setUpdated(LocalDateTime updated) {
-        this.updated = updated;
+    public void setLastChangedBy(String lastChangedBy) {
+        this.lastChangedBy = lastChangedBy;
+    }
+
+    public void setLastChangedDate(LocalDateTime lastChangedDate) {
+        this.lastChangedDate = lastChangedDate;
     }
 
     public void setComment(String comment) {

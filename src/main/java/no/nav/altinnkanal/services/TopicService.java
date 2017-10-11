@@ -5,9 +5,9 @@ import no.nav.altinnkanal.entities.TopicMapping;
 import java.util.List;
 
 public interface TopicService {
-    TopicMapping getTopic(String serviceCode, String serviceEditionCode);
+    TopicMapping getTopicMapping(String serviceCode, String serviceEditionCode) throws Exception;
 
-    TopicMapping createTopic(String serviceCode, String serviceEditionCode, String topic, String user, String comment);
+    TopicMapping createTopicMapping(String serviceCode, String serviceEditionCode, String topic, Boolean enabled, String user, String comment) throws Exception;
 
-    List<TopicMapping> getTopics();
+    List<TopicMapping> getTopicMappings() throws Exception;
 }

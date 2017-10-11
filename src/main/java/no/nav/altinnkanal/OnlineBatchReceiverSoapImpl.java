@@ -43,13 +43,13 @@ public class OnlineBatchReceiverSoapImpl implements OnlineBatchReceiverSoap {
         try {
             ExternalAttachment externalAttachment = toAvroObject(dataBatch);
 
-            TopicMapping topic = topicService.getTopic(externalAttachment.getSc().toString(), externalAttachment.getSec().toString());
+            TopicMapping topicMapping = topicService.getTopicMapping(externalAttachment.getSc().toString(), externalAttachment.getSec().toString());
 
-            if (topic == null) {
+            if (topicMapping == null) {
                 return "FAILED_DO_NOT_RETRY";
             }
 
-            producer.send(new ProducerRecord<>("test", encodeAvroObject(externalAttachment, ExternalAttachment.class))).get();
+            producer.send(new ProducerRecord<>(topicMapping.getTopic(), encodeAvroObject(externalAttachment, ExternalAttachment.class))).get();
         } catch (Exception e) {
             logger.error("Failed to send a ROBEA request to Kafka", e);
             return "FAILED";
