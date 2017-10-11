@@ -13,10 +13,6 @@ import javax.xml.ws.Endpoint;
 
 @Configuration
 public class SoapConfiguration {
-    @Bean
-    public Bus bus() {
-        return new SpringBus();
-    }
 
     @Bean
     public Endpoint endpoint(Producer<String, byte[]> producer, TopicService topicService, Bus bus) throws Exception {

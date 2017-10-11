@@ -1,25 +1,9 @@
 package no.nav.altinnkanal;
 
 import org.springframework.boot.SpringApplication;
-import org.springframework.boot.autoconfigure.context.PropertyPlaceholderAutoConfiguration;
-import org.springframework.boot.autoconfigure.jackson.JacksonAutoConfiguration;
-import org.springframework.boot.autoconfigure.web.*;
-import org.springframework.context.annotation.ComponentScan;
-import org.springframework.context.annotation.Configuration;
-import org.springframework.context.annotation.Import;
+import org.springframework.boot.autoconfigure.SpringBootApplication;
 
-
-@Import({
-        DispatcherServletAutoConfiguration.class,
-        EmbeddedServletContainerAutoConfiguration.class,
-        HttpEncodingAutoConfiguration.class,
-        HttpMessageConvertersAutoConfiguration.class,
-        JacksonAutoConfiguration.class,
-        ServerPropertiesAutoConfiguration.class,
-        PropertyPlaceholderAutoConfiguration.class
-})
-@ComponentScan("no.nav.altinnkanal")
-@Configuration
+@SpringBootApplication
 public class BootstrapROBEA {
 
     public static void main(String[] args) {
