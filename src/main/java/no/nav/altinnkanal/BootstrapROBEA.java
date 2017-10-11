@@ -1,5 +1,7 @@
 package no.nav.altinnkanal;
 
+import no.nav.altinnkanal.services.TopicService;
+import no.nav.altinnkanal.services.TopicServiceImpl;
 import org.apache.kafka.clients.producer.KafkaProducer;
 import org.apache.kafka.clients.producer.Producer;
 
@@ -18,7 +20,9 @@ public class BootstrapROBEA {
         kafkaProperties.load(getClass().getResourceAsStream("/kafka.properties"));
         Producer<String, byte[]> producer = new KafkaProducer<>(kafkaProperties);
 
-        OnlineBatchReceiverSoapImpl onlineBatchReceiverSoap = new OnlineBatchReceiverSoapImpl(producer);
+        TopicService topicService = new TopicServiceImpl();
+
+        OnlineBatchReceiverSoapImpl onlineBatchReceiverSoap = new OnlineBatchReceiverSoapImpl(producer, topicService);
         Endpoint.publish("http://0.0.0.0:8080/altinnkanal/OnlineBatchReceiverSoap", onlineBatchReceiverSoap);
     }
 }
