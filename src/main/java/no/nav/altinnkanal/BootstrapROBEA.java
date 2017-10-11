@@ -1,7 +1,9 @@
 package no.nav.altinnkanal;
 
+import no.nav.altinnkanal.rest.ConfigurationRestService;
 import no.nav.altinnkanal.services.TopicService;
 import no.nav.altinnkanal.services.TopicServiceImpl;
+import org.apache.cxf.jaxrs.JAXRSServerFactoryBean;
 import org.apache.kafka.clients.producer.KafkaProducer;
 import org.apache.kafka.clients.producer.Producer;
 
@@ -23,6 +25,8 @@ public class BootstrapROBEA {
         TopicService topicService = new TopicServiceImpl();
 
         OnlineBatchReceiverSoapImpl onlineBatchReceiverSoap = new OnlineBatchReceiverSoapImpl(producer, topicService);
+        ConfigurationRestService configurationRestService = new ConfigurationRestService(topicService);
+
         Endpoint.publish("http://0.0.0.0:8080/altinnkanal/OnlineBatchReceiverSoap", onlineBatchReceiverSoap);
     }
 }
