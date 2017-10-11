@@ -1,6 +1,10 @@
 package no.nav.altinnkanal;
 
+import org.apache.kafka.clients.producer.KafkaProducer;
+import org.apache.kafka.clients.producer.Producer;
+
 import javax.xml.ws.Endpoint;
+import java.util.Properties;
 
 public class BootstrapROBEA {
 
@@ -9,14 +13,12 @@ public class BootstrapROBEA {
     }
 
     public void start() throws Exception {
-        OnlineBatchReceiverSoapImpl onlineBatchReceiverSoap = new OnlineBatchReceiverSoapImpl();
-        String address = "http://localhost:8080/altinnkanal/OnlineBatchReceiverSoap";
-        Endpoint.publish(address, onlineBatchReceiverSoap);
+        // Read kafka config
+        Properties kafkaProperties = new Properties();
+        kafkaProperties.load(getClass().getResourceAsStream("/kafka.properties"));
+        Producer<String, byte[]> producer = new KafkaProducer<>(kafkaProperties);
 
-        try {
-            Thread.sleep(5*60*100);
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        }
+        OnlineBatchReceiverSoapImpl onlineBatchReceiverSoap = new OnlineBatchReceiverSoapImpl(producer);
+        Endpoint.publish("http://0.0.0.0:8080/altinnkanal/OnlineBatchReceiverSoap", onlineBatchReceiverSoap);
     }
 }
