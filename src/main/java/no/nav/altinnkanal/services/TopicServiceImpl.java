@@ -21,7 +21,7 @@ public class TopicServiceImpl implements TopicService {
 
     @Override
     public TopicMapping getTopicMapping(String serviceCode, String serviceEditionCode) throws Exception {
-        return jdbcTemplate.query("SELECT * FROM `topic_mapping` WHERE `service_code`=? AND `service_edition_code`=?;",
+        return jdbcTemplate.query("SELECT * FROM `topic_mapping` WHERE `service_code`=? AND `service_edition_code`=? AND NOT disabled;",
               new String[] { serviceCode, serviceEditionCode }, this::fromResultSet);
     }
 
