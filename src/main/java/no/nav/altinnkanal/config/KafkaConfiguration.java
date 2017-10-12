@@ -1,7 +1,5 @@
 package no.nav.altinnkanal.config;
 
-import no.nav.altinnkanal.services.TopicService;
-import no.nav.altinnkanal.services.TopicServiceImpl;
 import org.apache.kafka.clients.producer.KafkaProducer;
 import org.apache.kafka.clients.producer.Producer;
 import org.springframework.context.annotation.Bean;

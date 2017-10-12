@@ -9,11 +9,14 @@ import org.apache.kafka.clients.producer.Producer;
 import org.apache.kafka.clients.producer.ProducerRecord;
 import org.apache.kafka.clients.producer.RecordMetadata;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
 
+import javax.annotation.PreDestroy;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.util.concurrent.Future;
 
+@Service
 public class KafkaServiceImpl implements KafkaService {
     private final Producer<String, byte[]> producer;
 
@@ -36,5 +39,10 @@ public class KafkaServiceImpl implements KafkaService {
         encoder.flush();
         byteOut.close();
         return byteOut.toByteArray();
+    }
+
+    @PreDestroy
+    public void destroy() {
+        producer.close();
     }
 }
