@@ -1,38 +1,41 @@
 package no.nav.altinnkanal.services;
 
 import no.nav.altinnkanal.entities.TopicMapping;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.stereotype.Service;
 
-import java.sql.Connection;
-import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.time.LocalDateTime;
-import java.util.Collections;
 import java.util.List;
 
+@Service
 public class TopicServiceImpl implements TopicService {
-    private Connection connection;
+    private final JdbcTemplate jdbcTemplate;
+
+    @Autowired
+    public TopicServiceImpl(JdbcTemplate jdbcTemplate) {
+        this.jdbcTemplate = jdbcTemplate;
+    }
 
     @Override
     public TopicMapping getTopicMapping(String serviceCode, String serviceEditionCode) throws Exception {
-        // TODO: Resolve this from database
-        try (PreparedStatement preparedStatement = connection.prepareStatement("SELECT * FROM `topic_mapping` WHERE `service_code`=? AND `service_edition_code`=?;")) {
-            preparedStatement.setString(1, serviceCode);
-            preparedStatement.setString(2, serviceEditionCode);
-            //return fromResultSet(preparedStatement.executeQuery());
-        }
-        return new TopicMapping(serviceCode, serviceEditionCode, "test", true, null, null, null);
+        return jdbcTemplate.query("SELECT * FROM `topic_mapping` WHERE `service_code`=? AND `service_edition_code`=?;",
+              new String[] { serviceCode, serviceEditionCode }, this::fromResultSet);
     }
 
     @Override
     public TopicMapping createTopicMapping(String serviceCode, String serviceEditionCode, String topic, Boolean enabled, String user, String comment) {
-
-        return new TopicMapping(serviceCode, serviceEditionCode, topic, enabled, user, LocalDateTime.now(), comment);
+        LocalDateTime now = LocalDateTime.now();
+        jdbcTemplate.update("INSERT INTO `topic_mapping` VALUES (?, ?, ?, ?, ?, ?, ?);", serviceCode,
+                serviceEditionCode, topic, enabled, user, now, comment);
+        return new TopicMapping(serviceCode, serviceEditionCode, topic, enabled, user, now, comment);
     }
 
     @Override
     public List<TopicMapping> getTopicMappings() {
-        return Collections.emptyList();
+        return jdbcTemplate.query("SELECT * FROM `topic_mapping`;", (rs, rowNum) -> fromResultSet(rs));
     }
 
     private TopicMapping fromResultSet(ResultSet resultSet) throws SQLException {

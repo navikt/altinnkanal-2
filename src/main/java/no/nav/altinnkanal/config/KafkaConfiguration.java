@@ -11,12 +11,6 @@ import java.util.Properties;
 
 @Configuration
 public class KafkaConfiguration {
-
-    @Bean
-    public TopicService topicService() {
-        return new TopicServiceImpl();
-    }
-
     @Bean
     public Producer<String, byte[]> producer() throws Exception {
         // Read kafka config
