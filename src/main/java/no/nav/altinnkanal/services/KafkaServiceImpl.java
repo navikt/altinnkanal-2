@@ -10,7 +10,6 @@ import org.apache.kafka.clients.producer.ProducerRecord;
 import org.apache.kafka.clients.producer.RecordMetadata;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-
 import javax.annotation.PreDestroy;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;

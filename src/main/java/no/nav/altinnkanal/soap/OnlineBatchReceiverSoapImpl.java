@@ -5,6 +5,7 @@ import no.nav.altinnkanal.avro.ExternalAttachment;
 import no.nav.altinnkanal.entities.TopicMapping;
 import no.nav.altinnkanal.services.KafkaService;
 import no.nav.altinnkanal.services.TopicService;
+import org.apache.kafka.clients.producer.RecordMetadata;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.w3c.dom.Document;
@@ -36,13 +37,15 @@ public class OnlineBatchReceiverSoapImpl implements OnlineBatchReceiverSoap {
         try {
             ExternalAttachment externalAttachment = toAvroObject(dataBatch);
 
-            TopicMapping topicMapping = topicService.getTopicMapping(externalAttachment.getSc().toString(), externalAttachment.getSec().toString());
+            //TopicMapping topicMapping = topicService.getTopicMapping(externalAttachment.getSc().toString(), externalAttachment.getSec().toString());
+            TopicMapping topicMapping = new TopicMapping(null, null, "test", null, null, null, null);
 
             if (topicMapping == null) {
                 return "FAILED_DO_NOT_RETRY";
             }
 
-            kafkaService.publish(topicMapping.getTopic(), externalAttachment);
+            // TODO: Validate/check if received metadata matches sent record?
+            RecordMetadata metadata = kafkaService.publish(topicMapping.getTopic(), externalAttachment).get();
         } catch (Exception e) {
             logger.error("Failed to send a ROBEA request to Kafka", e);
             return "FAILED";
