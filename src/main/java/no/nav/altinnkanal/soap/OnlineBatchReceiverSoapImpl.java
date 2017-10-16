@@ -19,7 +19,7 @@ import java.io.StringReader;
 import java.util.Base64;
 
 public class OnlineBatchReceiverSoapImpl implements OnlineBatchReceiverSoap {
-    private final Base64.Encoder base64Decoder = Base64.getEncoder();
+    private final Base64.Encoder base64Encoder = Base64.getEncoder();
     private final Logger logger = LogManager.getLogger("AltinnKanal");
 
     private final DocumentBuilder documentBuilder;
@@ -38,7 +38,7 @@ public class OnlineBatchReceiverSoapImpl implements OnlineBatchReceiverSoap {
             ExternalAttachment externalAttachment = toAvroObject(dataBatch);
 
             //TopicMapping topicMapping = topicService.getTopicMapping(externalAttachment.getSc().toString(), externalAttachment.getSec().toString());
-            TopicMapping topicMapping = new TopicMapping(null, null, "test", null, null, null, null);
+            TopicMapping topicMapping = new TopicMapping(null, null, "test", null);
 
             if (topicMapping == null) {
                 return "FAILED_DO_NOT_RETRY";
@@ -61,7 +61,7 @@ public class OnlineBatchReceiverSoapImpl implements OnlineBatchReceiverSoap {
         String serviceCode = xPath.compile("//ServiceCode").evaluate(doc);
         String serviceEditionCode = xPath.compile("//ServiceEditionCode").evaluate(doc);
         String archiveReference = xPath.compile("//@archiveReference").evaluate(doc);
-        String batchBase64 = base64Decoder.encodeToString(dataBatch.getBytes());
+        String batchBase64 = base64Encoder.encodeToString(dataBatch.getBytes());
 
         ExternalAttachment externalAttachment = ExternalAttachment.newBuilder()
                 .setBatch(batchBase64)

@@ -2,24 +2,25 @@ package no.nav.altinnkanal.entities;
 
 import java.time.LocalDateTime;
 
-public class LogEvent {
+public class TopicMappingUpdate {
     private String serviceCode;
     private String serviceEditionCode;
-    private String oldTopic;
-    private String newTopic;
-    private LogEventType logEventType;
+    private String topic;
+    private Boolean enabled;
+    private String comment;
     private LocalDateTime updateDate;
     private String updatedBy;
+    
 
-    public LogEvent() {
+    public TopicMappingUpdate() {
     }
 
-    public LogEvent(String serviceCode, String serviceEditionCode, String oldTopic, String newTopic, LogEventType logEventType, LocalDateTime updateDate, String updatedBy) {
+    public TopicMappingUpdate(String serviceCode, String serviceEditionCode, String topic, Boolean enabled, String comment, LocalDateTime updateDate, String updatedBy) {
         this.serviceCode = serviceCode;
         this.serviceEditionCode = serviceEditionCode;
-        this.oldTopic = oldTopic;
-        this.newTopic = newTopic;
-        this.logEventType = logEventType;
+        this.topic = topic;
+        this.enabled = enabled;
+        this.comment = comment;
         this.updateDate = updateDate;
         this.updatedBy = updatedBy;
     }
@@ -32,16 +33,16 @@ public class LogEvent {
         return serviceEditionCode;
     }
 
-    public String getOldTopic() {
-        return oldTopic;
+    public String getTopic() {
+        return topic;
     }
 
-    public String getNewTopic() {
-        return newTopic;
+    public Boolean isEnabled() {
+        return enabled;
     }
 
-    public LogEventType getLogEventType() {
-        return logEventType;
+    public String getComment() {
+        return comment;
     }
 
     public LocalDateTime getUpdateDate() {
@@ -60,16 +61,16 @@ public class LogEvent {
         this.serviceEditionCode = serviceEditionCode;
     }
 
-    public void setOldTopic(String oldTopic) {
-        this.oldTopic = oldTopic;
+    public void setTopic(String topic) {
+        this.topic = topic;
     }
 
-    public void setNewTopic(String newTopic) {
-        this.newTopic = newTopic;
+    public void setEnabled(Boolean enabled) {
+        this.enabled = enabled;
     }
 
-    public void setLogEventType(LogEventType logEventType) {
-        this.logEventType = logEventType;
+    public void setComment(String comment) {
+        this.comment = comment;
     }
 
     public void setUpdateDate(LocalDateTime updateDate) {

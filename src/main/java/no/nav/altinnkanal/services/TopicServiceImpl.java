@@ -3,13 +3,10 @@ package no.nav.altinnkanal.services;
 import no.nav.altinnkanal.entities.TopicMapping;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;
-import org.springframework.jdbc.core.RowMapper;
 import org.springframework.stereotype.Service;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.time.LocalDateTime;
-import java.util.List;
 
 @Service
 public class TopicServiceImpl implements TopicService {
@@ -29,26 +26,17 @@ public class TopicServiceImpl implements TopicService {
     }
 
     @Override
-    public TopicMapping createTopicMapping(String serviceCode, String serviceEditionCode, String topic, Boolean enabled, String user, String comment) {
-        LocalDateTime now = LocalDateTime.now();
-        jdbcTemplate.update("INSERT INTO `topic_mappings` VALUES (?, ?, ?, ?, ?, ?, ?);", serviceCode,
-                serviceEditionCode, topic, enabled, user, now, comment);
-        return new TopicMapping(serviceCode, serviceEditionCode, topic, enabled, user, now, comment);
-    }
-
-    @Override
-    public List<TopicMapping> getTopicMappings() {
-        return jdbcTemplate.query("SELECT * FROM `topic_mappings`;", (rs, rowNum) -> fromResultSet(rs));
+    public TopicMapping createTopicMapping(String serviceCode, String serviceEditionCode, String topic, Boolean enabled) {
+        jdbcTemplate.update("INSERT INTO `topic_mappings` VALUES (?, ?, ?, ?);", serviceCode,
+                serviceEditionCode, topic, enabled);
+        return new TopicMapping(serviceCode, serviceEditionCode, topic, enabled);
     }
 
     private TopicMapping fromResultSet(ResultSet resultSet) throws SQLException {
         String serviceCode = resultSet.getString("service_code");
         String serviceEditionCode = resultSet.getString("service_edition_code");
         String topic = resultSet.getString("topic");
-        String user = resultSet.getString("updated_by");
         Boolean enabled = resultSet.getBoolean("enabled");
-        LocalDateTime updated = resultSet.getTimestamp("updated_date").toLocalDateTime();
-        String comment = resultSet.getString("comment");
-        return new TopicMapping(serviceCode, serviceEditionCode, topic, enabled, user, updated, comment);
+        return new TopicMapping(serviceCode, serviceEditionCode, topic, enabled);
     }
 }

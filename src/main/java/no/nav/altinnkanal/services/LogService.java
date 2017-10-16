@@ -1,12 +1,14 @@
 package no.nav.altinnkanal.services;
 
-import no.nav.altinnkanal.entities.LogEvent;
+import no.nav.altinnkanal.entities.TopicMappingUpdate;
 
 import java.sql.SQLException;
 import java.util.List;
 
 public interface LogService {
-    void logChange(LogEvent logEvent) throws SQLException;
-    List<LogEvent> getChangelog() throws SQLException;
-    List<LogEvent> getChangeLogFor(String serviceCode, String serviceEditionCode) throws SQLException;
+    void logChange(TopicMappingUpdate topicMappingUpdate) throws SQLException;
+    List<TopicMappingUpdate> getChangelog() throws SQLException;
+    List<TopicMappingUpdate> getUniqueChangelog() throws SQLException;
+    List<TopicMappingUpdate> getChangeLogFor(String serviceCode, String serviceEditionCode) throws SQLException;
+    TopicMappingUpdate getLastChangeFor(String serviceCode, String serviceEditionCode) throws SQLException;
 }
