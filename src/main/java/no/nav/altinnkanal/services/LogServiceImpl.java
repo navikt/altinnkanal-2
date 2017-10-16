@@ -4,12 +4,14 @@ import no.nav.altinnkanal.entities.LogEvent;
 import no.nav.altinnkanal.entities.LogEventType;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.stereotype.Service;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Timestamp;
 import java.util.List;
 
+@Service
 public class LogServiceImpl implements LogService {
     JdbcTemplate jdbcTemplate;
 

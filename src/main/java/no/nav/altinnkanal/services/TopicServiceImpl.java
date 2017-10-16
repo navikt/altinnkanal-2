@@ -3,6 +3,7 @@ package no.nav.altinnkanal.services;
 import no.nav.altinnkanal.entities.TopicMapping;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.jdbc.core.RowMapper;
 import org.springframework.stereotype.Service;
 
 import java.sql.ResultSet;
@@ -21,21 +22,23 @@ public class TopicServiceImpl implements TopicService {
 
     @Override
     public TopicMapping getTopicMapping(String serviceCode, String serviceEditionCode) throws Exception {
-        return jdbcTemplate.query("SELECT * FROM `topic_mapping` WHERE `service_code`=? AND `service_edition_code`=? AND NOT disabled;",
-              new String[] { serviceCode, serviceEditionCode }, this::fromResultSet);
+        return jdbcTemplate.query("SELECT * FROM `topic_mappings` WHERE `service_code`=? AND `service_edition_code`=? AND enabled;",
+              new String[] { serviceCode, serviceEditionCode }, (resultSet, rowNum) -> fromResultSet(resultSet)).stream()
+                .findFirst()
+                .orElse(null);
     }
 
     @Override
     public TopicMapping createTopicMapping(String serviceCode, String serviceEditionCode, String topic, Boolean enabled, String user, String comment) {
         LocalDateTime now = LocalDateTime.now();
-        jdbcTemplate.update("INSERT INTO `topic_mapping` VALUES (?, ?, ?, ?, ?, ?, ?);", serviceCode,
+        jdbcTemplate.update("INSERT INTO `topic_mappings` VALUES (?, ?, ?, ?, ?, ?, ?);", serviceCode,
                 serviceEditionCode, topic, enabled, user, now, comment);
         return new TopicMapping(serviceCode, serviceEditionCode, topic, enabled, user, now, comment);
     }
 
     @Override
     public List<TopicMapping> getTopicMappings() {
-        return jdbcTemplate.query("SELECT * FROM `topic_mapping`;", (rs, rowNum) -> fromResultSet(rs));
+        return jdbcTemplate.query("SELECT * FROM `topic_mappings`;", (rs, rowNum) -> fromResultSet(rs));
     }
 
     private TopicMapping fromResultSet(ResultSet resultSet) throws SQLException {
@@ -44,7 +47,7 @@ public class TopicServiceImpl implements TopicService {
         String topic = resultSet.getString("topic");
         String user = resultSet.getString("updated_by");
         Boolean enabled = resultSet.getBoolean("enabled");
-        LocalDateTime updated = resultSet.getTimestamp("updated").toLocalDateTime();
+        LocalDateTime updated = resultSet.getTimestamp("updated_date").toLocalDateTime();
         String comment = resultSet.getString("comment");
         return new TopicMapping(serviceCode, serviceEditionCode, topic, enabled, user, updated, comment);
     }
