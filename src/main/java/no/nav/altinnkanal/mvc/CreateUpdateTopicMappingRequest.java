@@ -1,18 +1,21 @@
-package no.nav.altinnkanal.entities;
+package no.nav.altinnkanal.mvc;
 
-public class TopicMapping {
+public class CreateUpdateTopicMappingRequest {
     private String serviceCode;
     private String serviceEditionCode;
     private String topic;
-    private Boolean enabled;
+    private boolean enabled;
+    private String comment;
 
-    public TopicMapping() {}
-
-    public TopicMapping(String serviceCode, String serviceEditionCode, String topic, Boolean enabled) {
+    public CreateUpdateTopicMappingRequest(String serviceCode, String serviceEditionCode, String topic, boolean enabled, String comment) {
         this.serviceCode = serviceCode;
         this.serviceEditionCode = serviceEditionCode;
         this.topic = topic;
         this.enabled = enabled;
+        this.comment = comment;
+    }
+
+    public CreateUpdateTopicMappingRequest() {
     }
 
     public String getServiceCode() {
@@ -27,8 +30,12 @@ public class TopicMapping {
         return topic;
     }
 
-    public Boolean isEnabled() {
+    public boolean isEnabled() {
         return enabled;
+    }
+
+    public String getComment() {
+        return comment;
     }
 
     public void setServiceCode(String serviceCode) {
@@ -43,7 +50,11 @@ public class TopicMapping {
         this.topic = topic;
     }
 
-    public void setEnabled(Boolean enabled) {
+    public void setEnabled(boolean enabled) {
         this.enabled = enabled;
+    }
+
+    public void setComment(String comment) {
+        this.comment = comment;
     }
 }

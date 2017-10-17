@@ -1,12 +1,29 @@
 {{# layout }}
-    {{# log }}
-        {{ serviceCode }}
-        {{ serviceEditionCode }}
-        {{ topic }}
-        {{ enabled }}
-        {{ comment }}
-        {{ updateDate }}
-        {{ updatedBy }}
-    {{/ log }}
+    <table class="pure-table">
+        <thead>
+        <tr>
+            <th>Service code</th>
+            <th>Service edition code</th>
+            <th>Topic</th>
+            <th>Enabled</th>
+            <th>Comment</th>
+            <th>Update date</th>
+            <th>Updated by</th>
+        </tr>
+        </thead>
+        <tbody>
+        {{# log }}
+            <tr>
+                <th>{{ serviceCode }}</th>
+                <th>{{ serviceEditionCode }}</th>
+                <th>{{ topic }}</th>
+                <th>{{ enabled }}</th>
+                <th>{{ comment }}</th>
+                <th>{{ updateDate }}</th>
+                <th>{{ updatedBy }}</th>
+            </tr>
+        {{/ log }}
+        </tbody>
+    </table>
 {{/layout}}
 {{> layout }}

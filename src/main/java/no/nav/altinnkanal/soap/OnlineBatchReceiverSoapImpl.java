@@ -37,8 +37,8 @@ public class OnlineBatchReceiverSoapImpl implements OnlineBatchReceiverSoap {
         try {
             ExternalAttachment externalAttachment = toAvroObject(dataBatch);
 
-            //TopicMapping topicMapping = topicService.getTopicMapping(externalAttachment.getSc().toString(), externalAttachment.getSec().toString());
-            TopicMapping topicMapping = new TopicMapping(null, null, "test", null);
+            //TopicMapping topicMapping = topicService.getEnabledTopicMappings(externalAttachment.getSc().toString(), externalAttachment.getSec().toString());
+            TopicMapping topicMapping = new TopicMapping(null, null, "test", true);
 
             if (topicMapping == null) {
                 return "FAILED_DO_NOT_RETRY";

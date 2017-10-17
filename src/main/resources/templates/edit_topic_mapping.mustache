@@ -1,0 +1,36 @@
+{{# layout }}
+    <div class="pure-g">
+        <div class="pure-u-1">
+            <form class="pure-form pure-form-stacked" method="post">
+                <fieldset>
+                    <div class="pure-g">
+                        <div class="pure-u-1-2" id="service-code-input-group">
+                            <label for="service-code-text">Service code: </label>
+                            <input class="pure-u-23-24" type="text" placeholder="Service code" name="serviceCode" id="service-code-text" value="{{ topicMapping.serviceCode }}" {{# update  }}disabled{{/ update }}>
+                        </div>
+                        <div class="pure-u-1-2" id="service-edition-code-input-group">
+                            <label for="service-edition-code-text">Service edition code: </label>
+                            <input class="pure-u-23-24" type="text" placeholder="Service edition code" name="serviceEditionCode" id="service-edition-code-text" value="{{ topicMapping.serviceEditionCode }}" {{# update }}disabled{{/ update }}>
+                        </div>
+                        <div class="pure-u-1-2" id="topic-input-group">
+                            <label for="topic-text">Topic: </label>
+                            <input class="pure-u-23-24" type="text" placeholder="Topic" name="topic" id="topic-text" value="{{ topicMapping.topic }}">
+                        </div>
+                        <div class="pure-u-1-2" id="enabled-input-group">
+                            <label for="enabled-checkbox"> Enabled</label>
+                            <input type="checkbox" name="enabled" id="enabled-checkbox" {{# topicMapping.enabled }}checked{{/ topicMapping.enabled }} value="true">
+                        </div>
+                    </div>
+                    <div id="comment-input-group">
+                        <label for="comment-textarea">Comment: </label>
+                        <textarea id="comment-textarea" class="pure-u-1" name="comment" rows="10">{{ topicMapping.comment }}</textarea>
+                    </div>
+
+                    <input type="submit" value="Lagre">
+                </fieldset>
+            </form>
+        </div>
+    </div>
+
+{{/ layout }}
+{{> layout }}

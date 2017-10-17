@@ -10,26 +10,33 @@ import java.sql.SQLException;
 
 @Service
 public class TopicServiceImpl implements TopicService {
-    private final JdbcTemplate jdbcTemplate;
+    private final JdbcTemplate jdbc;
 
     @Autowired
-    public TopicServiceImpl(JdbcTemplate jdbcTemplate) {
-        this.jdbcTemplate = jdbcTemplate;
+    public TopicServiceImpl(JdbcTemplate jdbc) {
+        this.jdbc = jdbc;
     }
 
     @Override
-    public TopicMapping getTopicMapping(String serviceCode, String serviceEditionCode) throws Exception {
-        return jdbcTemplate.query("SELECT * FROM `topic_mappings` WHERE `service_code`=? AND `service_edition_code`=? AND enabled;",
+    public TopicMapping getEnabledTopicMappings(String serviceCode, String serviceEditionCode) throws Exception {
+        return jdbc.query("SELECT * FROM `topic_mappings` WHERE `service_code`=? AND `service_edition_code`=? AND enabled;",
               new String[] { serviceCode, serviceEditionCode }, (resultSet, rowNum) -> fromResultSet(resultSet)).stream()
                 .findFirst()
                 .orElse(null);
     }
 
     @Override
-    public TopicMapping createTopicMapping(String serviceCode, String serviceEditionCode, String topic, Boolean enabled) {
-        jdbcTemplate.update("INSERT INTO `topic_mappings` VALUES (?, ?, ?, ?);", serviceCode,
+    public TopicMapping createTopicMapping(String serviceCode, String serviceEditionCode, String topic, Boolean enabled) throws Exception{
+        jdbc.update("INSERT INTO `topic_mappings` VALUES (?, ?, ?, ?);", serviceCode,
                 serviceEditionCode, topic, enabled);
-        return new TopicMapping(serviceCode, serviceEditionCode, topic, enabled);
+        return getEnabledTopicMappings(serviceCode, serviceEditionCode);
+    }
+
+    @Override
+    public TopicMapping updateTopicMapping(String serviceCode, String serviceEditionCode, String topic, Boolean enabled) throws Exception {
+        jdbc.update("UPDATE `topic_mappings` SET `topic`=?, `enabled`=? WHERE `service_code`=? AND `service_edition_code`=?;",
+                topic, enabled, serviceCode, serviceEditionCode);
+        return getEnabledTopicMappings(serviceCode, serviceEditionCode);
     }
 
     private TopicMapping fromResultSet(ResultSet resultSet) throws SQLException {
