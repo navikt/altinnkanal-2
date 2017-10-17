@@ -30,7 +30,9 @@ public class ConfigurationRestService {
 
     @RequestMapping(method = GET)
     public List<TopicMappingUpdate> getTopicMappings() throws Exception {
-        return logService.getUniqueChangelog();
+        List<TopicMappingUpdate> listTopicMappings = logService.getUniqueChangelog(true);
+        listTopicMappings.addAll(logService.getUniqueChangelog(false));
+        return listTopicMappings;
     }
 
     @RequestMapping(method = POST)

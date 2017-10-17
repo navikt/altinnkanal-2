@@ -1,6 +1,5 @@
 package no.nav.altinnkanal.mvc;
 
-import no.nav.altinnkanal.entities.TopicMapping;
 import no.nav.altinnkanal.entities.TopicMappingUpdate;
 import no.nav.altinnkanal.services.LogService;
 import no.nav.altinnkanal.services.TopicService;
@@ -10,6 +9,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.ModelAndView;
 
 import java.time.LocalDateTime;
@@ -26,9 +26,9 @@ public class ConfigurationController {
     }
 
     @GetMapping
-    public ModelAndView listAllTopicMappings() throws Exception {
+    public ModelAndView listAllTopicMappings(@RequestParam(required=false, value="enabled", defaultValue="true") Boolean enabled) throws Exception {
         return new ModelAndView("configuration")
-                .addObject("topicMappingEntries", logService.getUniqueChangelog());
+                .addObject("topicMappingEntries", logService.getUniqueChangelog(enabled));
     }
 
     @GetMapping("/new")

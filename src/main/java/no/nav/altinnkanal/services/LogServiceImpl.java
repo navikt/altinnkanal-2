@@ -32,8 +32,9 @@ public class LogServiceImpl implements LogService {
     }
 
     @Override
-    public List<TopicMappingUpdate> getUniqueChangelog() throws SQLException {
-        return jdbcTemplate.query("SELECT * FROM `topic_mapping_log` `log` WHERE `updated_date`=(SELECT MAX(`updated_date`) FROM `topic_mapping_log` WHERE service_code=log.service_code AND service_edition_code=log.service_edition_code);", (resultSet, rowCount) -> fromResultSet(resultSet));
+    public List<TopicMappingUpdate> getUniqueChangelog(Boolean enabled) throws SQLException {
+        return jdbcTemplate.query("SELECT * FROM `topic_mapping_log` `log` WHERE `enabled`=? AND `updated_date`=(SELECT MAX(`updated_date`) FROM `topic_mapping_log` WHERE service_code=log.service_code AND service_edition_code=log.service_edition_code);",
+                new Object[] { enabled }, (resultSet, rowCount) -> fromResultSet(resultSet));
     }
 
     @Override

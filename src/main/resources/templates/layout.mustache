@@ -2,10 +2,28 @@
 <html>
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
     <link rel="stylesheet" href="/css/pure-min.css">
-    <link rel="stylesheet" href="/css/main.css">
+    <link rel="stylesheet" href="/css/app.css">
+    <script type="text/javascript" src="/js/app.js"></script>
+    <title>Altinnkanal Configuration Page</title>
 </head>
 <body>
-{{{ layout.body }}}
+    <div class="header">
+        <div class="home-menu pure-menu pure-menu-horizontal pure-menu-fixed">
+            <a href="/configuration" class="pure-menu-heading pure-menu-link">Altinnkanal Configuration Page</a>
+            <ul class="pure-menu-list">
+                <li class="pure-menu-item">
+                    <a href="#" class="pure-menu-link">Login</a>
+                </li>
+                <li class="pure-menu-item">
+                    <a href="/configuration/new" class="pure-menu-link">New</a>
+                </li>
+            </ul>
+        </div>
+    </div>
+    <div class="content">
+        {{{ layout.body }}}
+    </div>
 </body>
 </html>

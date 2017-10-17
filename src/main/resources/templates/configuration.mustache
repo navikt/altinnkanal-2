@@ -1,12 +1,44 @@
 {{# layout }}
-    {{# topicMappingEntries }}
-        {{ serviceCode }}
-        {{ serviceEditionCode }}
-        {{ topic }}
-        {{ enabled }}
-        {{ comment }}
-        {{ updateDate }}
-        {{ updatedBy }}
-    {{/ topicMappingEntries }}
+    <table class="pure-table pure-table-bordered">
+        <thead>
+            <tr>
+                <th>SC</th>
+                <th>SEC</th>
+                <th>Topic</th>
+                <th>
+                    Enabled
+                    <label class="switch">
+                        <input type="checkbox" onchange="toggleEnabled()" id="masterToggle" name="enabled">
+                        <span class="slider round"></span>
+                    </label>
+                </th>
+                <th>Comment</th>
+                <th>Last Updated</th>
+                <th>Updated By</th>
+            </tr>
+        </thead>
+        <tbody>
+        {{# topicMappingEntries }}
+            <tr>
+                <th>{{ serviceCode }}</th>
+                <th>{{ serviceEditionCode }}</th>
+                <th>{{ topic }}</th>
+                <th>
+                    <label class="switch">
+                        <input type="checkbox" {{# enabled}}checked{{/ enabled}} disabled>
+                        <span class="slider round"></span>
+                    </label>
+                </th>
+                <th>{{ comment }}</th>
+                <th>
+                    <a href="/configuration/{{serviceCode}}/{{serviceEditionCode}}">
+                        {{ updateDate }}
+                    </a>
+                </th>
+                <th>{{ updatedBy }}</th>
+            </tr>
+        {{/ topicMappingEntries }}
+        </tbody>
+    </table>
 {{/ layout }}
 {{> layout }}
