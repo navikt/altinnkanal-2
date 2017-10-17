@@ -31,9 +31,26 @@ public class ConfigurationController {
                 .addObject("topicMappingEntries", logService.getUniqueChangelog());
     }
 
+    @GetMapping("/new")
+    public ModelAndView viewCreateTopicMapping() throws Exception {
+        return new ModelAndView("edit_topic_mapping")
+                .addObject("update", false)
+                .addObject("topicMapping", new TopicMappingUpdate("", "", "", true, "", null, ""));
+    }
+
+    @PostMapping("/new")
+    public ModelAndView createTopicMapping(CreateUpdateTopicMappingRequest update) throws Exception {
+        // TODO: check if logged in and use user id
+        logService.logChange(new TopicMappingUpdate(update.getServiceCode(), update.getServiceEditionCode(), update.getTopic(), update.isEnabled(), update.getComment(), LocalDateTime.now(), "a_user"));
+        topicService.createTopicMapping(update.getServiceCode(), update.getServiceEditionCode(), update.getTopic(), update.isEnabled());
+        return new ModelAndView("redirect:/configuration");
+    }
+
     @GetMapping("/{serviceCode}/{serviceEditionCode}")
     public ModelAndView showTopicMappingLog(@PathVariable String serviceCode, @PathVariable String serviceEditionCode) throws Exception {
         return new ModelAndView("topic_mapping_log")
+                .addObject("serviceCode", serviceCode)
+                .addObject("serviceEditionCode", serviceEditionCode)
                 .addObject("log", logService.getChangeLogFor(serviceCode, serviceEditionCode));
     }
 
