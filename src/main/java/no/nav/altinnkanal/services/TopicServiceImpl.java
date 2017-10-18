@@ -18,8 +18,8 @@ public class TopicServiceImpl implements TopicService {
     }
 
     @Override
-    public TopicMapping getEnabledTopicMappings(String serviceCode, String serviceEditionCode) throws Exception {
-        return jdbc.query("SELECT * FROM `topic_mappings` WHERE `service_code`=? AND `service_edition_code`=? AND enabled;",
+    public TopicMapping getTopicMapping(String serviceCode, String serviceEditionCode) throws Exception {
+        return jdbc.query("SELECT * FROM `topic_mappings` WHERE `service_code`=? AND `service_edition_code`=?;",
               new String[] { serviceCode, serviceEditionCode }, (resultSet, rowNum) -> fromResultSet(resultSet)).stream()
                 .findFirst()
                 .orElse(null);
@@ -29,14 +29,14 @@ public class TopicServiceImpl implements TopicService {
     public TopicMapping createTopicMapping(String serviceCode, String serviceEditionCode, String topic, Boolean enabled) throws Exception{
         jdbc.update("INSERT INTO `topic_mappings` VALUES (?, ?, ?, ?);", serviceCode,
                 serviceEditionCode, topic, enabled);
-        return getEnabledTopicMappings(serviceCode, serviceEditionCode);
+        return getTopicMapping(serviceCode, serviceEditionCode);
     }
 
     @Override
     public TopicMapping updateTopicMapping(String serviceCode, String serviceEditionCode, String topic, Boolean enabled) throws Exception {
         jdbc.update("UPDATE `topic_mappings` SET `topic`=?, `enabled`=? WHERE `service_code`=? AND `service_edition_code`=?;",
                 topic, enabled, serviceCode, serviceEditionCode);
-        return getEnabledTopicMappings(serviceCode, serviceEditionCode);
+        return getTopicMapping(serviceCode, serviceEditionCode);
     }
 
     private TopicMapping fromResultSet(ResultSet resultSet) throws SQLException {

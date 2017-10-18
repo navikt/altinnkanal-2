@@ -1,5 +1,6 @@
 package no.nav.altinnkanal.config;
 
+import no.nav.altinnkanal.services.InfluxService;
 import no.nav.altinnkanal.services.KafkaService;
 import no.nav.altinnkanal.soap.OnlineBatchReceiverSoapImpl;
 import no.nav.altinnkanal.services.TopicService;
@@ -14,8 +15,8 @@ import javax.xml.ws.Endpoint;
 public class SoapConfiguration {
 
     @Bean
-    public Endpoint endpoint(KafkaService kafkaService, TopicService topicService, Bus bus) throws Exception {
-        EndpointImpl endpoint = new EndpointImpl(bus, new OnlineBatchReceiverSoapImpl(topicService, kafkaService));
+    public Endpoint endpoint(KafkaService kafkaService, TopicService topicService, InfluxService influxService, Bus bus) throws Exception {
+        EndpointImpl endpoint = new EndpointImpl(bus, new OnlineBatchReceiverSoapImpl(topicService, kafkaService, influxService));
         endpoint.publish("/OnlineBatchReceiverSoap");
         return endpoint;
     }

@@ -1,7 +1,8 @@
 package no.nav.altinnkanal.services;
 
+import no.nav.altinnkanal.RoutingStatus;
+
 public interface InfluxService {
-    void logFailedDisabled(String serviceCode, String serviceEditionCode);
-    void logFailedMissing(String serviceCode, String serviceEditionCode);
-    void logSuccessful(String serviceCode, String serviceEditionCode);
+    void logKafkaPublishTime(Long publishTime, int dataSize);
+    void logKafkaPublishStatus(String serviceCode, String serviceEditionCode, RoutingStatus routingStatus);
 }

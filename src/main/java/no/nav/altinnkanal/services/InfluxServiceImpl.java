@@ -1,5 +1,6 @@
 package no.nav.altinnkanal.services;
 
+import no.nav.altinnkanal.RoutingStatus;
 import org.influxdb.InfluxDB;
 import org.influxdb.InfluxDBFactory;
 import org.influxdb.dto.Point;
@@ -18,21 +19,21 @@ public class InfluxServiceImpl implements InfluxService {
     }
 
     @Override
-    public void logFailedDisabled(String serviceCode, String serviceEditionCode) {
-        influxDB.write(Point.measurement("altinnkanal")
+    public void logKafkaPublishTime(Long publishTime, int dataSize) {
+        influxDB.write(Point.measurement("kafka_publish_time")
                 .time(System.currentTimeMillis(), TimeUnit.MILLISECONDS)
-                .addField("service_code", serviceCode)
-                .addField("service_edition_code", serviceEditionCode)
-                .addField("status", "failed_disabled")
+                .addField("publish_time_ms", publishTime)
+                .addField("data_size", dataSize)
                 .build());
     }
 
     @Override
-    public void logFailedMissing(String serviceCode, String serviceEditionCode) {
-    }
-
-    @Override
-    public void logSuccessful(String serviceCode, String serviceEditionCode) {
-
+    public void logKafkaPublishStatus(String serviceCode, String serviceEditionCode, RoutingStatus routingStatus) {
+        influxDB.write(Point.measurement("kafka_published")
+                .time(System.currentTimeMillis(), TimeUnit.MILLISECONDS)
+                .addField("service_code", serviceCode)
+                .addField("service_edition_code", serviceEditionCode)
+                .addField("status", routingStatus.getInfluxName())
+                .build());
     }
 }
