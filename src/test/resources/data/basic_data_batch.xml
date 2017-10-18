@@ -1,0 +1,16 @@
+<DataBatch>
+    <DataUnits>
+        <DataUnit>
+            <FormTask>
+                <ServiceCode>Test</ServiceCode>
+                <ServiceEditionCode>Test2</ServiceEditionCode>
+                <Form>
+                    <DataFormatId>1</DataFormatId>
+                    <DataFormatVersion>2</DataFormatVersion>
+                    <Reference>3</Reference>
+                    <ParentReference>4</ParentReference>
+                </Form>
+            </FormTask>
+        </DataUnit>
+    </DataUnits>
+</DataBatch>
