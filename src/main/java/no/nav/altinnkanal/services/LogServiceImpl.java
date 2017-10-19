@@ -1,10 +1,13 @@
 package no.nav.altinnkanal.services;
 
+import no.nav.altinnkanal.entities.TopicMapping;
 import no.nav.altinnkanal.entities.TopicMappingUpdate;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.jdbc.support.GeneratedKeyHolder;
 import org.springframework.stereotype.Service;
 
+import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Timestamp;
@@ -19,13 +22,26 @@ public class LogServiceImpl implements LogService {
         this.jdbcTemplate = jdbcTemplate;
     }
 
+    private TopicMappingUpdate getLogEntry(long id) {
+        return jdbcTemplate.query("SELECT * FROM `topic_mapping_log` WHERE `id`=?;", new Long[] { id }, (resultSet, rowCount) -> fromResultSet(resultSet)).get(0);
+    }
+
     @Override
     public TopicMappingUpdate logChange(TopicMappingUpdate topicMappingUpdate) throws SQLException {
-        jdbcTemplate.update("INSERT INTO `topic_mapping_log`(`service_code`, `service_edition_code`, `topic`, `enabled`, `comment`, `updated_date`, `updated_by`) VALUES(?, ?, ?, ?, ?, ?, ?)",
-                topicMappingUpdate.getServiceCode(), topicMappingUpdate.getServiceEditionCode(), topicMappingUpdate.getTopic(), topicMappingUpdate.isEnabled(),
-                topicMappingUpdate.getComment(), Timestamp.valueOf(topicMappingUpdate.getUpdateDate()), topicMappingUpdate.getUpdatedBy());
+        GeneratedKeyHolder keyHolder = new GeneratedKeyHolder();
+        jdbcTemplate.update((con) -> {
+            PreparedStatement preparedStatement = con.prepareStatement("INSERT INTO `topic_mapping_log`(`service_code`, `service_edition_code`, `topic`, `enabled`, `comment`, `updated_date`, `updated_by`) VALUES(?, ?, ?, ?, ?, ?, ?)");
+            preparedStatement.setString(1, topicMappingUpdate.getServiceCode());
+            preparedStatement.setString(2, topicMappingUpdate.getServiceEditionCode());
+            preparedStatement.setString(3, topicMappingUpdate.getTopic());
+            preparedStatement.setBoolean(4, topicMappingUpdate.isEnabled());
+            preparedStatement.setString(5, topicMappingUpdate.getComment());
+            preparedStatement.setTimestamp(6, Timestamp.valueOf(topicMappingUpdate.getUpdateDate()));
+            preparedStatement.setString(7, topicMappingUpdate.getUpdatedBy());
+            return preparedStatement;
+        }, keyHolder);
 
-        return getLastChangeFor(topicMappingUpdate.getServiceCode(), topicMappingUpdate.getServiceEditionCode());
+        return getLogEntry(keyHolder.getKey().longValue());
     }
 
     @Override
@@ -35,7 +51,7 @@ public class LogServiceImpl implements LogService {
 
     @Override
     public List<TopicMappingUpdate> getUniqueChangelog(Boolean enabled) throws SQLException {
-        return jdbcTemplate.query("SELECT * FROM `topic_mapping_log` `log` WHERE `enabled`=? AND `updated_date`=(SELECT MAX(`updated_date`) FROM `topic_mapping_log` WHERE service_code=log.service_code AND service_edition_code=log.service_edition_code);",
+        return jdbcTemplate.query("SELECT * FROM `topic_mapping_log` INNER JOIN `topic_mappings` `mapping` ON `current_log_entry`=`id` WHERE `mapping`.`enabled`=?;",
                 new Object[] { enabled }, (resultSet, rowCount) -> fromResultSet(resultSet));
     }
 
@@ -62,7 +78,7 @@ public class LogServiceImpl implements LogService {
                 resultSet.getString("updated_by")
         );
 
-        topicMappingUpdate.setId(resultSet.getInt("id"));
+        topicMappingUpdate.setId(resultSet.getLong("id"));
 
         return topicMappingUpdate;
     }

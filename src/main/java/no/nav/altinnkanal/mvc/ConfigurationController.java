@@ -33,9 +33,10 @@ public class ConfigurationController {
 
     @GetMapping("/new")
     public ModelAndView viewCreateTopicMapping() throws Exception {
+        TopicMappingUpdate topic = new TopicMappingUpdate("", "", "", true, "", null, "");
         return new ModelAndView("edit_topic_mapping")
                 .addObject("update", false)
-                .addObject("topicMapping", new TopicMappingUpdate("", "", "", true, "", null, ""));
+                .addObject("topicMapping", topic);
     }
 
     @PostMapping("/new")
@@ -66,7 +67,7 @@ public class ConfigurationController {
     public ModelAndView editTopicMapping(@PathVariable String serviceCode, @PathVariable String serviceEditionCode, CreateUpdateTopicMappingRequest update) throws Exception {
         // TODO: check if logged in
         // TODO: Use user id here
-        TopicMappingUpdate topicMappingUpdate = new TopicMappingUpdate(serviceCode, serviceEditionCode, update.getTopic(), update.isEnabled(), update.getComment(), LocalDateTime.now(), "a_user");
+        TopicMappingUpdate topicMappingUpdate = new TopicMappingUpdate(update.getServiceCode(), update.getServiceEditionCode(), update.getTopic(), update.isEnabled(), update.getComment(), LocalDateTime.now(), "a_user");
         logService.logChange(topicMappingUpdate);
         topicService.updateTopicMapping(serviceCode, serviceEditionCode, update.getTopic(), topicMappingUpdate.getId(), update.isEnabled());
         return new ModelAndView("redirect:/configuration");
