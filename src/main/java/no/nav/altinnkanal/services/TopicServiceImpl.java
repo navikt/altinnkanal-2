@@ -3,6 +3,7 @@ package no.nav.altinnkanal.services;
 import no.nav.altinnkanal.entities.TopicMapping;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.jdbc.support.GeneratedKeyHolder;
 import org.springframework.stereotype.Service;
 
 import java.sql.ResultSet;
@@ -26,16 +27,18 @@ public class TopicServiceImpl implements TopicService {
     }
 
     @Override
-    public TopicMapping createTopicMapping(String serviceCode, String serviceEditionCode, String topic, Boolean enabled) throws Exception{
-        jdbc.update("INSERT INTO `topic_mappings` VALUES (?, ?, ?, ?);", serviceCode,
-                serviceEditionCode, topic, enabled);
+    public TopicMapping createTopicMapping(String serviceCode, String serviceEditionCode, String topic, int logEntry, Boolean enabled) throws Exception{
+        GeneratedKeyHolder generatedKeyHolder = new GeneratedKeyHolder();
+
+        jdbc.update("INSERT INTO `topic_mappings` VALUES (?, ?, ?, ?, ?);", serviceCode,
+                serviceEditionCode, topic, enabled, logEntry);
         return getTopicMapping(serviceCode, serviceEditionCode);
     }
 
     @Override
-    public TopicMapping updateTopicMapping(String serviceCode, String serviceEditionCode, String topic, Boolean enabled) throws Exception {
-        jdbc.update("UPDATE `topic_mappings` SET `topic`=?, `enabled`=? WHERE `service_code`=? AND `service_edition_code`=?;",
-                topic, enabled, serviceCode, serviceEditionCode);
+    public TopicMapping updateTopicMapping(String serviceCode, String serviceEditionCode, String topic, int logEntry, Boolean enabled) throws Exception {
+        jdbc.update("UPDATE `topic_mappings` SET `topic`=?, `enabled`=?, `current_log_entry`=? WHERE `service_code`=? AND `service_edition_code`=?;",
+                topic, logEntry, enabled, serviceCode, serviceEditionCode);
         return getTopicMapping(serviceCode, serviceEditionCode);
     }
 

@@ -41,8 +41,8 @@ public class ConfigurationController {
     @PostMapping("/new")
     public ModelAndView createTopicMapping(CreateUpdateTopicMappingRequest update) throws Exception {
         // TODO: check if logged in and use user id
-        logService.logChange(new TopicMappingUpdate(update.getServiceCode(), update.getServiceEditionCode(), update.getTopic(), update.isEnabled(), update.getComment(), LocalDateTime.now(), "a_user"));
-        topicService.createTopicMapping(update.getServiceCode(), update.getServiceEditionCode(), update.getTopic(), update.isEnabled());
+        TopicMappingUpdate topicMappingUpdate = logService.logChange(new TopicMappingUpdate(update.getServiceCode(), update.getServiceEditionCode(), update.getTopic(), update.isEnabled(), update.getComment(), LocalDateTime.now(), "a_user"));
+        topicService.createTopicMapping(update.getServiceCode(), update.getServiceEditionCode(), update.getTopic(), topicMappingUpdate.getId(), update.isEnabled());
         return new ModelAndView("redirect:/configuration");
     }
 
@@ -65,10 +65,10 @@ public class ConfigurationController {
     @PostMapping("/{serviceCode}/{serviceEditionCode}/edit")
     public ModelAndView editTopicMapping(@PathVariable String serviceCode, @PathVariable String serviceEditionCode, CreateUpdateTopicMappingRequest update) throws Exception {
         // TODO: check if logged in
-        topicService.updateTopicMapping(serviceCode, serviceEditionCode, update.getTopic(), update.isEnabled());
         // TODO: Use user id here
         TopicMappingUpdate topicMappingUpdate = new TopicMappingUpdate(serviceCode, serviceEditionCode, update.getTopic(), update.isEnabled(), update.getComment(), LocalDateTime.now(), "a_user");
         logService.logChange(topicMappingUpdate);
+        topicService.updateTopicMapping(serviceCode, serviceEditionCode, update.getTopic(), topicMappingUpdate.getId(), update.isEnabled());
         return new ModelAndView("redirect:/configuration");
     }
 }

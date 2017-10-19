@@ -6,7 +6,7 @@ import java.sql.SQLException;
 import java.util.List;
 
 public interface LogService {
-    void logChange(TopicMappingUpdate topicMappingUpdate) throws SQLException;
+    TopicMappingUpdate logChange(TopicMappingUpdate topicMappingUpdate) throws SQLException;
     List<TopicMappingUpdate> getChangelog() throws SQLException;
     List<TopicMappingUpdate> getUniqueChangelog(Boolean enabled) throws SQLException;
     List<TopicMappingUpdate> getChangeLogFor(String serviceCode, String serviceEditionCode) throws SQLException;

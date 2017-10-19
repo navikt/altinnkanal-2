@@ -3,6 +3,7 @@ package no.nav.altinnkanal.entities;
 import java.time.LocalDateTime;
 
 public class TopicMappingUpdate {
+    private int id;
     private String serviceCode;
     private String serviceEditionCode;
     private String topic;
@@ -23,6 +24,10 @@ public class TopicMappingUpdate {
         this.comment = comment;
         this.updateDate = updateDate;
         this.updatedBy = updatedBy;
+    }
+
+    public int getId() {
+        return id;
     }
 
     public String getServiceCode() {
@@ -51,6 +56,10 @@ public class TopicMappingUpdate {
 
     public String getUpdatedBy() {
         return updatedBy;
+    }
+
+    public void setId(int id) {
+        this.id = id;
     }
 
     public void setServiceCode(String serviceCode) {
