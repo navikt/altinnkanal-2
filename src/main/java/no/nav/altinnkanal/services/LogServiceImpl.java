@@ -21,19 +21,6 @@ public class LogServiceImpl implements LogService {
 
     @Override
     public TopicMappingUpdate logChange(TopicMappingUpdate topicMappingUpdate) throws SQLException {
-        /*GeneratedKeyHolder keyHolder = new GeneratedKeyHolder();
-        jdbcTemplate.update((con) -> {
-            PreparedStatement preparedStatement = con.prepareStatement("INSERT INTO `topic_mapping_log` VALUES(?, ?, ?, ?, ?, ?, ?)");
-            preparedStatement.setString(1, topicMappingUpdate.getServiceCode());
-            preparedStatement.setString(2, topicMappingUpdate.getServiceEditionCode());
-            preparedStatement.setString(3, topicMappingUpdate.getTopic());
-            preparedStatement.setBoolean(4, topicMappingUpdate.isEnabled());
-            preparedStatement.setString(5, topicMappingUpdate.getComment());
-            preparedStatement.setTimestamp(6, Timestamp.valueOf(topicMappingUpdate.getUpdateDate()));
-            preparedStatement.setString(7, topicMappingUpdate.getUpdatedBy());
-            return preparedStatement;
-        }, keyHolder);*/
-
         jdbcTemplate.update("INSERT INTO `topic_mapping_log`(`service_code`, `service_edition_code`, `topic`, `enabled`, `comment`, `updated_date`, `updated_by`) VALUES(?, ?, ?, ?, ?, ?, ?)",
                 topicMappingUpdate.getServiceCode(), topicMappingUpdate.getServiceEditionCode(), topicMappingUpdate.getTopic(), topicMappingUpdate.isEnabled(),
                 topicMappingUpdate.getComment(), Timestamp.valueOf(topicMappingUpdate.getUpdateDate()), topicMappingUpdate.getUpdatedBy());
