@@ -45,11 +45,6 @@ public class LogServiceImpl implements LogService {
     }
 
     @Override
-    public List<TopicMappingUpdate> getChangelog() {
-        return jdbcTemplate.query("SELECT * FROM `topic_mapping_log`;", (resultSet, rowCount) -> fromResultSet(resultSet));
-    }
-
-    @Override
     public List<TopicMappingUpdate> getUniqueChangelog(Boolean enabled) throws SQLException {
         return jdbcTemplate.query("SELECT * FROM `topic_mapping_log` INNER JOIN `topic_mappings` `mapping` ON `current_log_entry`=`id` WHERE `mapping`.`enabled`=?;",
                 new Object[] { enabled }, (resultSet, rowCount) -> fromResultSet(resultSet));

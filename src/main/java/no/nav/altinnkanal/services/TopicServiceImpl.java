@@ -41,10 +41,11 @@ public class TopicServiceImpl implements TopicService {
     }
 
     private TopicMapping fromResultSet(ResultSet resultSet) throws SQLException {
-        String serviceCode = resultSet.getString("service_code");
-        String serviceEditionCode = resultSet.getString("service_edition_code");
-        String topic = resultSet.getString("topic");
-        Boolean enabled = resultSet.getBoolean("enabled");
-        return new TopicMapping(serviceCode, serviceEditionCode, topic, enabled);
+        return new TopicMapping(
+                resultSet.getString("service_code"),
+                resultSet.getString("service_edition_code"),
+                resultSet.getString("topic"),
+                resultSet.getLong("current_log_entry"),
+                resultSet.getBoolean("enabled"));
     }
 }

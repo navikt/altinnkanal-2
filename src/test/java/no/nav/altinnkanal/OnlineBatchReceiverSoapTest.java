@@ -55,7 +55,7 @@ public class OnlineBatchReceiverSoapTest {
 
     @Test
     public void testFailedDisabledTopic() throws Exception {
-        TopicMapping topicMapping = new TopicMapping("test", "test", "test", false);
+        TopicMapping topicMapping = new TopicMapping("test", "test", "test", 0, false);
         when(topicService.getTopicMapping(anyString(), anyString())).thenReturn(topicMapping);
 
         assertEquals("FAILED_DO_NOT_RETRY", soapService.receiveOnlineBatchExternalAttachment("username", "password", "123uhjoas", 0, simpleBatch, new byte[0]));
@@ -63,7 +63,7 @@ public class OnlineBatchReceiverSoapTest {
 
     @Test
     public void testValidCall() throws Exception {
-        TopicMapping topicMapping = new TopicMapping("test", "test", "test", true);
+        TopicMapping topicMapping = new TopicMapping("test", "test", "test", 0, true);
         when(topicService.getTopicMapping(anyString(), anyString())).thenReturn(topicMapping);
 
         when(metadataFuture.get()).thenReturn(mock(RecordMetadata.class));

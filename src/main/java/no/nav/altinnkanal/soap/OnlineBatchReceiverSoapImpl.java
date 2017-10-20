@@ -10,6 +10,8 @@ import no.nav.altinnkanal.services.TopicService;
 import org.apache.kafka.clients.producer.RecordMetadata;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
 import org.w3c.dom.Document;
 import org.xml.sax.InputSource;
 
@@ -20,6 +22,7 @@ import javax.xml.xpath.XPathFactory;
 import java.io.StringReader;
 import java.util.Base64;
 
+@Service
 public class OnlineBatchReceiverSoapImpl implements OnlineBatchReceiverSoap {
     private final Base64.Encoder base64Encoder = Base64.getEncoder();
     private final Logger logger = LogManager.getLogger("AltinnKanal");
@@ -29,6 +32,7 @@ public class OnlineBatchReceiverSoapImpl implements OnlineBatchReceiverSoap {
     private final KafkaService kafkaService;
     private final InfluxService influxService;
 
+    @Autowired
     public OnlineBatchReceiverSoapImpl(TopicService topicService, KafkaService kafkaService, InfluxService influxService) throws Exception { // TODO: better handling of exceptions
         DocumentBuilderFactory documentBuilderFactory = DocumentBuilderFactory.newInstance();
         documentBuilder = documentBuilderFactory.newDocumentBuilder();

@@ -4,14 +4,16 @@ public class TopicMapping {
     private String serviceCode;
     private String serviceEditionCode;
     private String topic;
+    private long logEntry;
     private Boolean enabled;
 
     public TopicMapping() {}
 
-    public TopicMapping(String serviceCode, String serviceEditionCode, String topic, Boolean enabled) {
+    public TopicMapping(String serviceCode, String serviceEditionCode, String topic, long logEntry, Boolean enabled) {
         this.serviceCode = serviceCode;
         this.serviceEditionCode = serviceEditionCode;
         this.topic = topic;
+        this.logEntry = logEntry;
         this.enabled = enabled;
     }
 
@@ -31,6 +33,10 @@ public class TopicMapping {
         return enabled;
     }
 
+    public long getLogEntry() {
+        return logEntry;
+    }
+
     public void setServiceCode(String serviceCode) {
         this.serviceCode = serviceCode;
     }
@@ -45,5 +51,9 @@ public class TopicMapping {
 
     public void setEnabled(Boolean enabled) {
         this.enabled = enabled;
+    }
+
+    public void setLogEntry(long logEntry) {
+        this.logEntry = logEntry;
     }
 }
