@@ -1,12 +1,13 @@
 package no.nav.altinnkanal.services;
 
-import no.nav.altinnkanal.entities.TopicMapping;
 import no.nav.altinnkanal.entities.TopicMappingUpdate;
+import org.influxdb.InfluxDB;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.context.junit4.SpringRunner;
@@ -25,6 +26,10 @@ public class LogServiceTest {
     private TopicService topicService;
     @Autowired
     private JdbcTemplate jdbcTemplate;
+    @MockBean
+    private InfluxDB influxDB;
+    @MockBean
+    private InfluxService influxService;
 
     @Before
     public void setUp() throws Exception {
