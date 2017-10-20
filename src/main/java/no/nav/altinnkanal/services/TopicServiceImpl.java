@@ -37,7 +37,7 @@ public class TopicServiceImpl implements TopicService {
     @Override
     public void updateTopicMapping(String serviceCode, String serviceEditionCode, String topic, long logEntry, Boolean enabled) throws Exception {
         jdbc.update("UPDATE `topic_mappings` SET `topic`=?, `enabled`=?, `current_log_entry`=? WHERE `service_code`=? AND `service_edition_code`=?;",
-                topic, logEntry, enabled, serviceCode, serviceEditionCode);
+                topic, enabled, logEntry, serviceCode, serviceEditionCode);
     }
 
     private TopicMapping fromResultSet(ResultSet resultSet) throws SQLException {

@@ -1,5 +1,4 @@
-# altinnkanal-less-enterprise-edition
-Make altinnkanal great again.
+# Altinnkanal - Spring
 
 ## Docker notes
 

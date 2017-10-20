@@ -67,8 +67,9 @@ public class ConfigurationController {
     public ModelAndView editTopicMapping(@PathVariable String serviceCode, @PathVariable String serviceEditionCode, CreateUpdateTopicMappingRequest update) throws Exception {
         // TODO: check if logged in
         // TODO: Use user id here
-        TopicMappingUpdate topicMappingUpdate = new TopicMappingUpdate(update.getServiceCode(), update.getServiceEditionCode(), update.getTopic(), update.isEnabled(), update.getComment(), LocalDateTime.now(), "a_user");
-        logService.logChange(topicMappingUpdate);
+        TopicMappingUpdate topicMappingUpdate = logService.logChange(new TopicMappingUpdate(update.getServiceCode(),
+                update.getServiceEditionCode(), update.getTopic(), update.isEnabled(), update.getComment(),
+                LocalDateTime.now(), "a_user"));
         topicService.updateTopicMapping(serviceCode, serviceEditionCode, update.getTopic(), topicMappingUpdate.getId(), update.isEnabled());
         return new ModelAndView("redirect:/configuration");
     }
