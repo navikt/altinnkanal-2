@@ -25,10 +25,20 @@ public class ConfigurationController {
         this.topicService = topicService;
     }
 
-    @GetMapping
-    public ModelAndView listAllTopicMappings(@RequestParam(required=false, value="enabled", defaultValue="true") Boolean enabled) throws Exception {
+    public ModelAndView listAllTopicMappings(Boolean enabled) throws Exception {
         return new ModelAndView("configuration")
-                .addObject("topicMappingEntries", logService.getUniqueChangelog(enabled));
+                .addObject("topicMappingEntries", logService.getUniqueChangelog(enabled))
+                .addObject("enabled", enabled);
+    }
+
+    @GetMapping
+    public ModelAndView listEnabledTopicMappings() throws Exception {
+        return listAllTopicMappings(true);
+    }
+
+    @GetMapping("disabled")
+    public ModelAndView listDisabledTopicMappings() throws Exception {
+        return listAllTopicMappings(false);
     }
 
     @GetMapping("/new")

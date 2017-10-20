@@ -6,11 +6,8 @@
                 <th>SEC</th>
                 <th>Topic</th>
                 <th>
-                    Enabled
-                    <label class="switch">
-                        <input type="checkbox" onchange="toggleEnabled()" id="masterToggle" name="enabled">
-                        <span class="slider round"></span>
-                    </label>
+                    {{# enabled }}<a href="/configuration/disabled">Show Disabled</a>{{/enabled}}
+                    {{^ enabled }}<a href="/configuration/">Show Enabled</a>{{/enabled}}
                 </th>
                 <th>Comment</th>
                 <th>Last Updated</th>
