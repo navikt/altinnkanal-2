@@ -42,9 +42,15 @@ public class ConfigurationController {
     @PostMapping("/new")
     public ModelAndView createTopicMapping(CreateUpdateTopicMappingRequest update) throws Exception {
         // TODO: check if logged in and use user id
-        TopicMappingUpdate topicMappingUpdate = logService.logChange(new TopicMappingUpdate(update.getServiceCode(), update.getServiceEditionCode(), update.getTopic(), update.isEnabled(), update.getComment(), LocalDateTime.now(), "a_user"));
-        topicService.createTopicMapping(update.getServiceCode(), update.getServiceEditionCode(), update.getTopic(), topicMappingUpdate.getId(), update.isEnabled());
-        return new ModelAndView("redirect:/configuration");
+        TopicMappingUpdate topic = logService.logChange(new TopicMappingUpdate(update.getServiceCode(), update.getServiceEditionCode(), update.getTopic(), update.isEnabled(), update.getComment(), LocalDateTime.now(), "a_user"));
+        if (topicService.getTopicMapping(update.getServiceCode(), update.getServiceEditionCode()) != null) {
+            return new ModelAndView("edit_topic_mapping")
+                    .addObject("topicMapping", topic)
+                    .addObject("errorAlreadyExists", true);
+        } else {
+            topicService.createTopicMapping(update.getServiceCode(), update.getServiceEditionCode(), update.getTopic(), topic.getId(), update.isEnabled());
+            return new ModelAndView("redirect:/configuration");
+        }
     }
 
     @GetMapping("/{serviceCode}/{serviceEditionCode}")
