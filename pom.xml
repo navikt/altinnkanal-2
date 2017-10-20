@@ -5,7 +5,7 @@
     <modelVersion>4.0.0</modelVersion>
 
     <groupId>no.nav.altinnkanal</groupId>
-    <artifactId>altinnkanal-less-enterprise-edition</artifactId>
+    <artifactId>altinnkanal</artifactId>
     <version>1.0-SNAPSHOT</version>
 
     <properties>
@@ -97,7 +97,7 @@
         <dependency>
             <groupId>org.apache.kafka</groupId>
             <artifactId>kafka-clients</artifactId>
-            <version>0.10.2.0</version>
+            <version>0.11.0.0</version>
         </dependency>
         <dependency>
             <groupId>org.apache.logging.log4j</groupId>
