@@ -1,0 +1,13 @@
+{{# layout }}
+
+
+    <form method="post" class="pure-form pure-form-stacked">
+
+        <input type="text" name="username">
+        <input type="password" name="password">
+        <input type="hidden" name="{{ _csrf.parameterName }}" value="{{ _csrf.token }}">
+        <input type="submit" value="Logg inn" class="pure-button">
+        {{# error }}<h3>Invalid username or password!</h3>{{/error}}
+    </form>
+{{/ layout }}
+{{> layout }}

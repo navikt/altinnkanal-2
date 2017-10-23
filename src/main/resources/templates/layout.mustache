@@ -13,11 +13,24 @@
             <a href="/configuration" class="pure-menu-heading pure-menu-link">Altinnkanal Configuration Page</a>
             <ul class="pure-menu-list">
                 <li class="pure-menu-item">
-                    <a href="#" class="pure-menu-link">Login</a>
-                </li>
-                <li class="pure-menu-item">
                     <a href="/configuration/new" class="pure-menu-link">New</a>
                 </li>
+                {{# username }}
+                    <li class="pure-menu-item">
+                        Logget inn som: {{ username }}
+                    </li>
+                    <li class="pure-menu-item">
+                        <form action="/configuration/logout" method="post">
+                            <input type="submit" class="pure-button" value="Logg ut">
+                            <input type="hidden" name="{{_csrf.parameterName }}" value="{{ _csrf.token }}">
+                        </form>
+                    </li>
+                {{/ username }}
+                {{^ username }}
+                    <li class="pure-menu-item">
+                        <a href="/configuration/login" class="pure-menu-link">Logg inn</a>
+                    </li>
+                {{/ username }}
             </ul>
         </div>
     </div>

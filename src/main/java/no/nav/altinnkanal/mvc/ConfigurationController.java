@@ -4,6 +4,7 @@ import no.nav.altinnkanal.entities.TopicMappingUpdate;
 import no.nav.altinnkanal.services.LogService;
 import no.nav.altinnkanal.services.TopicService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -17,6 +18,7 @@ import java.time.LocalDateTime;
 @RequestMapping("/configuration")
 @Controller
 public class ConfigurationController {
+    private final static String EDIT_ROLE_NAME = "";
     private final LogService logService;
     private final TopicService topicService;
     @Autowired
@@ -25,22 +27,19 @@ public class ConfigurationController {
         this.topicService = topicService;
     }
 
-    public ModelAndView listAllTopicMappings(Boolean enabled) throws Exception {
+    @GetMapping
+    public ModelAndView listAllTopicMappings(@RequestParam(name = "enabled", defaultValue = "true") Boolean enabled) throws Exception {
         return new ModelAndView("configuration")
                 .addObject("topicMappingEntries", logService.getUniqueChangelog(enabled))
                 .addObject("enabled", enabled);
     }
 
-    @GetMapping
-    public ModelAndView listEnabledTopicMappings() throws Exception {
-        return listAllTopicMappings(true);
+    @GetMapping("/login")
+    public ModelAndView getLogin(@RequestParam(name = "error", required = false) String error) throws Exception {
+        return new ModelAndView("login");
     }
 
-    @GetMapping("disabled")
-    public ModelAndView listDisabledTopicMappings() throws Exception {
-        return listAllTopicMappings(false);
-    }
-
+    @PreAuthorize("isAuthenticated()")
     @GetMapping("/new")
     public ModelAndView viewCreateTopicMapping() throws Exception {
         TopicMappingUpdate topic = new TopicMappingUpdate("", "", "", true, "", null, "");
@@ -49,6 +48,7 @@ public class ConfigurationController {
                 .addObject("topicMapping", topic);
     }
 
+    @PreAuthorize("isAuthenticated()")
     @PostMapping("/new")
     public ModelAndView createTopicMapping(CreateUpdateTopicMappingRequest update) throws Exception {
         // TODO: check if logged in and use user id
@@ -71,6 +71,7 @@ public class ConfigurationController {
                 .addObject("log", logService.getChangeLogFor(serviceCode, serviceEditionCode));
     }
 
+    @PreAuthorize("isAuthenticated()")
     @GetMapping("/{serviceCode}/{serviceEditionCode}/edit")
     public ModelAndView showEditTopicMapping(@PathVariable String serviceCode, @PathVariable String serviceEditionCode) throws Exception {
         TopicMappingUpdate topicMapping = logService.getLastChangeFor(serviceCode, serviceEditionCode);
@@ -79,6 +80,7 @@ public class ConfigurationController {
                 .addObject("topicMapping", topicMapping);
     }
 
+    @PreAuthorize("isAuthenticated()")
     @PostMapping("/{serviceCode}/{serviceEditionCode}/edit")
     public ModelAndView editTopicMapping(@PathVariable String serviceCode, @PathVariable String serviceEditionCode, CreateUpdateTopicMappingRequest update) throws Exception {
         // TODO: check if logged in

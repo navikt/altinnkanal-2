@@ -31,6 +31,7 @@
                         <textarea id="comment-textarea" class="pure-u-1" name="comment" rows="10">{{ topicMapping.comment }}</textarea>
                     </div>
 
+                    <input type="hidden" name="{{ _csrf.parameterName }}" value="{{ _csrf.token }}">
                     <input type="submit" value="Lagre" class="save-button pure-button">
                 </fieldset>
             </form>

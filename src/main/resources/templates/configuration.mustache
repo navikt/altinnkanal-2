@@ -6,8 +6,8 @@
                 <th>SEC</th>
                 <th>Topic</th>
                 <th>
-                    {{# enabled }}<a href="/configuration/disabled">Show Disabled</a>{{/enabled}}
-                    {{^ enabled }}<a href="/configuration/">Show Enabled</a>{{/enabled}}
+                    {{# enabled }}<a href="/configuration?enabled=false">Show Disabled</a>{{/enabled}}
+                    {{^ enabled }}<a href="/configuration">Show Enabled</a>{{/enabled}}
                 </th>
                 <th>Comment</th>
                 <th>Last Updated</th>
