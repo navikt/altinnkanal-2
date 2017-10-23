@@ -26,7 +26,7 @@ public class ConfigurationController {
         this.topicService = topicService;
     }
 
-    public ModelAndView viewCreateTopicMappingError(CreateUpdateTopicMappingRequest update, String errorMsg) throws Exception {
+    private ModelAndView viewCreateTopicMappingError(CreateUpdateTopicMappingRequest update, String errorMsg) throws Exception {
         return new ModelAndView("edit_topic_mapping")
                 .addObject("topicMapping", update)
                 .addObject("error", true)
@@ -42,7 +42,8 @@ public class ConfigurationController {
 
     @GetMapping("/login")
     public ModelAndView getLogin(@RequestParam(name = "error", required = false) String error) throws Exception {
-        return new ModelAndView("login");
+        return new ModelAndView("login")
+                .addObject("error", error);
     }
 
     @PreAuthorize("isAuthenticated()")
