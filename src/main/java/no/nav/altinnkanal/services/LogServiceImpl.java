@@ -46,13 +46,13 @@ public class LogServiceImpl implements LogService {
 
     @Override
     public List<TopicMappingUpdate> getUniqueChangelog(Boolean enabled) throws SQLException {
-        return jdbcTemplate.query("SELECT * FROM `topic_mapping_log` INNER JOIN `topic_mappings` `mapping` ON `current_log_entry`=`id` WHERE `mapping`.`enabled`=?;",
+        return jdbcTemplate.query("SELECT * FROM `topic_mapping_log` INNER JOIN `topic_mappings` `mapping` ON `current_log_entry`=`id` WHERE `mapping`.`enabled`=? ORDER BY `service_code` ASC, `service_edition_code` ASC;",
                 new Object[] { enabled }, (resultSet, rowCount) -> fromResultSet(resultSet));
     }
 
     @Override
     public List<TopicMappingUpdate> getChangeLogFor(String serviceCode, String serviceEditionCode) throws SQLException {
-        return jdbcTemplate.query("SELECT * FROM `topic_mapping_log` WHERE `service_code`=? AND `service_edition_code`=?;",
+        return jdbcTemplate.query("SELECT * FROM `topic_mapping_log` WHERE `service_code`=? AND `service_edition_code`=? ORDER BY `updated_date` DESC;",
                 new String[] { serviceCode, serviceEditionCode }, (resultSet, rowCount) -> fromResultSet(resultSet));
     }
 
