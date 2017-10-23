@@ -29,7 +29,6 @@ public class TopicServiceImpl implements TopicService {
     @Override
     public void createTopicMapping(String serviceCode, String serviceEditionCode, String topic, long logEntry, Boolean enabled) throws Exception{
         GeneratedKeyHolder generatedKeyHolder = new GeneratedKeyHolder();
-
         jdbc.update("INSERT INTO `topic_mappings` VALUES (?, ?, ?, ?, ?);", serviceCode,
                 serviceEditionCode, topic, enabled, logEntry);
     }

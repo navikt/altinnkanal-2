@@ -3,11 +3,11 @@
         <div class="pure-u-1">
             <form class="pure-form pure-form-stacked" method="post">
                 <fieldset>
-                    {{# errorAlreadyExists }}
+                    {{# error }}
                     <div class="alert alert-error">
-                        Error: Service Code and/or Service Edition Code already exists.
+                        {{ errorMsg }}
                     </div>
-                    {{/ errorAlreadyExists }}
+                    {{/ error }}
                     <div class="pure-g">
                         <div class="pure-u-1-2" id="service-code-input-group">
                             <label for="service-code-text">Service code: </label>

@@ -6,13 +6,11 @@ import no.nav.altinnkanal.services.TopicService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.validation.BindingResult;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.ModelAndView;
 
+import javax.validation.Valid;
 import java.time.LocalDateTime;
 
 @RequestMapping("/configuration")
@@ -21,10 +19,18 @@ public class ConfigurationController {
     private final static String EDIT_ROLE_NAME = "";
     private final LogService logService;
     private final TopicService topicService;
+
     @Autowired
     public ConfigurationController(LogService logService, TopicService topicService) {
         this.logService = logService;
         this.topicService = topicService;
+    }
+
+    public ModelAndView viewCreateTopicMappingError(CreateUpdateTopicMappingRequest update, String errorMsg) throws Exception {
+        return new ModelAndView("edit_topic_mapping")
+                .addObject("topicMapping", update)
+                .addObject("error", true)
+                .addObject("errorMsg", errorMsg);
     }
 
     @GetMapping
@@ -50,12 +56,12 @@ public class ConfigurationController {
 
     @PreAuthorize("isAuthenticated()")
     @PostMapping("/new")
-    public ModelAndView createTopicMapping(CreateUpdateTopicMappingRequest update) throws Exception {
+    public ModelAndView createTopicMapping(@Valid CreateUpdateTopicMappingRequest update, BindingResult bindingResult) throws Exception {
         // TODO: check if logged in and use user id
         if (topicService.getTopicMapping(update.getServiceCode(), update.getServiceEditionCode()) != null) {
-            return new ModelAndView("edit_topic_mapping")
-                    .addObject("topicMapping", update)
-                    .addObject("errorAlreadyExists", true);
+            return viewCreateTopicMappingError(update, "Error: Service Code and Service Edition Code combination already exists.");
+        } else if (bindingResult.hasErrors()) {
+            return viewCreateTopicMappingError(update, "Error: Service Code and/or Service Edition Code cannot be empty.");
         } else {
             TopicMappingUpdate topic = logService.logChange(new TopicMappingUpdate(update.getServiceCode(), update.getServiceEditionCode(), update.getTopic(), update.isEnabled(), update.getComment(), LocalDateTime.now(), "a_user"));
             topicService.createTopicMapping(update.getServiceCode(), update.getServiceEditionCode(), update.getTopic(), topic.getId(), update.isEnabled());
