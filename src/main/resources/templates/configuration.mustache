@@ -1,41 +1,40 @@
 {{# layout }}
-    <table class="pure-table pure-table-bordered">
-        <thead>
-            <tr>
-                <th>SC</th>
-                <th>SEC</th>
-                <th>Topic</th>
-                <th>
-                    {{# enabled }}<a href="/configuration?enabled=false">Show Disabled</a>{{/enabled}}
-                    {{^ enabled }}<a href="/configuration">Show Enabled</a>{{/enabled}}
-                </th>
-                <th>Comment</th>
-                <th>Last Updated</th>
-                <th>Updated By</th>
-            </tr>
-        </thead>
-        <tbody>
-        {{# topicMappingEntries }}
-            <tr>
-                <th>{{ serviceCode }}</th>
-                <th>{{ serviceEditionCode }}</th>
-                <th>{{ topic }}</th>
-                <th>
-                    <label class="switch">
-                        <input type="checkbox" {{# enabled}}checked{{/ enabled}} disabled>
-                        <span class="slider round"></span>
-                    </label>
-                </th>
-                <th>{{ comment }}</th>
-                <th>
-                    <a href="/configuration/{{serviceCode}}/{{serviceEditionCode}}">
-                        {{ updateDate }}
-                    </a>
-                </th>
-                <th>{{ updatedBy }}</th>
-            </tr>
-        {{/ topicMappingEntries }}
-        </tbody>
-    </table>
+    <div class="pure-g">
+        <div class="pure-u-1">
+            <h3>List of {{# enabled }}enabled{{/ enabled }}{{^ enabled }}disabled{{/ enabled }} entries</h3>
+            <a href="/configuration{{# enabled}}?enabled=false{{/enabled}}">Show
+                {{^ enabled }}enabled{{/ enabled }}{{# enabled }}disabled{{/ enabled }} entries</a>
+        </div>
+        <div class="pure-u-1">
+            <table class="pure-table pure-table-bordered">
+                <thead>
+                    <tr>
+                        <th>Service code</th>
+                        <th>Service edition code</th>
+                        <th>Topic</th>
+                        <th>Comment</th>
+                        <th>Last updated</th>
+                        <th>Updated by</th>
+                    </tr>
+                </thead>
+                <tbody>
+                {{# topicMappingEntries }}
+                    <tr>
+                        <th>{{ serviceCode }}</th>
+                        <th>{{ serviceEditionCode }}</th>
+                        <th>{{ topic }}</th>
+                        <th>{{ comment }}</th>
+                        <th>
+                            <a href="/configuration/{{serviceCode}}/{{serviceEditionCode}}">
+                                {{ updateDate }}
+                            </a>
+                        </th>
+                        <th>{{ updatedBy }}</th>
+                    </tr>
+                {{/ topicMappingEntries }}
+                </tbody>
+            </table>
+        </div>
+    <div>
 {{/ layout }}
 {{> layout }}

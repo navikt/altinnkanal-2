@@ -15,13 +15,15 @@
                 <li class="pure-menu-item">
                     <a href="/configuration/new" class="pure-menu-link">New</a>
                 </li>
+            </ul>
+            <ul class="pure-menu-list menu-right">
                 {{# username }}
                     <li class="pure-menu-item">
                         Logget inn som: {{ username }}
                     </li>
                     <li class="pure-menu-item">
                         <form action="/configuration/logout" method="post">
-                            <input type="submit" class="pure-button" value="Logg ut">
+                            <input type="submit" class="pure-button logout-button" value="Logg ut">
                             <input type="hidden" name="{{_csrf.parameterName }}" value="{{ _csrf.token }}">
                         </form>
                     </li>
