@@ -5,6 +5,7 @@ import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.ldap.core.support.LdapContextSource;
+import org.springframework.security.authentication.encoding.LdapShaPasswordEncoder;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.config.annotation.method.configuration.EnableGlobalMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
@@ -12,6 +13,8 @@ import org.springframework.security.config.annotation.web.configuration.EnableWe
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
 import org.springframework.security.web.authentication.SavedRequestAwareAuthenticationSuccessHandler;
 import org.springframework.stereotype.Component;
+
+import java.util.Set;
 
 @EnableGlobalMethodSecurity(prePostEnabled = true)
 @EnableWebSecurity
@@ -35,23 +38,32 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
     }
 
     @Autowired
-    public void configureGlobal(AuthenticationManagerBuilder auth, LdapContextSource contextSource) throws Exception {
+    public void configureGlobal(AuthenticationManagerBuilder auth, LdapConfiguration config) throws Exception {
         auth.ldapAuthentication()
+                .userSearchBase("ou=Users, " + config.base)
                 .userSearchFilter("cn={0}")
-                .contextSource(contextSource);
+                .groupSearchBase("ou=AccountGroups, ou=Groups, " + config.base)
+                .groupSearchFilter("Member={0}")
+                .contextSource()
+                .url(config.url)
+                .managerDn(config.managerDn)
+                .managerPassword(config.managerPassword);
+                //.and()
+                //.passwordCompare()
+                //.passwordEncoder(new LdapShaPasswordEncoder());
     }
 
-    @Bean
-    public LdapContextSource ldapContextSource(LdapConfiguration ldapConfiguration) {
-        LdapContextSource ldapContextSource = new LdapContextSource();
-        ldapContextSource.setUrl(ldapConfiguration.getUrl());
-        ldapContextSource.setBase(ldapConfiguration.getBase());
-        ldapContextSource.setUserDn(ldapConfiguration.getManagerDn());
-        ldapContextSource.setPassword(ldapConfiguration.getManagerPassword());
-        ldapContextSource.setPooled(true);
-        ldapContextSource.setReferral("follow");
-        return ldapContextSource;
-    }
+    //@Bean
+    //public LdapContextSource ldapContextSource(LdapConfiguration ldapConfiguration) {
+    //    LdapContextSource ldapContextSource = new LdapContextSource();
+    //    ldapContextSource.setUrl(ldapConfiguration.getUrl());
+    //    ldapContextSource.setBase(ldapConfiguration.getBase());
+    //    ldapContextSource.setUserDn(ldapConfiguration.getManagerDn());
+    //    ldapContextSource.setPassword(ldapConfiguration.getManagerPassword());
+    //    ldapContextSource.setPooled(true);
+    //    ldapContextSource.setReferral("follow");
+    //    return ldapContextSource;
+    //}
 
     @Component
     @ConfigurationProperties("ldap")
