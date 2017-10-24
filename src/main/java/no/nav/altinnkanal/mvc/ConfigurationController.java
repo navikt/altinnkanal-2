@@ -17,7 +17,8 @@ import java.time.LocalDateTime;
 @RequestMapping("/configuration")
 @Controller
 public class ConfigurationController {
-    private final static String EDIT_ROLE_NAME = "";
+    private final static String EDIT_ROLE_NAME = "ROLE_0000-GA-TEAM-INTEGRASJON";
+    private final static String ROLE_CHECK = "hasRole('" + EDIT_ROLE_NAME + "')";
     private final LogService logService;
     private final TopicService topicService;
 
@@ -47,7 +48,7 @@ public class ConfigurationController {
                 .addObject("error", error);
     }
 
-    @PreAuthorize("isAuthenticated()")
+    @PreAuthorize(ROLE_CHECK)
     @GetMapping("/new")
     public ModelAndView viewCreateTopicMapping() throws Exception {
         TopicMappingUpdate topic = new TopicMappingUpdate("", "", "", true, "", null, "");
@@ -56,7 +57,7 @@ public class ConfigurationController {
                 .addObject("topicMapping", topic);
     }
 
-    @PreAuthorize("isAuthenticated()")
+    @PreAuthorize(ROLE_CHECK)
     @PostMapping("/new")
     public ModelAndView createTopicMapping(Principal principal, @Valid CreateUpdateTopicMappingRequest update, BindingResult bindingResult) throws Exception {
         if (topicService.getTopicMapping(update.getServiceCode(), update.getServiceEditionCode()) != null) {
@@ -82,7 +83,7 @@ public class ConfigurationController {
                 .addObject("log", logService.getChangeLogFor(serviceCode, serviceEditionCode));
     }
 
-    @PreAuthorize("isAuthenticated()")
+    @PreAuthorize(ROLE_CHECK)
     @GetMapping("/{serviceCode}/{serviceEditionCode}/edit")
     public ModelAndView showEditTopicMapping(@PathVariable String serviceCode, @PathVariable String serviceEditionCode) throws Exception {
         TopicMappingUpdate topicMapping = logService.getLastChangeFor(serviceCode, serviceEditionCode);
@@ -91,7 +92,7 @@ public class ConfigurationController {
                 .addObject("topicMapping", topicMapping);
     }
 
-    @PreAuthorize("isAuthenticated()")
+    @PreAuthorize(ROLE_CHECK)
     @PostMapping("/{serviceCode}/{serviceEditionCode}/edit")
     public ModelAndView editTopicMapping(Principal principal, @PathVariable String serviceCode, @PathVariable String serviceEditionCode, CreateUpdateTopicMappingRequest update) throws Exception {
         TopicMappingUpdate topicMappingUpdate = logService.logChange(new TopicMappingUpdate(update.getServiceCode(),
