@@ -1,13 +1,17 @@
 package no.nav.altinnkanal.config;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.context.properties.ConfigurationProperties;
+import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.ldap.core.support.LdapContextSource;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.config.annotation.method.configuration.EnableGlobalMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
 import org.springframework.security.web.authentication.SavedRequestAwareAuthenticationSuccessHandler;
+import org.springframework.stereotype.Component;
 
 @EnableGlobalMethodSecurity(prePostEnabled = true)
 @EnableWebSecurity
@@ -31,8 +35,62 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
     }
 
     @Autowired
-    public void configureGlobal(AuthenticationManagerBuilder auth) throws Exception {
-        auth.inMemoryAuthentication()
-                .withUser("user").password("password").roles("EDIT_CREATE_TOPIC_MAPPING");
+    public void configureGlobal(AuthenticationManagerBuilder auth, LdapContextSource contextSource) throws Exception {
+        auth.ldapAuthentication()
+                .userSearchFilter("cn={0}")
+                .contextSource(contextSource);
+    }
+
+    @Bean
+    public LdapContextSource ldapContextSource(LdapConfiguration ldapConfiguration) {
+        LdapContextSource ldapContextSource = new LdapContextSource();
+        ldapContextSource.setUrl(ldapConfiguration.getUrl());
+        ldapContextSource.setBase(ldapConfiguration.getBase());
+        ldapContextSource.setUserDn(ldapConfiguration.getManagerDn());
+        ldapContextSource.setPassword(ldapConfiguration.getManagerPassword());
+        ldapContextSource.setPooled(true);
+        ldapContextSource.setReferral("follow");
+        return ldapContextSource;
+    }
+
+    @Component
+    @ConfigurationProperties("ldap")
+    public static class LdapConfiguration {
+        private String managerDn;
+        private String managerPassword;
+        private String base;
+        private String url;
+
+        public String getManagerDn() {
+            return managerDn;
+        }
+
+        public String getManagerPassword() {
+            return managerPassword;
+        }
+
+        public String getBase() {
+            return base;
+        }
+
+        public String getUrl() {
+            return url;
+        }
+
+        public void setManagerDn(String managerDn) {
+            this.managerDn = managerDn;
+        }
+
+        public void setManagerPassword(String managerPassword) {
+            this.managerPassword = managerPassword;
+        }
+
+        public void setBase(String base) {
+            this.base = base;
+        }
+
+        public void setUrl(String url) {
+            this.url = url;
+        }
     }
 }
