@@ -11,6 +11,13 @@ body {
 	font-family: sans-serif;
 }
 
+.textblock {
+    display: flex;
+    flex-direction: column;
+    margin: .5em 0;
+    padding: 0;
+}
+
 .home-menu {
     background-color: #191818;
     color: #777;
