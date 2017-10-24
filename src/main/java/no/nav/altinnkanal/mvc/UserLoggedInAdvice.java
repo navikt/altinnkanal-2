@@ -9,8 +9,8 @@ import java.security.Principal;
 @ControllerAdvice
 public class UserLoggedInAdvice {
     @ModelAttribute
-    public void addAttributes(Principal principal, Model model) {
+    public void addAttributes(Principal principal, Model model) throws Exception {
         String username = principal == null ? null : principal.getName();
-        model.addAttribute("username", username);
+        model.addAttribute("ident", username);
     }
 }

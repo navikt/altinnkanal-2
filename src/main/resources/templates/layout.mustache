@@ -17,9 +17,9 @@
                 </li>
             </ul>
             <ul class="pure-menu-list menu-right">
-                {{# username }}
+                {{# ident }}
                     <li class="pure-menu-item">
-                        Logget inn som: {{ username }}
+                        Logget inn som: {{ ident }}
                     </li>
                     <li class="pure-menu-item">
                         <form action="/configuration/logout" method="post">
@@ -27,12 +27,12 @@
                             <input type="hidden" name="{{_csrf.parameterName }}" value="{{ _csrf.token }}">
                         </form>
                     </li>
-                {{/ username }}
-                {{^ username }}
+                {{/ ident }}
+                {{^ ident }}
                     <li class="pure-menu-item">
                         <a href="/configuration/login" class="pure-menu-link">Logg inn</a>
                     </li>
-                {{/ username }}
+                {{/ ident }}
             </ul>
         </div>
     </div>

@@ -11,6 +11,7 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.ModelAndView;
 
 import javax.validation.Valid;
+import java.security.Principal;
 import java.time.LocalDateTime;
 
 @RequestMapping("/configuration")
@@ -57,15 +58,18 @@ public class ConfigurationController {
 
     @PreAuthorize("isAuthenticated()")
     @PostMapping("/new")
-    public ModelAndView createTopicMapping(@Valid CreateUpdateTopicMappingRequest update, BindingResult bindingResult) throws Exception {
-        // TODO: check if logged in and use user id
+    public ModelAndView createTopicMapping(Principal principal, @Valid CreateUpdateTopicMappingRequest update, BindingResult bindingResult) throws Exception {
         if (topicService.getTopicMapping(update.getServiceCode(), update.getServiceEditionCode()) != null) {
             return viewCreateTopicMappingError(update, "Error: Service Code and Service Edition Code combination already exists.");
         } else if (bindingResult.hasErrors()) {
             return viewCreateTopicMappingError(update, "Error: Service Code and/or Service Edition Code cannot be empty.");
         } else {
-            TopicMappingUpdate topic = logService.logChange(new TopicMappingUpdate(update.getServiceCode(), update.getServiceEditionCode(), update.getTopic(), update.isEnabled(), update.getComment(), LocalDateTime.now(), "a_user"));
-            topicService.createTopicMapping(update.getServiceCode(), update.getServiceEditionCode(), update.getTopic(), topic.getId(), update.isEnabled());
+            TopicMappingUpdate topic = logService.logChange(new TopicMappingUpdate(update.getServiceCode(),
+                    update.getServiceEditionCode(), update.getTopic(), update.isEnabled(), update.getComment(),
+                    LocalDateTime.now(), principal.getName()));
+            topicService.createTopicMapping(update.getServiceCode(), update.getServiceEditionCode(), update.getTopic(),
+                    topic.getId(), update.isEnabled());
+
             return new ModelAndView("redirect:/configuration");
         }
     }
@@ -89,12 +93,10 @@ public class ConfigurationController {
 
     @PreAuthorize("isAuthenticated()")
     @PostMapping("/{serviceCode}/{serviceEditionCode}/edit")
-    public ModelAndView editTopicMapping(@PathVariable String serviceCode, @PathVariable String serviceEditionCode, CreateUpdateTopicMappingRequest update) throws Exception {
-        // TODO: check if logged in
-        // TODO: Use user id here
+    public ModelAndView editTopicMapping(Principal principal, @PathVariable String serviceCode, @PathVariable String serviceEditionCode, CreateUpdateTopicMappingRequest update) throws Exception {
         TopicMappingUpdate topicMappingUpdate = logService.logChange(new TopicMappingUpdate(update.getServiceCode(),
                 update.getServiceEditionCode(), update.getTopic(), update.isEnabled(), update.getComment(),
-                LocalDateTime.now(), "a_user"));
+                LocalDateTime.now(), principal.getName()));
         topicService.updateTopicMapping(serviceCode, serviceEditionCode, update.getTopic(), topicMappingUpdate.getId(), update.isEnabled());
         return new ModelAndView("redirect:/configuration");
     }
