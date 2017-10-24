@@ -4,7 +4,6 @@ import com.samskivert.mustache.Mustache;
 import com.samskivert.mustache.Template;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ModelAttribute;
-import org.springframework.web.bind.annotation.RequestMapping;
 
 import java.io.IOException;
 import java.io.Writer;

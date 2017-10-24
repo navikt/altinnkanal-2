@@ -1,6 +1,5 @@
 package no.nav.altinnkanal.services;
 
-import no.nav.altinnkanal.entities.TopicMapping;
 import no.nav.altinnkanal.entities.TopicMappingUpdate;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;

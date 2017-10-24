@@ -1,6 +1,7 @@
 package no.nav.altinnkanal.mvc;
 
 import org.hibernate.validator.constraints.NotBlank;
+
 import javax.validation.constraints.NotNull;
 
 public class CreateUpdateTopicMappingRequest {

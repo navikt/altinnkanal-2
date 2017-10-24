@@ -2,7 +2,6 @@ package no.nav.altinnkanal.services;
 
 import no.nav.altinnkanal.RoutingStatus;
 import org.influxdb.InfluxDB;
-import org.influxdb.InfluxDBFactory;
 import org.influxdb.dto.Point;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;

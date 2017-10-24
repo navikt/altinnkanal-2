@@ -1,10 +1,6 @@
 package no.nav.altinnkanal.config;
 
 import no.altinn.webservices.OnlineBatchReceiverSoap;
-import no.nav.altinnkanal.services.InfluxService;
-import no.nav.altinnkanal.services.KafkaService;
-import no.nav.altinnkanal.soap.OnlineBatchReceiverSoapImpl;
-import no.nav.altinnkanal.services.TopicService;
 import org.apache.cxf.Bus;
 import org.apache.cxf.jaxws.EndpointImpl;
 import org.springframework.context.annotation.Bean;
