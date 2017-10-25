@@ -29,6 +29,7 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
                     .defaultSuccessUrl("/configuration")
                     .permitAll()
                     .and()
+                    .csrf().ignoringAntMatchers("/altinnkanal/**").and()
                     .logout().logoutUrl("/configuration/logout").logoutSuccessUrl("/configuration").permitAll();
     }
 
