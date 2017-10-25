@@ -77,6 +77,7 @@ public class OnlineBatchReceiverSoapImpl implements OnlineBatchReceiverSoap {
     }
 
     public ExternalAttachment toAvroObject(String dataBatch) throws Exception {
+        DocumentBuilder documentBuilder = documentBuilder = DocumentBuilderFactory.newInstance().newDocumentBuilder();
         XPath xPath = XPathFactory.newInstance().newXPath();
 
         Document doc = documentBuilder.parse(new InputSource(new StringReader(dataBatch)));
