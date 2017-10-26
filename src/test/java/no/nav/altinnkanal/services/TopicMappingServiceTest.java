@@ -22,7 +22,7 @@ public class TopicMappingServiceTest {
     @Autowired
     private LogService logService;
     @Autowired
-    private TopicService topicService;
+    private TopicRepository topicRepository;
     @Autowired
     private JdbcTemplate jdbcTemplate;
     @MockBean
@@ -40,7 +40,7 @@ public class TopicMappingServiceTest {
 
     @Test
     public void testReturnsNullMissingSeSec() throws Exception {
-        TopicMapping topicMapping = topicService.getTopicMapping("missing", "missing");
+        TopicMapping topicMapping = topicRepository.getTopicMapping("missing", "missing");
         assertNull(topicMapping);
     }
 
@@ -52,7 +52,7 @@ public class TopicMappingServiceTest {
         final long logEntry = 0;
         final boolean enabled = false;
 
-        topicService.createTopicMapping(serviceCode, serviceEditionCode, topic, logEntry, enabled);
+        topicRepository.createTopicMapping(serviceCode, serviceEditionCode, topic, logEntry, enabled);
     }
 
     @Test
@@ -60,9 +60,9 @@ public class TopicMappingServiceTest {
         final String serviceCode = "testcode";
         final String serviceEditionCode = "testeditioncode";
         final String topic = "test.testeditioncode";
-        topicService.createTopicMapping(serviceCode, serviceEditionCode, topic, 0, true);
+        topicRepository.createTopicMapping(serviceCode, serviceEditionCode, topic, 0, true);
 
-        TopicMapping topicMapping = topicService.getTopicMapping(serviceCode, serviceEditionCode);
+        TopicMapping topicMapping = topicRepository.getTopicMapping(serviceCode, serviceEditionCode);
 
         assertNotNull(topicMapping);
         assertEquals(topic, topicMapping.getTopic());
@@ -76,11 +76,11 @@ public class TopicMappingServiceTest {
         final long newLogEntry = 123;
         final boolean newEnabled = false;
 
-        topicService.createTopicMapping("test", "test", "test.test", 0, true);
+        topicRepository.createTopicMapping("test", "test", "test.test", 0, true);
 
-        topicService.updateTopicMapping(serviceCode, serviceEditionCode, newTopic, newLogEntry, newEnabled);
+        topicRepository.updateTopicMapping(serviceCode, serviceEditionCode, newTopic, newLogEntry, newEnabled);
 
-        TopicMapping topicMapping = topicService.getTopicMapping(serviceCode, serviceEditionCode);
+        TopicMapping topicMapping = topicRepository.getTopicMapping(serviceCode, serviceEditionCode);
 
         assertEquals(newTopic, topicMapping.getTopic());
         assertEquals(newLogEntry, topicMapping.getLogEntry());

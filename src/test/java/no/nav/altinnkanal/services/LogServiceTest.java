@@ -24,7 +24,7 @@ public class LogServiceTest {
     @Autowired
     private LogService logService;
     @Autowired
-    private TopicService topicService;
+    private TopicRepository topicRepository;
     @Autowired
     private JdbcTemplate jdbcTemplate;
     @MockBean
@@ -63,7 +63,7 @@ public class LogServiceTest {
         final String updatedBy = "a_user";
 
         TopicMappingUpdate logInsert = insertLog(serviceCode, serviceEditionCode, topic, enabled, comment, date, updatedBy);
-        topicService.createTopicMapping(serviceCode, serviceEditionCode, topic, logInsert.getId(), enabled);
+        topicRepository.createTopicMapping(serviceCode, serviceEditionCode, topic, logInsert.getId(), enabled);
 
         TopicMappingUpdate topicMappingUpdate = logService.getLastChangeFor(serviceCode, serviceEditionCode);
 
@@ -85,7 +85,7 @@ public class LogServiceTest {
                     "This is comment #" + i , LocalDateTime.now(), "a_user");
         }
 
-        topicService.createTopicMapping("test", "test", "test.test", last.getId(), true);
+        topicRepository.createTopicMapping("test", "test", "test.test", last.getId(), true);
 
         assertEquals(10, logService.getChangeLogFor("test", "test").size());
     }
@@ -102,9 +102,9 @@ public class LogServiceTest {
                 "Another one", LocalDateTime.now(), "a_user");
 
 
-        topicService.createTopicMapping("test", "test", "test.test", update1.getId(), false);
-        topicService.createTopicMapping("test", "test2", "test.test2", update2.getId(), false);
-        topicService.createTopicMapping("test", "test3", "test.test3", update3.getId(), true);
+        topicRepository.createTopicMapping("test", "test", "test.test", update1.getId(), false);
+        topicRepository.createTopicMapping("test", "test2", "test.test2", update2.getId(), false);
+        topicRepository.createTopicMapping("test", "test3", "test.test3", update3.getId(), true);
 
         assertEquals(2, logService.getUniqueChangelog(false).size());
         assertEquals(1, logService.getUniqueChangelog(true).size());

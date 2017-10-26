@@ -31,7 +31,7 @@ import static org.mockito.Mockito.*;
 @RunWith(SpringRunner.class)
 public class KafkaServiceTest {
     @MockBean
-    private TopicService topicService;
+    private TopicRepository topicRepository;
     @MockBean
     private InfluxDB influxDB;
     @MockBean
@@ -65,7 +65,7 @@ public class KafkaServiceTest {
         System.out.println(kafkaService);
         String expectedTopic = "test.test";
 
-        when(topicService.getTopicMapping(anyString(), anyString())).thenReturn(new TopicMapping("test",
+        when(topicRepository.getTopicMapping(anyString(), anyString())).thenReturn(new TopicMapping("test",
                 "test", expectedTopic, 0, true));
 
         RecordMetadata recordMetadata = mock(RecordMetadata.class);

@@ -12,13 +12,10 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import org.w3c.dom.Document;
-import org.xml.sax.InputSource;
 
-import javax.xml.parsers.DocumentBuilder;
-import javax.xml.parsers.DocumentBuilderFactory;
-import javax.xml.xpath.XPath;
-import javax.xml.xpath.XPathFactory;
+import javax.xml.stream.XMLInputFactory;
+import javax.xml.stream.XMLStreamReader;
+import javax.xml.stream.events.XMLEvent;
 import java.io.StringReader;
 import java.util.Base64;
 
@@ -27,15 +24,13 @@ public class OnlineBatchReceiverSoapImpl implements OnlineBatchReceiverSoap {
     private final Base64.Encoder base64Encoder = Base64.getEncoder();
     private final Logger logger = LogManager.getLogger("AltinnKanal");
 
-    private final DocumentBuilder documentBuilder;
+    private final XMLInputFactory xmlInputFactory = XMLInputFactory.newFactory();
     private final TopicService topicService;
     private final KafkaService kafkaService;
     private final InfluxService influxService;
 
     @Autowired
     public OnlineBatchReceiverSoapImpl(TopicService topicService, KafkaService kafkaService, InfluxService influxService) throws Exception { // TODO: better handling of exceptions
-        DocumentBuilderFactory documentBuilderFactory = DocumentBuilderFactory.newInstance();
-        documentBuilder = documentBuilderFactory.newDocumentBuilder();
         this.topicService = topicService;
         this.kafkaService = kafkaService;
         this.influxService = influxService;
@@ -77,21 +72,43 @@ public class OnlineBatchReceiverSoapImpl implements OnlineBatchReceiverSoap {
     }
 
     public ExternalAttachment toAvroObject(String dataBatch) throws Exception {
-        DocumentBuilder documentBuilder = documentBuilder = DocumentBuilderFactory.newInstance().newDocumentBuilder();
-        XPath xPath = XPathFactory.newInstance().newXPath();
+        StringReader reader = new StringReader(dataBatch);
+        XMLStreamReader xmlReader = xmlInputFactory.createXMLStreamReader(reader);
+        String serviceCode = null;
+        String serviceEditionCode = null;
+        String archiveReference = null;
 
-        Document doc = documentBuilder.parse(new InputSource(new StringReader(dataBatch)));
+        while (xmlReader.hasNext()) {
+            int eventType = xmlReader.next();
+            if (eventType == XMLEvent.ATTRIBUTE) {
+                System.out.println("ATTRIBUTE");
+                System.out.println(xmlReader.getElementText());
+            } else if (eventType == XMLEvent.START_ELEMENT) {
+                String tagName = xmlReader.getLocalName();
+                if (tagName.equals("ServiceCode")) {
+                    xmlReader.next();
+                    serviceCode = xmlReader.getText();
+                } else if (tagName.equals("ServiceEditionCode")) {
+                    xmlReader.next();
+                    serviceEditionCode = xmlReader.getText();
+                } else if (tagName.equals("DataUnit")) {
+                    archiveReference = xmlReader.getAttributeValue(null, "archiveReference");
+                }
+            }
+            if (archiveReference != null && serviceCode != null && serviceEditionCode != null)
+                break;
+        }
 
-        String serviceCode = xPath.compile("//ServiceCode").evaluate(doc);
-        String serviceEditionCode = xPath.compile("//ServiceEditionCode").evaluate(doc);
-        String archiveReference = xPath.compile("//@archiveReference").evaluate(doc);
+        xmlReader.close();
+
         String batchBase64 = base64Encoder.encodeToString(dataBatch.getBytes());
 
+
         ExternalAttachment externalAttachment = ExternalAttachment.newBuilder()
-                .setBatch(batchBase64)
                 .setSc(serviceCode)
                 .setSec(serviceEditionCode)
                 .setArchRef(archiveReference)
+                .setBatch(batchBase64)
                 .build();
 
         logger.debug("Got a ROBEA request", externalAttachment);

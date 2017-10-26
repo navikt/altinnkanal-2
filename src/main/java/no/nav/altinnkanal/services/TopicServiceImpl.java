@@ -1,50 +1,58 @@
 package no.nav.altinnkanal.services;
 
 import no.nav.altinnkanal.entities.TopicMapping;
+import no.nav.altinnkanal.entities.TopicMappingKey;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.jdbc.core.JdbcTemplate;
-import org.springframework.jdbc.support.GeneratedKeyHolder;
 import org.springframework.stereotype.Service;
 
-import java.sql.ResultSet;
-import java.sql.SQLException;
+import java.util.Collection;
+import java.util.HashMap;
 
 @Service
 public class TopicServiceImpl implements TopicService {
-    private final JdbcTemplate jdbc;
+    private HashMap<TopicMappingKey, TopicMapping> topicMappings;
+
+    private TopicRepository repository;
 
     @Autowired
-    public TopicServiceImpl(JdbcTemplate jdbc) {
-        this.jdbc = jdbc;
+    public TopicServiceImpl(TopicRepository repository) throws Exception {
+        this.repository = repository;
+
+        initializeCache();
+    }
+
+    private void initializeCache() throws Exception {
+        topicMappings = new HashMap<>();
+
+        repository.getTopicMappings()
+                .forEach(mapping -> topicMappings.put(TopicMappingKey.fromMapping(mapping), mapping));
     }
 
     @Override
     public TopicMapping getTopicMapping(String serviceCode, String serviceEditionCode) throws Exception {
-        return jdbc.query("SELECT * FROM `topic_mappings` WHERE `service_code`=? AND `service_edition_code`=?;",
-              new String[] { serviceCode, serviceEditionCode }, (resultSet, rowNum) -> fromResultSet(resultSet)).stream()
-                .findFirst()
-                .orElse(null);
+        return topicMappings.get(new TopicMappingKey(serviceCode, serviceEditionCode));
     }
 
     @Override
-    public void createTopicMapping(String serviceCode, String serviceEditionCode, String topic, long logEntry, Boolean enabled) throws Exception{
-        GeneratedKeyHolder generatedKeyHolder = new GeneratedKeyHolder();
-        jdbc.update("INSERT INTO `topic_mappings` VALUES (?, ?, ?, ?, ?);", serviceCode,
-                serviceEditionCode, topic, enabled, logEntry);
+    public Collection<TopicMapping> getTopicMappings() throws Exception {
+        return topicMappings.values();
+    }
+
+    @Override
+    public void createTopicMapping(String serviceCode, String serviceEditionCode, String topic, long logEntry, Boolean enabled) throws Exception {
+        repository.createTopicMapping(serviceCode, serviceEditionCode, topic, logEntry, enabled);
+        updateCache(serviceCode, serviceEditionCode);
     }
 
     @Override
     public void updateTopicMapping(String serviceCode, String serviceEditionCode, String topic, long logEntry, Boolean enabled) throws Exception {
-        jdbc.update("UPDATE `topic_mappings` SET `topic`=?, `enabled`=?, `current_log_entry`=? WHERE `service_code`=? AND `service_edition_code`=?;",
-                topic, enabled, logEntry, serviceCode, serviceEditionCode);
+        repository.updateTopicMapping(serviceCode, serviceEditionCode, topic, logEntry, enabled);
+        updateCache(serviceCode, serviceEditionCode);
     }
 
-    private TopicMapping fromResultSet(ResultSet resultSet) throws SQLException {
-        return new TopicMapping(
-                resultSet.getString("service_code"),
-                resultSet.getString("service_edition_code"),
-                resultSet.getString("topic"),
-                resultSet.getLong("current_log_entry"),
-                resultSet.getBoolean("enabled"));
+    private void updateCache(String serviceCode, String serviceEditionCode) throws Exception {
+        TopicMapping topicMapping = repository.getTopicMapping(serviceCode, serviceEditionCode);
+
+        topicMappings.put(TopicMappingKey.fromMapping(topicMapping), topicMapping);
     }
 }
