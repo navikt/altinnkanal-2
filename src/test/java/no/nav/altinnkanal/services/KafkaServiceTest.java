@@ -37,7 +37,7 @@ public class KafkaServiceTest {
     @MockBean
     private InfluxService influxService;
     @MockBean
-    private Producer<String, byte[]> producer;
+    private Producer<String, Object> producer;
 
     @Autowired
     private OnlineBatchReceiverSoap onlineBatchReceiver;
@@ -49,7 +49,7 @@ public class KafkaServiceTest {
     private Future<RecordMetadata> future;
 
     @Captor
-    private ArgumentCaptor<ProducerRecord<String, byte[]>> argumentCaptor;
+    private ArgumentCaptor<ProducerRecord<String, Object>> argumentCaptor;
 
     private String simpleBatch;
 
