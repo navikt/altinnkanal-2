@@ -10,7 +10,7 @@ import java.util.Properties;
 @Configuration
 public class KafkaConfiguration {
     @Bean
-    public Producer<String, byte[]> producer() throws Exception {
+    public Producer<String, Object> producer() throws Exception {
         // Read kafka config
         Properties kafkaProperties = new Properties();
         kafkaProperties.load(getClass().getResourceAsStream("/kafka.properties"));
