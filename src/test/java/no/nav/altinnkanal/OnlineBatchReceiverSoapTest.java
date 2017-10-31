@@ -2,7 +2,7 @@ package no.nav.altinnkanal;
 
 import no.altinn.webservices.OnlineBatchReceiverSoap;
 import no.nav.altinnkanal.entities.TopicMapping;
-import no.nav.altinnkanal.services.InfluxService;
+import no.nav.altinnkanal.services.TimeSeriesService;
 import no.nav.altinnkanal.services.KafkaService;
 import no.nav.altinnkanal.services.TopicService;
 import no.nav.altinnkanal.soap.OnlineBatchReceiverSoapImpl;
@@ -28,7 +28,7 @@ public class OnlineBatchReceiverSoapTest {
     @Mock
     private KafkaService kafkaService;
     @Mock
-    private InfluxService influxService;
+    private TimeSeriesService timeSeriesService;
 
     private OnlineBatchReceiverSoap soapService;
 
@@ -39,7 +39,7 @@ public class OnlineBatchReceiverSoapTest {
 
     @Before
     public void setUp() throws Exception {
-        soapService = new OnlineBatchReceiverSoapImpl(topicService, kafkaService, influxService);
+        soapService = new OnlineBatchReceiverSoapImpl(topicService, kafkaService, timeSeriesService);
 
         try (BufferedReader reader = new BufferedReader(new InputStreamReader(getClass().getResourceAsStream("/data/basic_data_batch.xml")))) {
             simpleBatch = reader.lines().collect(Collectors.joining("\n"));

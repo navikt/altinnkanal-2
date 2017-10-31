@@ -2,7 +2,6 @@ package no.nav.altinnkanal.services;
 
 import no.nav.altinnkanal.entities.TopicMappingUpdate;
 import org.apache.kafka.clients.producer.Producer;
-import org.influxdb.InfluxDB;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -24,13 +23,11 @@ public class LogServiceTest {
     @Autowired
     private LogService logService;
     @Autowired
-    private TopicRepository topicRepository;
+    private TopicService topicRepository;
     @Autowired
     private JdbcTemplate jdbcTemplate;
     @MockBean
-    private InfluxDB influxDB;
-    @MockBean
-    private InfluxService influxService;
+    private TimeSeriesService timeSeriesService;
     @MockBean
     private Producer<String, byte[]> producer;
 

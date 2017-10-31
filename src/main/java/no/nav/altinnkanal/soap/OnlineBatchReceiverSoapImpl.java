@@ -4,7 +4,7 @@ import no.altinn.webservices.OnlineBatchReceiverSoap;
 import no.nav.altinnkanal.RoutingStatus;
 import no.nav.altinnkanal.avro.ExternalAttachment;
 import no.nav.altinnkanal.entities.TopicMapping;
-import no.nav.altinnkanal.services.InfluxService;
+import no.nav.altinnkanal.services.TimeSeriesService;
 import no.nav.altinnkanal.services.KafkaService;
 import no.nav.altinnkanal.services.TopicService;
 import org.apache.kafka.clients.producer.RecordMetadata;
@@ -27,13 +27,13 @@ public class OnlineBatchReceiverSoapImpl implements OnlineBatchReceiverSoap {
     private final XMLInputFactory xmlInputFactory = XMLInputFactory.newFactory();
     private final TopicService topicService;
     private final KafkaService kafkaService;
-    private final InfluxService influxService;
+    private final TimeSeriesService timeSeriesService;
 
     @Autowired
-    public OnlineBatchReceiverSoapImpl(TopicService topicService, KafkaService kafkaService, InfluxService influxService) throws Exception { // TODO: better handling of exceptions
+    public OnlineBatchReceiverSoapImpl(TopicService topicService, KafkaService kafkaService, TimeSeriesService timeSeriesService) throws Exception { // TODO: better handling of exceptions
         this.topicService = topicService;
         this.kafkaService = kafkaService;
-        this.influxService = influxService;
+        this.timeSeriesService = timeSeriesService;
     }
 
     public String receiveOnlineBatchExternalAttachment(String username, String passwd, String receiversReference, long sequenceNumber, String dataBatch, byte[] attachments) {
@@ -50,7 +50,7 @@ public class OnlineBatchReceiverSoapImpl implements OnlineBatchReceiverSoap {
             TopicMapping topicMapping = topicService.getTopicMapping(serviceCode, serviceEditionCode);
 
             if (topicMapping == null || !topicMapping.isEnabled()) {
-                influxService.logKafkaPublishStatus(externalAttachment.getSc().toString(), externalAttachment.getSec().toString(),
+                timeSeriesService.logKafkaPublishStatus(externalAttachment.getSc().toString(), externalAttachment.getSec().toString(),
                         topicMapping == null ? RoutingStatus.FAILED_MISSING : RoutingStatus.FAILED_DISABLED);
                 return "FAILED_DO_NOT_RETRY";
             }
@@ -59,13 +59,13 @@ public class OnlineBatchReceiverSoapImpl implements OnlineBatchReceiverSoap {
             RecordMetadata metadata = kafkaService.publish(topicMapping.getTopic(), externalAttachment).get();
 
             long publishTime = System.currentTimeMillis() - start;
-            influxService.logKafkaPublishTime(publishTime, metadata.serializedValueSize());
-            influxService.logKafkaPublishStatus(serviceCode, serviceEditionCode, RoutingStatus.SUCCESS);
+            timeSeriesService.logKafkaPublishTime(publishTime, metadata.serializedValueSize());
+            timeSeriesService.logKafkaPublishStatus(serviceCode, serviceEditionCode, RoutingStatus.SUCCESS);
 
             return "OK";
         } catch (Exception e) {
             logger.error("Failed to send a ROBEA request to Kafka", e);
-            influxService.logKafkaPublishStatus(serviceCode, serviceEditionCode, RoutingStatus.FAILED_ERROR);
+            timeSeriesService.logKafkaPublishStatus(serviceCode, serviceEditionCode, RoutingStatus.FAILED_ERROR);
 
             return "FAILED";
         }

@@ -1,6 +1,6 @@
 <DataBatch>
     <DataUnits>
-        <DataUnit>
+        <DataUnit archiveReference="sup">
             <FormTask>
                 <ServiceCode>Test</ServiceCode>
                 <ServiceEditionCode>Test2</ServiceEditionCode>

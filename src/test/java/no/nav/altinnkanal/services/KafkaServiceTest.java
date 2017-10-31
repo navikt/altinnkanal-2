@@ -5,7 +5,6 @@ import no.nav.altinnkanal.entities.TopicMapping;
 import org.apache.kafka.clients.producer.Producer;
 import org.apache.kafka.clients.producer.ProducerRecord;
 import org.apache.kafka.clients.producer.RecordMetadata;
-import org.influxdb.InfluxDB;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -31,11 +30,9 @@ import static org.mockito.Mockito.*;
 @RunWith(SpringRunner.class)
 public class KafkaServiceTest {
     @MockBean
-    private TopicRepository topicRepository;
+    private TopicService topicRepository;
     @MockBean
-    private InfluxDB influxDB;
-    @MockBean
-    private InfluxService influxService;
+    private TimeSeriesService timeSeriesService;
     @MockBean
     private Producer<String, Object> producer;
 
