@@ -1,0 +1,28 @@
+image: "docker.adeo.no:5000/int/altinnkanal"
+replicas:
+  min: 1
+  max: 0
+port: 8080
+healthcheck:
+  liveness:
+    path: /isAlive
+    initialDelay: 50
+  readyness:
+    path: /isReady
+    initialDelay: 50
+resources:
+  limits:
+    cpu: 1000m
+  requests:
+    cpu: 1000m
+fasitResources:
+  used:
+  - alias: ldap
+    resourceType: ldap
+  exposed:
+  - alias: onlinebatchreceiver-ws
+    resourceType: Webserviceendpoint
+    path: /altinnkanal/OnlineBatchReceiverSoap
+  exposed:
+  - alias: Administrasjons-Grensesnitt
+    resourceType: Baseurl
