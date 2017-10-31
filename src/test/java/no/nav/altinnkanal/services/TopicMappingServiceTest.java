@@ -25,8 +25,6 @@ public class TopicMappingServiceTest {
     @Autowired
     private JdbcTemplate jdbcTemplate;
     @MockBean
-    private TimeSeriesService timeSeriesService;
-    @MockBean
     private Producer<String, byte[]> producer;
 
     @Before

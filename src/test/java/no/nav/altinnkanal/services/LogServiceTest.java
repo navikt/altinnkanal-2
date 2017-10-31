@@ -27,8 +27,6 @@ public class LogServiceTest {
     @Autowired
     private JdbcTemplate jdbcTemplate;
     @MockBean
-    private TimeSeriesService timeSeriesService;
-    @MockBean
     private Producer<String, byte[]> producer;
 
     @Before

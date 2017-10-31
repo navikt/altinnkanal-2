@@ -1,10 +1,10 @@
 package no.nav.altinnkanal.soap;
 
+import io.prometheus.client.Counter;
+import io.prometheus.client.Summary;
 import no.altinn.webservices.OnlineBatchReceiverSoap;
-import no.nav.altinnkanal.RoutingStatus;
 import no.nav.altinnkanal.avro.ExternalAttachment;
 import no.nav.altinnkanal.entities.TopicMapping;
-import no.nav.altinnkanal.services.TimeSeriesService;
 import no.nav.altinnkanal.services.KafkaService;
 import no.nav.altinnkanal.services.TopicService;
 import org.apache.kafka.clients.producer.RecordMetadata;
@@ -27,46 +27,67 @@ public class OnlineBatchReceiverSoapImpl implements OnlineBatchReceiverSoap {
     private final XMLInputFactory xmlInputFactory = XMLInputFactory.newFactory();
     private final TopicService topicService;
     private final KafkaService kafkaService;
-    private final TimeSeriesService timeSeriesService;
+
+    private static final Counter requestsTotal = Counter.build()
+            .name("requests_total").help("Total requests.")
+            .labelNames("sc", "sec").register();
+    private static final Counter requestsSuccess = Counter.build()
+            .name("requests_success").help("Total successful requests.")
+            .labelNames("sc", "sec").register();
+    private static final Counter requestsFailedDisabled = Counter.build()
+            .name("requests_disabled").help("Total failed requests due to disabled SC and SEC.")
+            .labelNames("sc", "sec").register();
+    private static final Counter requestsFailedMissing = Counter.build()
+            .name("requests_missing").help("Total failed requests due to missing fields.")
+            .labelNames("sc", "sec").register();
+    private static final Counter requestsFailedError = Counter.build()
+            .name("requests_error").help("Total failed requests due to error.")
+            .labelNames("sc", "sec").register();
+
+    private static final Summary requestSize = Summary.build()
+            .name("request_size_bytes_sum").help("Request size in bytes.")
+            .register();
+    private static final Summary requestTime = Summary.build()
+            .name("request_time_ms").help("Request time in milliseconds.")
+            .register();
 
     @Autowired
-    public OnlineBatchReceiverSoapImpl(TopicService topicService, KafkaService kafkaService, TimeSeriesService timeSeriesService) throws Exception { // TODO: better handling of exceptions
+    public OnlineBatchReceiverSoapImpl(TopicService topicService, KafkaService kafkaService) throws Exception { // TODO: better handling of exceptions
         this.topicService = topicService;
         this.kafkaService = kafkaService;
-        this.timeSeriesService = timeSeriesService;
     }
 
     public String receiveOnlineBatchExternalAttachment(String username, String passwd, String receiversReference, long sequenceNumber, String dataBatch, byte[] attachments) {
         String serviceCode = null;
         String serviceEditionCode = null;
+        Summary.Timer requestLatency = requestTime.startTimer();
 
         try {
-            long start = System.currentTimeMillis();
             ExternalAttachment externalAttachment = toAvroObject(dataBatch);
 
             serviceCode = externalAttachment.getSc().toString();
             serviceEditionCode = externalAttachment.getSec().toString();
+            requestsTotal.labels(serviceCode, serviceEditionCode).inc();
 
             TopicMapping topicMapping = topicService.getTopicMapping(serviceCode, serviceEditionCode);
 
             if (topicMapping == null || !topicMapping.isEnabled()) {
-                timeSeriesService.logKafkaPublishStatus(externalAttachment.getSc().toString(), externalAttachment.getSec().toString(),
-                        topicMapping == null ? RoutingStatus.FAILED_MISSING : RoutingStatus.FAILED_DISABLED);
+                if (topicMapping == null) requestsFailedMissing.labels(serviceCode, serviceEditionCode).inc();
+                else requestsFailedDisabled.labels(serviceCode, serviceEditionCode).inc();
                 return "FAILED_DO_NOT_RETRY";
             }
 
             // TODO: Validate/check if received metadata matches sent record?
             RecordMetadata metadata = kafkaService.publish(topicMapping.getTopic(), externalAttachment).get();
 
-            long publishTime = System.currentTimeMillis() - start;
-            timeSeriesService.logKafkaPublishTime(publishTime, metadata.serializedValueSize());
-            timeSeriesService.logKafkaPublishStatus(serviceCode, serviceEditionCode, RoutingStatus.SUCCESS);
+            requestLatency.observeDuration();
+            requestSize.observe(metadata.serializedValueSize());
+            requestsSuccess.labels(serviceCode, serviceEditionCode).inc();
 
             return "OK";
         } catch (Exception e) {
             logger.error("Failed to send a ROBEA request to Kafka", e);
-            timeSeriesService.logKafkaPublishStatus(serviceCode, serviceEditionCode, RoutingStatus.FAILED_ERROR);
-
+            requestsFailedError.labels(serviceCode, serviceEditionCode).inc();
             return "FAILED";
         }
     }

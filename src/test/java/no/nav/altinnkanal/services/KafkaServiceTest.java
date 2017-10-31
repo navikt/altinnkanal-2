@@ -32,8 +32,6 @@ public class KafkaServiceTest {
     @MockBean
     private TopicService topicRepository;
     @MockBean
-    private TimeSeriesService timeSeriesService;
-    @MockBean
     private Producer<String, Object> producer;
 
     @Autowired
