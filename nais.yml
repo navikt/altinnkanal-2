@@ -7,9 +7,12 @@ healthcheck:
   liveness:
     path: /isAlive
     initialDelay: 50
-  readyness:
+  readiness:
     path: /isReady
     initialDelay: 50
+prometheus:
+  enabled: true
+  path: /prometheus
 resources:
   limits:
     cpu: 1000m
