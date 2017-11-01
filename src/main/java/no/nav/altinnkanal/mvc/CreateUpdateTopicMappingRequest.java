@@ -1,13 +1,12 @@
 package no.nav.altinnkanal.mvc;
 
-import org.hibernate.validator.constraints.NotBlank;
-
 import javax.validation.constraints.NotNull;
+import javax.validation.constraints.Size;
 
 public class CreateUpdateTopicMappingRequest {
-    @NotBlank
+    @Size(min = 1)
     private String serviceCode;
-    @NotBlank
+    @Size(min = 1)
     private String serviceEditionCode;
     private String topic;
     @NotNull
