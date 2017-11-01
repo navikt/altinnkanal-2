@@ -1,7 +1,19 @@
 # Altinnkanal - Spring
+This is the repository for the new Altinnkanal using Spring Boot and Kafka (Confluent Platform), aiming for deployment using NAIS.
+
+## Prometheus notes
+For local development: Add
+```
+- job_name: 'altinnkanal'
+  
+    static_configs:
+      - targets: ['localhost:8080']
+ 
+    metrics_path: /prometheus
+```
+to ```prometheus.yml``` under ```scrape_configs```.
 
 ## Docker notes
-
 
 Utvikler-image (Windows) no-go due to disabled virtualization flags. Need access to Linux image.
 Repo available at docker.adeo.no:5000, browsable at https://registry-browser.adeo.no/home.
