@@ -8,8 +8,8 @@ import no.nav.altinnkanal.entities.TopicMapping;
 import no.nav.altinnkanal.services.KafkaService;
 import no.nav.altinnkanal.services.TopicService;
 import org.apache.kafka.clients.producer.RecordMetadata;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -22,7 +22,7 @@ import java.util.Base64;
 @Service
 public class OnlineBatchReceiverSoapImpl implements OnlineBatchReceiverSoap {
     private final Base64.Encoder base64Encoder = Base64.getEncoder();
-    private final Logger logger = LogManager.getLogger("AltinnKanal");
+    private final Logger logger = LoggerFactory.getLogger(OnlineBatchReceiverSoap.class.getName());
 
     private final XMLInputFactory xmlInputFactory = XMLInputFactory.newFactory();
     private final TopicService topicService;
@@ -35,10 +35,10 @@ public class OnlineBatchReceiverSoapImpl implements OnlineBatchReceiverSoap {
             .name("requests_success").help("Total successful requests.")
             .labelNames("sc", "sec").register();
     private static final Counter requestsFailedDisabled = Counter.build()
-            .name("requests_disabled").help("Total failed requests due to disabled SC and SEC.")
+            .name("requests_disabled").help("Total failed requests due to disabled SC/SEC codes.")
             .labelNames("sc", "sec").register();
     private static final Counter requestsFailedMissing = Counter.build()
-            .name("requests_missing").help("Total failed requests due to missing fields.")
+            .name("requests_missing").help("Total failed requests due to missing/unknown SC/SEC codes.")
             .labelNames("sc", "sec").register();
     private static final Counter requestsFailedError = Counter.build()
             .name("requests_error").help("Total failed requests due to error.")
@@ -72,21 +72,32 @@ public class OnlineBatchReceiverSoapImpl implements OnlineBatchReceiverSoap {
             TopicMapping topicMapping = topicService.getTopicMapping(serviceCode, serviceEditionCode);
 
             if (topicMapping == null || !topicMapping.isEnabled()) {
-                if (topicMapping == null) requestsFailedMissing.labels(serviceCode, serviceEditionCode).inc();
-                else requestsFailedDisabled.labels(serviceCode, serviceEditionCode).inc();
+                if (topicMapping == null) {
+                    requestsFailedMissing.labels(serviceCode, serviceEditionCode).inc();
+                    logger.info("Denied ROBEA request due to missing/unknown SC/SEC codes (SC: {}, SEC: {})",
+                            serviceCode, serviceEditionCode);
+                }
+                else {
+                    requestsFailedDisabled.labels(serviceCode, serviceEditionCode).inc();
+                    logger.info("Denied ROBEA request due to disabled SC/SEC codes (SC: {}, SEC: {})",
+                            serviceCode, serviceEditionCode);
+                }
                 return "FAILED_DO_NOT_RETRY";
             }
 
             // TODO: Validate/check if received metadata matches sent record?
             RecordMetadata metadata = kafkaService.publish(topicMapping.getTopic(), externalAttachment).get();
 
-            requestLatency.observeDuration();
+            double latency = requestLatency.observeDuration();
             requestSize.observe(metadata.serializedValueSize());
             requestsSuccess.labels(serviceCode, serviceEditionCode).inc();
-
+            logger.info("Successfully published ROBEA request to Kafka (SC: {}, SEC: {}, Latency: {} ms, Size: {} MB)",
+                    serviceCode, serviceEditionCode,
+                    String.format("%.0f", latency * 1000),
+                    String.format("%.2f", metadata.serializedValueSize() / 1024f));
             return "OK";
         } catch (Exception e) {
-            logger.error("Failed to send a ROBEA request to Kafka", e);
+            logger.error("Failed to send a ROBEA request to Kafka (SC: {}, SEC: {})", serviceCode, serviceEditionCode, e);
             requestsFailedError.labels(serviceCode, serviceEditionCode).inc();
             return "FAILED";
         }

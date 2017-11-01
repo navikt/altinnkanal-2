@@ -1,6 +1,8 @@
 package no.nav.altinnkanal.rest;
 
 import org.apache.kafka.clients.consumer.KafkaConsumer;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.PropertySource;
 import org.springframework.http.HttpStatus;
@@ -26,6 +28,8 @@ public class HealthCheckRestController {
     private static final String BASE_URL = "http://localhost:8080/";
     private static final String WSDL_URL = BASE_URL + "altinnkanal/OnlineBatchReceiverSoap?wsdl";
     private static final String CONFIGURATION_URL = BASE_URL + "configuration";
+
+    private final Logger logger = LoggerFactory.getLogger(HealthCheckRestController.class.getName());
 
     @Value("${bootstrap.servers}")
     private String KAFKA_BOOTSTRAP_SERVERS;
@@ -60,8 +64,8 @@ public class HealthCheckRestController {
         try {
             httpConnection = (HttpURLConnection) new URL(urlString).openConnection();
             return httpConnection.getResponseCode() == HttpURLConnection.HTTP_OK;
-        } catch (IOException ioe) {
-            // TODO: Log the exception
+        } catch (Exception e) {
+            logger.error("HTTP endpoint readiness test failed", e);
             return false;
         } finally {
             if (httpConnection != null) httpConnection.disconnect();
@@ -84,7 +88,7 @@ public class HealthCheckRestController {
             kafkaConsumer.partitionsFor("connect-statuses");
             return true;
         } catch (Exception e) {
-            // TODO: Log
+            logger.error("Kafka broker readiness test failed", e);
             return false;
         } finally {
             kafkaConsumer.close();
