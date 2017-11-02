@@ -48,7 +48,7 @@
   "rows": [
     {
       "collapse": false,
-      "height": 186,
+      "height": 200,
       "panels": [
         {
           "cacheTimeout": null,
@@ -68,6 +68,7 @@
             "thresholdLabels": false,
             "thresholdMarkers": true
           },
+          "height": "200px",
           "hideTimeOverride": true,
           "id": 12,
           "interval": null,
@@ -97,7 +98,8 @@
               "to": "null"
             }
           ],
-          "span": 3,
+          "repeat": null,
+          "span": 2,
           "sparkline": {
             "fillColor": "rgba(31, 118, 189, 0.18)",
             "full": false,
@@ -142,8 +144,9 @@
             }
           ],
           "thresholds": "",
-          "timeFrom": "15s",
-          "title": "Altinnkanal - Number of Successful Requests",
+          "timeFrom": "5s",
+          "timeShift": null,
+          "title": "Number of Successful Requests",
           "type": "singlestat",
           "valueFontSize": "80%",
           "valueMaps": [
@@ -161,7 +164,7 @@
           "colorValue": false,
           "colors": [
             "rgba(245, 54, 54, 0.9)",
-            "rgba(217, 90, 22, 0.89)",
+            "rgba(238, 29, 29, 0.89)",
             "rgba(50, 172, 45, 0.97)"
           ],
           "datasource": "${DS_PROMETHEUS}",
@@ -173,8 +176,9 @@
             "thresholdLabels": false,
             "thresholdMarkers": true
           },
+          "height": "200px",
           "hideTimeOverride": true,
-          "id": 13,
+          "id": 16,
           "interval": null,
           "links": [],
           "mappingType": 1,
@@ -202,7 +206,7 @@
               "to": "null"
             }
           ],
-          "span": 3,
+          "span": 2,
           "sparkline": {
             "fillColor": "rgba(31, 118, 189, 0.18)",
             "full": false,
@@ -213,10 +217,11 @@
           "targets": [
             {
               "dsType": "influxdb",
-              "expr": "sum(requests_disabled)",
+              "expr": "sum(requests_error)",
               "format": "table",
               "groupBy": [],
-              "intervalFactor": 2,
+              "intervalFactor": 1,
+              "legendFormat": "",
               "measurement": "kafka_published",
               "orderByTime": "ASC",
               "policy": "default",
@@ -236,26 +241,27 @@
                   }
                 ]
               ],
-              "step": 2,
+              "step": 1,
               "tags": [
                 {
                   "key": "status",
                   "operator": "=",
-                  "value": "failed_disabled"
+                  "value": "success"
                 }
               ]
             }
           ],
           "thresholds": "",
-          "timeFrom": "15s",
-          "title": "Altinnkanal - Number of Failed Requests (Disabled)",
+          "timeFrom": "5s",
+          "title": "Number of Failed Requests (Error)",
+          "transparent": false,
           "type": "singlestat",
           "valueFontSize": "80%",
           "valueMaps": [
             {
               "op": "=",
-              "text": "N/A",
-              "value": "null"
+              "text": "0",
+              "value": "undefined"
             }
           ],
           "valueName": "avg"
@@ -266,7 +272,7 @@
           "colorValue": false,
           "colors": [
             "rgba(245, 54, 54, 0.9)",
-            "rgba(217, 22, 22, 0.89)",
+            "rgba(217, 115, 22, 0.89)",
             "rgba(50, 172, 45, 0.97)"
           ],
           "datasource": "${DS_PROMETHEUS}",
@@ -278,6 +284,7 @@
             "thresholdLabels": false,
             "thresholdMarkers": true
           },
+          "height": "200px",
           "hideTimeOverride": true,
           "id": 14,
           "interval": null,
@@ -307,7 +314,7 @@
               "to": "null"
             }
           ],
-          "span": 3,
+          "span": 2,
           "sparkline": {
             "fillColor": "rgba(31, 118, 189, 0.18)",
             "full": false,
@@ -353,7 +360,113 @@
           ],
           "thresholds": "",
           "timeFrom": "15s",
-          "title": "Altinnkanal - Number of Failed Requests (Missing)",
+          "title": "Number of Failed Requests (Missing)",
+          "type": "singlestat",
+          "valueFontSize": "80%",
+          "valueMaps": [
+            {
+              "op": "=",
+              "text": "N/A",
+              "value": "null"
+            }
+          ],
+          "valueName": "avg"
+        },
+        {
+          "cacheTimeout": null,
+          "colorBackground": true,
+          "colorValue": false,
+          "colors": [
+            "rgba(245, 54, 54, 0.9)",
+            "rgba(217, 180, 22, 0.89)",
+            "rgba(50, 172, 45, 0.97)"
+          ],
+          "datasource": "${DS_PROMETHEUS}",
+          "format": "none",
+          "gauge": {
+            "maxValue": 100,
+            "minValue": 0,
+            "show": false,
+            "thresholdLabels": false,
+            "thresholdMarkers": true
+          },
+          "height": "200px",
+          "hideTimeOverride": true,
+          "id": 13,
+          "interval": null,
+          "links": [],
+          "mappingType": 1,
+          "mappingTypes": [
+            {
+              "name": "value to text",
+              "value": 1
+            },
+            {
+              "name": "range to text",
+              "value": 2
+            }
+          ],
+          "maxDataPoints": 100,
+          "nullPointMode": "connected",
+          "nullText": null,
+          "postfix": "",
+          "postfixFontSize": "50%",
+          "prefix": "",
+          "prefixFontSize": "50%",
+          "rangeMaps": [
+            {
+              "from": "null",
+              "text": "N/A",
+              "to": "null"
+            }
+          ],
+          "span": 2,
+          "sparkline": {
+            "fillColor": "rgba(31, 118, 189, 0.18)",
+            "full": false,
+            "lineColor": "rgb(31, 120, 193)",
+            "show": false
+          },
+          "tableColumn": "Value",
+          "targets": [
+            {
+              "dsType": "influxdb",
+              "expr": "sum(requests_disabled)",
+              "format": "table",
+              "groupBy": [],
+              "intervalFactor": 2,
+              "measurement": "kafka_published",
+              "orderByTime": "ASC",
+              "policy": "default",
+              "refId": "A",
+              "resultFormat": "table",
+              "select": [
+                [
+                  {
+                    "params": [
+                      "status"
+                    ],
+                    "type": "field"
+                  },
+                  {
+                    "params": [],
+                    "type": "count"
+                  }
+                ]
+              ],
+              "step": 2,
+              "tags": [
+                {
+                  "key": "status",
+                  "operator": "=",
+                  "value": "failed_disabled"
+                }
+              ]
+            }
+          ],
+          "thresholds": "",
+          "timeFrom": "5s",
+          "title": "Number of Failed Requests (Disabled)",
           "type": "singlestat",
           "valueFontSize": "80%",
           "valueMaps": [
@@ -383,6 +496,7 @@
             "thresholdLabels": false,
             "thresholdMarkers": true
           },
+          "height": "200px",
           "hideTimeOverride": true,
           "id": 2,
           "interval": null,
@@ -412,7 +526,7 @@
               "to": "null"
             }
           ],
-          "span": 3,
+          "span": 4,
           "sparkline": {
             "fillColor": "rgba(31, 118, 189, 0.18)",
             "full": false,
@@ -452,8 +566,9 @@
             }
           ],
           "thresholds": "",
-          "timeFrom": "15s",
-          "title": "Altinnkanal - Total Incoming Requests",
+          "timeFrom": "1s",
+          "timeShift": null,
+          "title": "Total Incoming Requests",
           "type": "singlestat",
           "valueFontSize": "200%",
           "valueMaps": [
@@ -475,7 +590,102 @@
     },
     {
       "collapse": false,
-      "height": 367,
+      "height": 436,
+      "panels": [
+        {
+          "aliasColors": {},
+          "bars": true,
+          "dashLength": 10,
+          "dashes": false,
+          "datasource": "${DS_PROMETHEUS}",
+          "fill": 1,
+          "id": 15,
+          "legend": {
+            "alignAsTable": true,
+            "avg": false,
+            "current": true,
+            "hideEmpty": false,
+            "hideZero": false,
+            "max": true,
+            "min": false,
+            "rightSide": true,
+            "show": true,
+            "sort": "current",
+            "sortDesc": true,
+            "total": false,
+            "values": true
+          },
+          "lines": true,
+          "linewidth": 1,
+          "links": [],
+          "nullPointMode": "null",
+          "percentage": false,
+          "pointradius": 5,
+          "points": false,
+          "renderer": "flot",
+          "seriesOverrides": [],
+          "spaceLength": 10,
+          "span": 12,
+          "stack": true,
+          "steppedLine": false,
+          "targets": [
+            {
+              "expr": "rate(requests_total[1m])",
+              "format": "time_series",
+              "interval": "",
+              "intervalFactor": 1,
+              "legendFormat": "SC: {{sc}} / SEC: {{sec}}",
+              "refId": "A",
+              "step": 60
+            }
+          ],
+          "thresholds": [],
+          "timeFrom": null,
+          "timeShift": null,
+          "title": "Rate of Incoming Requests Per Second [Over last 1m]",
+          "tooltip": {
+            "shared": true,
+            "sort": 0,
+            "value_type": "individual"
+          },
+          "type": "graph",
+          "xaxis": {
+            "buckets": null,
+            "mode": "time",
+            "name": null,
+            "show": true,
+            "values": []
+          },
+          "yaxes": [
+            {
+              "format": "short",
+              "label": null,
+              "logBase": 1,
+              "max": null,
+              "min": null,
+              "show": true
+            },
+            {
+              "format": "short",
+              "label": null,
+              "logBase": 1,
+              "max": null,
+              "min": null,
+              "show": true
+            }
+          ]
+        }
+      ],
+      "repeat": null,
+      "repeatIteration": null,
+      "repeatRowId": null,
+      "showTitle": false,
+      "title": "Dashboard Row",
+      "titleSize": "h6"
+    },
+    {
+      "collapse": false,
+      "height": 296,
       "panels": [
         {
           "aliasColors": {},
@@ -508,7 +718,7 @@
           "renderer": "flot",
           "seriesOverrides": [],
           "spaceLength": 10,
-          "span": 12,
+          "span": 6,
           "stack": false,
           "steppedLine": true,
           "targets": [
@@ -554,7 +764,7 @@
                   }
                 ]
               ],
-              "step": 2,
+              "step": 120,
               "tags": []
             }
           ],
@@ -596,19 +806,7 @@
               "show": false
             }
           ]
-        }
-      ],
-      "repeat": null,
-      "repeatIteration": null,
-      "repeatRowId": null,
-      "showTitle": false,
-      "title": "Dashboard Row",
-      "titleSize": "h6"
-    },
-    {
-      "collapse": false,
-      "height": 379,
-      "panels": [
+        },
         {
           "aliasColors": {},
           "bars": false,
@@ -630,14 +828,14 @@
           "lines": true,
           "linewidth": 1,
           "links": [],
-          "nullPointMode": "null",
+          "nullPointMode": "null as zero",
           "percentage": false,
           "pointradius": 1,
           "points": false,
           "renderer": "flot",
           "seriesOverrides": [],
           "spaceLength": 10,
-          "span": 12,
+          "span": 6,
           "stack": false,
           "steppedLine": false,
           "targets": [
@@ -660,7 +858,7 @@
                   "type": "fill"
                 }
               ],
-              "intervalFactor": 2,
+              "intervalFactor": 1,
               "legendFormat": "Altinnkanal",
               "measurement": "kafka_publish_time",
               "orderByTime": "ASC",
@@ -681,7 +879,7 @@
                   }
                 ]
               ],
-              "step": 4,
+              "step": 120,
               "tags": []
             }
           ],
@@ -739,7 +937,7 @@
     "list": []
   },
   "time": {
-    "from": "now-1h",
+    "from": "now-24h",
     "to": "now"
   },
   "timepicker": {
@@ -769,5 +967,5 @@
   },
   "timezone": "",
   "title": "Altinnkanal",
-  "version": 23
+  "version": 29
 }
