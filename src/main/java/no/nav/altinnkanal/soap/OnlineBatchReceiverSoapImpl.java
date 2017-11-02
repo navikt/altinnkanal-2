@@ -112,10 +112,7 @@ public class OnlineBatchReceiverSoapImpl implements OnlineBatchReceiverSoap {
 
         while (xmlReader.hasNext()) {
             int eventType = xmlReader.next();
-            if (eventType == XMLEvent.ATTRIBUTE) {
-                System.out.println("ATTRIBUTE");
-                System.out.println(xmlReader.getElementText());
-            } else if (eventType == XMLEvent.START_ELEMENT) {
+            if (eventType == XMLEvent.START_ELEMENT) {
                 String tagName = xmlReader.getLocalName();
                 if (tagName.equals("ServiceCode")) {
                     xmlReader.next();

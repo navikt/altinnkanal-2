@@ -16,6 +16,7 @@ import java.io.IOException;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Properties;
 
@@ -44,9 +45,10 @@ public class HealthCheckRestController {
     @ResponseBody
     @RequestMapping(value="isReady", produces=MediaType.TEXT_PLAIN_VALUE)
     public ResponseEntity isReady() {
-        System.out.println(KAFKA_BOOTSTRAP_SERVERS);
         boolean ready = selfTest();
-        if (!ready) return new ResponseEntity(HttpStatus.INTERNAL_SERVER_ERROR);
+        if (!ready) {
+            return new ResponseEntity(HttpStatus.INTERNAL_SERVER_ERROR);
+        }
         return new ResponseEntity<>(APPLICATION_READY, HttpStatus.OK);
     }
 
@@ -54,8 +56,17 @@ public class HealthCheckRestController {
         checks = new ArrayList<>();
         checks.add(httpUrlFetchTest(WSDL_URL));
         checks.add(httpUrlFetchTest(CONFIGURATION_URL));
-        checks.add(kafkaBrokerConnectionTest());
-        for (boolean check : checks) if (!check) return false;
+
+        List<String> brokers = Arrays.asList(KAFKA_BOOTSTRAP_SERVERS.split("\\s*,\\s*"));
+        for (String broker : brokers) {
+            checks.add(kafkaBrokerConnectionTest(broker));
+        }
+        
+        for (boolean check : checks) {
+            if (!check) {
+                return false;
+            }
+        }
         return true;
     }
 
@@ -72,9 +83,9 @@ public class HealthCheckRestController {
         }
     }
 
-    private boolean kafkaBrokerConnectionTest() {
+    private boolean kafkaBrokerConnectionTest(String broker) {
         Properties props = new Properties();
-        props.put("bootstrap.servers", KAFKA_BOOTSTRAP_SERVERS);
+        props.put("bootstrap.servers", broker);
         props.put("group.id", "test-group");
         props.put("enable.auto.commit", "true");
         props.put("key.deserializer", "org.apache.kafka.common.serialization.StringDeserializer");
@@ -83,15 +94,12 @@ public class HealthCheckRestController {
         props.put("session.timeout.ms", "4000");
         props.put("heartbeat.interval.ms", "2500");
         props.put("fetch.max.wait.ms", "2500");
-        KafkaConsumer kafkaConsumer = new KafkaConsumer<String, String>(props);
-        try {
+        try (KafkaConsumer kafkaConsumer = new KafkaConsumer<String, String>(props)) {
             kafkaConsumer.partitionsFor("connect-statuses");
             return true;
         } catch (Exception e) {
             logger.error("Kafka broker readiness test failed", e);
             return false;
-        } finally {
-            kafkaConsumer.close();
         }
     }
 }
