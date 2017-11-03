@@ -56,11 +56,7 @@ public class HealthCheckRestController {
         checks = new ArrayList<>();
         checks.add(httpUrlFetchTest(WSDL_URL));
         checks.add(httpUrlFetchTest(CONFIGURATION_URL));
-
-        List<String> brokers = Arrays.asList(KAFKA_BOOTSTRAP_SERVERS.split("\\s*,\\s*"));
-        for (String broker : brokers) {
-            checks.add(kafkaBrokerConnectionTest(broker));
-        }
+        checks.add(kafkaBrokerConnectionTest());
         
         for (boolean check : checks) {
             if (!check) {
@@ -83,9 +79,9 @@ public class HealthCheckRestController {
         }
     }
 
-    private boolean kafkaBrokerConnectionTest(String broker) {
+    private boolean kafkaBrokerConnectionTest() {
         Properties props = new Properties();
-        props.put("bootstrap.servers", broker);
+        props.put("bootstrap.servers", KAFKA_BOOTSTRAP_SERVERS);
         props.put("group.id", "test-group");
         props.put("enable.auto.commit", "true");
         props.put("key.deserializer", "org.apache.kafka.common.serialization.StringDeserializer");

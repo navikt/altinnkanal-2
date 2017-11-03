@@ -30,6 +30,7 @@ public class KafkaServiceImpl implements KafkaService {
         avroRecord.put("sc", externalAttachment.getSc());
         avroRecord.put("sec", externalAttachment.getSec());
         avroRecord.put("archRef", externalAttachment.getArchRef());
+        // TODO: Create topic and set replication factor? Currently dependant on Kafka broker configuration (auto-create topics)
         return producer.send(new ProducerRecord<>(topic, avroRecord));
     }
 
