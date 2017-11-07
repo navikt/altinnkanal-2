@@ -17,7 +17,7 @@ resources:
   limits:
     cpu: 1000m
   requests:
-    cpu: 1000m
+    cpu: 400m
 fasitResources:
   used:
   - alias: ldap
