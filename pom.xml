@@ -5,7 +5,7 @@
     <modelVersion>4.0.0</modelVersion>
 
     <groupId>no.nav.altinnkanal</groupId>
-    <artifactId>altinnkanal-spring</artifactId>
+    <artifactId>altinnkanal-2</artifactId>
     <version>1.0.0-SNAPSHOT</version>
     <packaging>jar</packaging>
 
@@ -220,6 +220,11 @@
             <groupId>org.apache.directory.server</groupId>
             <artifactId>apacheds-all</artifactId>
             <version>1.5.5</version>
+        </dependency>
+        <dependency>
+            <groupId>no.nav.integrasjon</groupId>
+            <artifactId>environment-variable-transformer</artifactId>
+            <version>1.0-SNAPSHOT</version>
         </dependency>
     </dependencies>
 </project>

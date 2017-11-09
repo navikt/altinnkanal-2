@@ -34,6 +34,13 @@ public class HealthCheckRestController {
 
     @Value("${bootstrap.servers}")
     private String KAFKA_BOOTSTRAP_SERVERS;
+    @Value("${security.protocol}")
+    private String SECURITY_PROTOCOL;
+    @Value("${ssl.truststore.location}")
+    private String SSL_TRUSTSTORE_LOCATION;
+    @Value("${ssl.truststore.password}")
+    private String SSL_TRUSTSTORE_PASSWORD;
+
     private List<Boolean> checks;
 
     @ResponseBody
@@ -82,6 +89,7 @@ public class HealthCheckRestController {
     private boolean kafkaBrokerConnectionTest() {
         Properties props = new Properties();
         props.put("bootstrap.servers", KAFKA_BOOTSTRAP_SERVERS);
+        props.put("client.id", "altinnkanal");
         props.put("group.id", "test-group");
         props.put("enable.auto.commit", "true");
         props.put("key.deserializer", "org.apache.kafka.common.serialization.StringDeserializer");
@@ -90,6 +98,9 @@ public class HealthCheckRestController {
         props.put("session.timeout.ms", "4000");
         props.put("heartbeat.interval.ms", "2500");
         props.put("fetch.max.wait.ms", "2500");
+        props.put("security.protocol", SECURITY_PROTOCOL);
+        props.put("ssl.truststore.location", SSL_TRUSTSTORE_LOCATION);
+        props.put("ssl.truststore.password", SSL_TRUSTSTORE_PASSWORD);
         try (KafkaConsumer kafkaConsumer = new KafkaConsumer<String, String>(props)) {
             kafkaConsumer.partitionsFor("connect-statuses");
             return true;

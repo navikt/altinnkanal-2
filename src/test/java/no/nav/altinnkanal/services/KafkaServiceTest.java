@@ -2,10 +2,13 @@ package no.nav.altinnkanal.services;
 
 import no.altinn.webservices.OnlineBatchReceiverSoap;
 import no.nav.altinnkanal.entities.TopicMapping;
+import no.nav.integrasjon.EnvironmentTransformer;
+import no.nav.integrasjon.Transformers;
 import org.apache.kafka.clients.producer.Producer;
 import org.apache.kafka.clients.producer.ProducerRecord;
 import org.apache.kafka.clients.producer.RecordMetadata;
 import org.junit.Before;
+import org.junit.BeforeClass;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.ArgumentCaptor;
@@ -47,6 +50,14 @@ public class KafkaServiceTest {
     private ArgumentCaptor<ProducerRecord<String, Object>> argumentCaptor;
 
     private String simpleBatch;
+
+    @BeforeClass
+    public static void setupEnv() {
+        EnvironmentTransformer.builder()
+                .transformer("LDAP_URL", Transformers.LDAP_TRANSFORMER)
+                .build()
+                .mergeToSystemProperties();
+    }
 
     @Before
     public void setUp() throws Exception {

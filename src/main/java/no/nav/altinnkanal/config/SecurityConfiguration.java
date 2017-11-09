@@ -36,9 +36,9 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
     @Autowired
     public void configureGlobal(AuthenticationManagerBuilder auth, LdapConfiguration config) throws Exception {
         auth.ldapAuthentication()
-                .userSearchBase("ou=Users, " + config.base)
+                .userSearchBase(config.userBaseDn)
                 .userSearchFilter("cn={0}")
-                .groupSearchBase("ou=AccountGroups, ou=Groups, " + config.base)
+                .groupSearchBase(config.groupBaseDn)
                 .groupSearchFilter("Member={0}")
                 .contextSource()
                 .url(config.url)
@@ -51,7 +51,8 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
     public static class LdapConfiguration {
         private String managerDn;
         private String managerPassword;
-        private String base;
+        private String userBaseDn;
+        private String groupBaseDn;
         private String url;
 
         public String getManagerDn() {
@@ -62,8 +63,12 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
             return managerPassword;
         }
 
-        public String getBase() {
-            return base;
+        public String getUserBaseDn() {
+            return userBaseDn;
+        }
+
+        public String getGroupBaseDn() {
+            return groupBaseDn;
         }
 
         public String getUrl() {
@@ -78,8 +83,12 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
             this.managerPassword = managerPassword;
         }
 
-        public void setBase(String base) {
-            this.base = base;
+        public void setUserBaseDn(String userBaseDn) {
+            this.userBaseDn = userBaseDn;
+        }
+
+        public void setGroupBaseDn(String groupBaseDn) {
+            this.groupBaseDn = groupBaseDn;
         }
 
         public void setUrl(String url) {
