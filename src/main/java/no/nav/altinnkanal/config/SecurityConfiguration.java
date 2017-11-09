@@ -17,20 +17,20 @@ import org.springframework.stereotype.Component;
 public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
 
     @Override
-        protected void configure(HttpSecurity http) throws Exception {
-        SavedRequestAwareAuthenticationSuccessHandler successHandler = new SavedRequestAwareAuthenticationSuccessHandler();
-        successHandler.setUseReferer(true);
-        http.authorizeRequests()
-                    .antMatchers("/configuration/**", "/configuration").permitAll().and()
-                    .formLogin()
-                    .loginProcessingUrl("/configuration/login")
-                    .loginPage("/configuration/login")
-                    .successHandler(successHandler)
-                    .defaultSuccessUrl("/configuration")
-                    .permitAll()
-                    .and()
-                    .csrf().ignoringAntMatchers("/altinnkanal/**").and()
-                    .logout().logoutUrl("/configuration/logout").logoutSuccessUrl("/configuration").permitAll();
+    protected void configure(HttpSecurity http) throws Exception {
+    SavedRequestAwareAuthenticationSuccessHandler successHandler = new SavedRequestAwareAuthenticationSuccessHandler();
+    successHandler.setUseReferer(true);
+    http.authorizeRequests()
+                .antMatchers("/configuration/**", "/configuration").permitAll().and()
+                .formLogin()
+                .loginProcessingUrl("/configuration/login")
+                .loginPage("/configuration/login")
+                .successHandler(successHandler)
+                .defaultSuccessUrl("/configuration")
+                .permitAll()
+                .and()
+                .csrf().ignoringAntMatchers("/altinnkanal/**").and()
+                .logout().logoutUrl("/configuration/logout").logoutSuccessUrl("/configuration").permitAll();
     }
 
     @Autowired
