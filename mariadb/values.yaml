@@ -1,0 +1,4 @@
+#See https://github.com/kubernetes/charts/tree/master/stable/mariadb
+usePassword: false
+persistence: 
+  enabled: false
