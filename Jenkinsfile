@@ -11,8 +11,7 @@ pipeline {
 	stages {
 		stage('build') {
 			steps {
-				//sh 'openssl req -new -x509 -keyout ca-key -out ca-cert -days 365 -nodes -subj "/C=NO/ST=Oslo/L=Oslo/O=NAV/OU=NAV IT/CN=test.local"'
-				//sh 'keytool -keystore kafka.client.truststore.jks -alias CARoot -import -file ca-cert'
+				// generate local key-/truststore for test stage
 				sh 'keytool -genkeypair -alias CARoot -keystore kafka.client.truststore.jks -storepass password -keypass password -dname "C=NO, ST=Oslo, L=Oslo, O=NAV, OU=NAV IT, CN=test.local" -deststoretype pkcs12'
 				sh 'mvn -B -DskipTests clean package'
 			}
@@ -28,7 +27,7 @@ pipeline {
 				script {
 					checkout scm
 					docker.withRegistry('https://docker.adeo.no:5000/') {
-						def image = docker.build("integrasjon/altinnkanal:${env.BUILD_ID}")
+						def image = docker.build("integrasjon/altinnkanal:1.0.${env.BUILD_ID}")
 						image.push 'latest'
 					}
 				}
@@ -39,23 +38,23 @@ pipeline {
 				script {
 					withCredentials([[$class: 'UsernamePasswordMultiBinding', credentialsId: 'nexus-user', usernameVariable: 'NEXUS_USERNAME', passwordVariable: 'NEXUS_PASSWORD']]) {
 						sh "nais validate"
-						sh "nais upload --app altinnkanal-2 -v 1.0.0"
+						sh "nais upload --app altinnkanal-2 -v 1.0.${env.BUILD_ID}"
 					}
 				}
 			}
 		}
-		/*stage('deploy to nais') {
+		stage('deploy to nais') {
 			steps {
 				script {
    					withCredentials([[$class: "UsernamePasswordMultiBinding", credentialsId: 'nais-user', usernameVariable: "NAIS_USERNAME", passwordVariable: "NAIS_PASSWORD"]]) {
 			            def postBody = [
 			                    application: "altinnkanal-2",
-			                    environment: "preprod",
-			                    version    : "1.0.0",
+			                    environment: "t4",
+			                    version    : "1.0.${env.BUILD_ID}",
 			                    username   : "${env.NAIS_USERNAME}",
 			                    password   : "${env.NAIS_PASSWORD}",
 			                    zone       : "FSS",
-			                    namespace  : "default"
+			                    namespace  : "integrasjon"
 			            ]
 			            def naisdPayload = groovy.json.JsonOutput.toJson(postBody)
 
@@ -79,7 +78,7 @@ pipeline {
 			        }
 				}
 			}
-		}*/
+		}
 	}
 	post {
         always {
