@@ -1,7 +1,7 @@
 image: "docker.adeo.no:5000/integrasjon/altinnkanal"
 replicas:
   min: 1
-  max: 0
+  max: 1
 port: 8080
 healthcheck:
   liveness:
@@ -24,10 +24,10 @@ fasitResources:
   used:
   - alias: ldap
     resourceType: ldap
-  exposed:
-  - alias: altinnkanal-2-ws-endpoint
-    resourceType: Webserviceendpoint
-    path: /altinnkanal/OnlineBatchReceiverSoap
-  exposed:
-  - alias: altinnkanal-2-admin-panel
-    resourceType: Baseurl
+#  exposed:
+#  - alias: altinnkanal-2-ws-endpoint
+#    resourceType: Webserviceendpoint
+#    path: /altinnkanal/OnlineBatchReceiverSoap
+#  exposed:
+#  - alias: altinnkanal-2-admin-panel
+#    resourceType: Baseurl
