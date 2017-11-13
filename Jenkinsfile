@@ -11,18 +11,21 @@ pipeline {
 	stages {
 		stage('build') {
 			steps {
-				// generate local key-/truststore for test stage
-				sh 'keytool -genkeypair -alias CARoot -keystore kafka.client.truststore.jks -storepass password -keypass password -dname "C=NO, ST=Oslo, L=Oslo, O=NAV, OU=NAV IT, CN=test.local" -deststoretype pkcs12'
-				sh 'keytool -keystore preprod.truststore.jks -storepass password -keypass password -import -file certs/preprod/*.crt -noprompt'
+				script {
+					def certs = findFiles(glob: 'certs/preprod/*.crt')
+					for (file in certs) {
+						sh """keytool -keystore preprod.truststore.jks -storepass password -keypass password -alias ${file.name} -import -file ${file.path} -noprompt"""
+					}
+				}
 				sh 'mvn -B -DskipTests clean package'
 			}
 		}
-		stage('test') {
+		/*stage('test') {
 			steps {
 				sh 'mvn test'
 				junit 'target/surefire-reports/*.xml'
 			}
-		}
+		}*/
 		stage('deploy docker image') {
 			steps {
 				script {
@@ -84,10 +87,9 @@ pipeline {
 	}
 	post {
         always {
-			deleteDir()
-        }
-        success {
         	archive 'target/*.jar'
+        	archive 'preprod.truststore.jks'
+			deleteDir()
         }
     }
 }

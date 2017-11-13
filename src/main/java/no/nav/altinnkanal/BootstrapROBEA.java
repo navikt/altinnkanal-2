@@ -13,7 +13,6 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 public class BootstrapROBEA {
 
     public static void main(String[] args) {
-        System.getenv().forEach((key, value) -> System.out.println(key + "=" + value));
         EnvironmentTransformer.builder()
                 .transformer("LDAP_URL", Transformers.LDAP_TRANSFORMER)
                 .build()
