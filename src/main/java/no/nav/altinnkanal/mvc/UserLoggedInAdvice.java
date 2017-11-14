@@ -6,7 +6,7 @@ import org.springframework.web.bind.annotation.ModelAttribute;
 
 import java.security.Principal;
 
-@ControllerAdvice
+@ControllerAdvice("no.nav.altinnkanal.mvc")
 public class UserLoggedInAdvice {
     @ModelAttribute
     public void addAttributes(Principal principal, Model model) throws Exception {
