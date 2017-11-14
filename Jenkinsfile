@@ -13,6 +13,9 @@ pipeline {
 			steps {
 				script {
 					sh "keytool -keystore preprod.truststore.jks -storepass password -keypass password -alias \"CARoot\" -import -file certs/preprod/B27_issuing_intern.crt -noprompt"
+					sh "keytool -keystore preprod.truststore.jks -storepass password -keypass password -alias \"CARoot2\" -import -file certs/preprod/B27_root_ca.crt -noprompt"
+					sh "keytool -keystore preprod.truststore.jks -storepass password -keypass password -alias \"CARoot3\" -import -file certs/preprod/B27_issuing.crt -noprompt"
+					sh "keytool -keystore preprod.truststore.jks -storepass password -keypass password -alias \"CARoot4\" -import -file certs/preprod/B27_sub_ca.crt -noprompt"
 				}
 				sh 'mvn -B -DskipTests clean package'
 			}
