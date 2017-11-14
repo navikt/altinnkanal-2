@@ -12,10 +12,7 @@ pipeline {
 		stage('build') {
 			steps {
 				script {
-					def certs = findFiles(glob: 'certs/preprod/*.crt')
-					for (file in certs) {
-						sh """keytool -keystore preprod.truststore.jks -storepass password -keypass password -alias ${file.name} -import -file ${file.path} -noprompt"""
-					}
+					sh "keytool -keystore preprod.truststore.jks -storepass password -keypass password -alias \"CARoot\" -import -file certs/preprod/B27_issuing_intern.crt -noprompt"
 				}
 				sh 'mvn -B -DskipTests clean package'
 			}
