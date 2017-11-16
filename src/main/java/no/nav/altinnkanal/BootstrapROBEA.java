@@ -17,6 +17,9 @@ public class BootstrapROBEA {
                 .transformer("LDAP_URL", Transformers.LDAP_TRANSFORMER)
                 .build()
                 .mergeToSystemProperties();
+
+        System.getenv().forEach((key, value) -> System.out.println(key + "=" + value));
+
         SpringApplication.run(BootstrapROBEA.class, args);
     }
 }

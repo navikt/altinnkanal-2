@@ -8,7 +8,7 @@ import org.springframework.web.bind.annotation.ModelAttribute;
 import java.io.IOException;
 import java.io.Writer;
 
-@ControllerAdvice("no.nav.altinnkanal.mvc")
+@ControllerAdvice
 public class LayoutAdvice {
 
     @ModelAttribute("layout")
