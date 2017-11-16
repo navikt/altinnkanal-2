@@ -8,7 +8,6 @@ pipeline {
 		maven 'default'
 	}
 	environment {
-		LDAP_URL="ldapgw.test.local"
 		APPLICATION_NAME='altinnkanal-2'
 		FASIT_ENV='t4'
 		VERSION_MAJOR='1'
@@ -16,6 +15,11 @@ pipeline {
 		NAIS_CREDENTIALS_ID='nais-user' // refers to Jenkins credentials id
 		ZONE='fss'
 		APPLICATION_NAMESPACE='default'
+
+		LDAP_URL='ldap://ldapgw.test.local'
+		LDAP_USER_BASEDN='ou=NAV,ou=BusinessUnits,dc=test,dc=local'
+		SPRING_DATASOURCE_PASSWORD='root'
+		SPRING_DATASOURCE_URL='jdbc:mysql://localhost/altinnkanal'
 	}
 	stages {
 		stage('build') {
@@ -30,12 +34,12 @@ pipeline {
 				sh 'mvn -B -DskipTests clean package'
 			}
 		}
-		/*stage('test') {
+		stage('test') {
 			steps {
 				sh 'mvn test'
 				junit 'target/surefire-reports/*.xml'
 			}
-		}*/
+		}
 		stage('deploy docker image') {
 			steps {
 				script {

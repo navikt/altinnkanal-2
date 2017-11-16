@@ -91,7 +91,7 @@ public class OnlineBatchReceiverSoapImpl implements OnlineBatchReceiverSoap {
             double latency = requestLatency.observeDuration();
             requestSize.observe(metadata.serializedValueSize());
             requestsSuccess.labels(serviceCode, serviceEditionCode).inc();
-            logger.info("Successfully published ROBEA request to Kafka (SC: {}, SEC: {}, Latency: {} ms, Size: {} MB)",
+            logger.debug("Successfully published ROBEA request to Kafka (SC: {}, SEC: {}, Latency: {} ms, Size: {} MB)",
                     serviceCode, serviceEditionCode,
                     String.format("%.0f", latency * 1000),
                     String.format("%.2f", metadata.serializedValueSize() / 1024f));

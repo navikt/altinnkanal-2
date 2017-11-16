@@ -1,14 +1,5 @@
 {
-  "__inputs": [
-    {
-      "name": "DS_NAIS-PREPROD-FSS",
-      "label": "nais-preprod-fss",
-      "description": "",
-      "type": "datasource",
-      "pluginId": "prometheus",
-      "pluginName": "Prometheus"
-    }
-  ],
+  "__inputs": [],
   "__requires": [
     {
       "type": "grafana",
@@ -21,12 +12,6 @@
       "id": "graph",
       "name": "Graph",
       "version": ""
-    },
-    {
-      "type": "datasource",
-      "id": "prometheus",
-      "name": "Prometheus",
-      "version": "1.0.0"
     },
     {
       "type": "panel",
@@ -48,15 +33,17 @@
   "rows": [
     {
       "collapse": false,
-      "height": 245,
+      "height": 252,
       "panels": [
         {
           "aliasColors": {},
-          "bars": true,
+          "bars": false,
           "dashLength": 10,
           "dashes": false,
-          "datasource": "${DS_NAIS-PREPROD-FSS}",
-          "fill": 1,
+          "datasource": "$datasource",
+          "decimals": null,
+          "fill": 3,
+          "hideTimeOverride": false,
           "id": 6,
           "legend": {
             "alignAsTable": true,
@@ -68,6 +55,7 @@
             "min": false,
             "rightSide": true,
             "show": true,
+            "sideWidth": null,
             "sort": "current",
             "sortDesc": true,
             "total": false,
@@ -81,6 +69,7 @@
           "pointradius": 5,
           "points": false,
           "renderer": "flot",
+          "repeat": null,
           "seriesOverrides": [],
           "spaceLength": 10,
           "span": 12,
@@ -88,19 +77,19 @@
           "steppedLine": false,
           "targets": [
             {
-              "expr": "rate(requests_total[5m])",
+              "expr": "rate(requests_total{app=\"altinnkanal-2\"}[2m])",
               "format": "time_series",
               "interval": "",
-              "intervalFactor": 1,
-              "legendFormat": "SC: {{sc}} / SEC: {{sec}}",
+              "intervalFactor": 2,
+              "legendFormat": "{{instance}} -- {{sc}} / {{sec}}",
               "refId": "A",
-              "step": 2
+              "step": 4
             }
           ],
           "thresholds": [],
           "timeFrom": null,
           "timeShift": null,
-          "title": "requests/sec per SC/SEC [5m]",
+          "title": "requests/sec by SC/SEC [2m]",
           "tooltip": {
             "shared": true,
             "sort": 0,
@@ -143,7 +132,7 @@
     },
     {
       "collapse": false,
-      "height": 221,
+      "height": 235,
       "panels": [
         {
           "cacheTimeout": null,
@@ -263,8 +252,9 @@
             "rgba(27, 176, 2, 0.89)",
             "rgba(50, 172, 45, 0.97)"
           ],
-          "datasource": "${DS_NAIS-PREPROD-FSS}",
-          "format": "none",
+          "datasource": "$datasource",
+          "decimals": 0,
+          "format": "short",
           "gauge": {
             "maxValue": 100,
             "minValue": 0,
@@ -371,8 +361,9 @@
             "rgba(238, 29, 29, 0.89)",
             "rgba(50, 172, 45, 0.97)"
           ],
-          "datasource": "${DS_NAIS-PREPROD-FSS}",
-          "format": "none",
+          "datasource": "$datasource",
+          "decimals": 0,
+          "format": "short",
           "gauge": {
             "maxValue": 100,
             "minValue": 0,
@@ -479,8 +470,9 @@
             "rgba(217, 115, 22, 0.89)",
             "rgba(50, 172, 45, 0.97)"
           ],
-          "datasource": "${DS_NAIS-PREPROD-FSS}",
-          "format": "none",
+          "datasource": "$datasource",
+          "decimals": 0,
+          "format": "short",
           "gauge": {
             "maxValue": 100,
             "minValue": 0,
@@ -585,8 +577,9 @@
             "rgba(217, 180, 22, 0.89)",
             "rgba(50, 172, 45, 0.97)"
           ],
-          "datasource": "${DS_NAIS-PREPROD-FSS}",
-          "format": "none",
+          "datasource": "$datasource",
+          "decimals": 0,
+          "format": "short",
           "gauge": {
             "maxValue": 100,
             "minValue": 0,
@@ -691,8 +684,9 @@
             "rgba(0, 68, 221, 0.89)",
             "rgba(50, 172, 45, 0.97)"
           ],
-          "datasource": "${DS_NAIS-PREPROD-FSS}",
-          "format": "none",
+          "datasource": "$datasource",
+          "decimals": 0,
+          "format": "short",
           "gauge": {
             "maxValue": 100,
             "minValue": 0,
@@ -789,15 +783,15 @@
           "bars": false,
           "dashLength": 10,
           "dashes": false,
-          "datasource": "${DS_NAIS-PREPROD-FSS}",
+          "datasource": "$datasource",
           "fill": 1,
           "id": 7,
           "legend": {
             "alignAsTable": true,
             "avg": false,
             "current": true,
-            "hideEmpty": false,
-            "hideZero": false,
+            "hideEmpty": true,
+            "hideZero": true,
             "max": true,
             "min": false,
             "rightSide": false,
@@ -868,7 +862,7 @@
           "thresholds": [],
           "timeFrom": null,
           "timeShift": null,
-          "title": "Avg Publish Time [1m]",
+          "title": "Avg Publish Time [5m]",
           "tooltip": {
             "shared": true,
             "sort": 0,
@@ -890,7 +884,7 @@
               "label": "Time",
               "logBase": 1,
               "max": null,
-              "min": "0",
+              "min": null,
               "show": true
             },
             {
@@ -909,13 +903,15 @@
           "bars": false,
           "dashLength": 10,
           "dashes": false,
-          "datasource": "${DS_NAIS-PREPROD-FSS}",
+          "datasource": "$datasource",
           "fill": 1,
           "id": 8,
           "legend": {
             "alignAsTable": true,
             "avg": true,
             "current": true,
+            "hideEmpty": true,
+            "hideZero": true,
             "max": true,
             "min": true,
             "show": true,
@@ -1852,11 +1848,16 @@
           "fill": 1,
           "id": 16,
           "legend": {
+            "alignAsTable": false,
             "avg": false,
             "current": false,
+            "hideEmpty": true,
+            "hideZero": true,
             "max": false,
             "min": false,
+            "rightSide": false,
             "show": true,
+            "sideWidth": null,
             "total": false,
             "values": false
           },
@@ -1963,6 +1964,8 @@
           "legend": {
             "avg": false,
             "current": false,
+            "hideEmpty": false,
+            "hideZero": false,
             "max": false,
             "min": false,
             "show": true,
@@ -2068,6 +2071,7 @@
           "dashes": false,
           "datasource": "$datasource",
           "fill": 1,
+          "hideTimeOverride": false,
           "id": 18,
           "legend": {
             "avg": false,
@@ -2448,5 +2452,5 @@
   },
   "timezone": "",
   "title": "Altinnkanal-2",
-  "version": 6
+  "version": 12
 }
