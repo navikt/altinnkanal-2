@@ -1,11 +1,8 @@
 package no.nav.altinnkanal.services;
 
 import no.nav.altinnkanal.entities.TopicMappingUpdate;
-import no.nav.integrasjon.EnvironmentTransformer;
-import no.nav.integrasjon.Transformers;
 import org.apache.kafka.clients.producer.Producer;
 import org.junit.Before;
-import org.junit.BeforeClass;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -31,14 +28,6 @@ public class LogServiceTest {
     private JdbcTemplate jdbcTemplate;
     @MockBean
     private Producer<String, byte[]> producer;
-
-    @BeforeClass
-    public static void setupEnv() {
-        EnvironmentTransformer.builder()
-                .transformer("LDAP_URL", Transformers.LDAP_TRANSFORMER)
-                .build()
-                .mergeToSystemProperties();
-    }
 
     @Before
     public void setUp() throws Exception {

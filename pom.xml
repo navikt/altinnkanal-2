@@ -227,10 +227,5 @@
             <artifactId>apacheds-all</artifactId>
             <version>1.5.5</version>
         </dependency>
-        <dependency>
-            <groupId>no.nav.integrasjon</groupId>
-            <artifactId>environment-variable-transformer</artifactId>
-            <version>1.1-SNAPSHOT</version>
-        </dependency>
     </dependencies>
 </project>

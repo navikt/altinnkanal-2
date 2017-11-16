@@ -36,59 +36,50 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
     @Autowired
     public void configureGlobal(AuthenticationManagerBuilder auth, LdapConfiguration config) throws Exception {
         auth.ldapAuthentication()
-                .userSearchBase(config.userBaseDn)
+                .userSearchBase(config.userBasedn)
                 .userSearchFilter("cn={0}")
-                .groupSearchBase(config.groupBaseDn)
+                .groupSearchBase("ou=AccountGroups, ou=Groups," + config.userBasedn)
                 .groupSearchFilter("Member={0}")
                 .contextSource()
                 .url(config.url)
-                .managerDn(config.managerDn)
-                .managerPassword(config.managerPassword);
+                .managerDn(config.username)
+                .managerPassword(config.password);
     }
 
     @Component
     @ConfigurationProperties("ldap")
     public static class LdapConfiguration {
-        private String managerDn;
-        private String managerPassword;
-        private String userBaseDn;
-        private String groupBaseDn;
+        private String username;
+        private String password;
+        private String userBasedn;
         private String url;
 
-        public String getManagerDn() {
-            return managerDn;
+        public String getUsername() {
+            return username;
         }
 
-        public String getManagerPassword() {
-            return managerPassword;
+        public String getPassword() {
+            return password;
         }
 
-        public String getUserBaseDn() {
-            return userBaseDn;
-        }
-
-        public String getGroupBaseDn() {
-            return groupBaseDn;
+        public String getUserBasedn() {
+            return userBasedn;
         }
 
         public String getUrl() {
             return url;
         }
 
-        public void setManagerDn(String managerDn) {
-            this.managerDn = managerDn;
+        public void setUsername(String username) {
+            this.username = username;
         }
 
-        public void setManagerPassword(String managerPassword) {
-            this.managerPassword = managerPassword;
+        public void setPassword(String password) {
+            this.password = password;
         }
 
-        public void setUserBaseDn(String userBaseDn) {
-            this.userBaseDn = userBaseDn;
-        }
-
-        public void setGroupBaseDn(String groupBaseDn) {
-            this.groupBaseDn = groupBaseDn;
+        public void setUserBasedn(String userBasedn) {
+            this.userBasedn = userBasedn;
         }
 
         public void setUrl(String url) {
