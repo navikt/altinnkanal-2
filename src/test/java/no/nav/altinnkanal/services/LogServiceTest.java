@@ -13,6 +13,7 @@ import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.context.junit4.SpringRunner;
 
 import java.time.LocalDateTime;
+import java.time.temporal.ChronoUnit;
 
 import static org.junit.Assert.*;
 
@@ -68,7 +69,8 @@ public class LogServiceTest {
         assertEquals(topic, topicMappingUpdate.getTopic());
         assertEquals(enabled, topicMappingUpdate.isEnabled());
         assertEquals(comment, topicMappingUpdate.getComment());
-        assertEquals(date, topicMappingUpdate.getUpdateDate());
+        assertTrue("Time between local and persisted date is too big",
+                date.until(topicMappingUpdate.getUpdateDate(), ChronoUnit.MINUTES) <= 5);
         assertEquals(updatedBy, topicMappingUpdate.getUpdatedBy());
     }
 

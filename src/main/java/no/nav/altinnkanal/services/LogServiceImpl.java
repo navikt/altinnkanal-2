@@ -6,10 +6,7 @@ import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.support.GeneratedKeyHolder;
 import org.springframework.stereotype.Service;
 
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.sql.Timestamp;
+import java.sql.*;
 import java.util.List;
 
 @Service
@@ -29,7 +26,7 @@ public class LogServiceImpl implements LogService {
     public TopicMappingUpdate logChange(TopicMappingUpdate topicMappingUpdate) throws SQLException {
         GeneratedKeyHolder keyHolder = new GeneratedKeyHolder();
         jdbcTemplate.update((con) -> {
-            PreparedStatement preparedStatement = con.prepareStatement("INSERT INTO `topic_mapping_log`(`service_code`, `service_edition_code`, `topic`, `enabled`, `comment`, `updated_date`, `updated_by`) VALUES(?, ?, ?, ?, ?, ?, ?)");
+            PreparedStatement preparedStatement = con.prepareStatement("INSERT INTO `topic_mapping_log`(`service_code`, `service_edition_code`, `topic`, `enabled`, `comment`, `updated_date`, `updated_by`) VALUES(?, ?, ?, ?, ?, ?, ?)", Statement.RETURN_GENERATED_KEYS);
             preparedStatement.setString(1, topicMappingUpdate.getServiceCode());
             preparedStatement.setString(2, topicMappingUpdate.getServiceEditionCode());
             preparedStatement.setString(3, topicMappingUpdate.getTopic());
