@@ -1,9 +1,7 @@
 package no.nav.altinnkanal.rest;
 
-import org.apache.kafka.clients.consumer.KafkaConsumer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.PropertySource;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -12,13 +10,10 @@ import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
 
-import java.io.IOException;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
-import java.util.Properties;
 
 @PropertySource("classpath:kafka.properties")
 @Controller
@@ -31,15 +26,6 @@ public class HealthCheckRestController {
     private static final String CONFIGURATION_URL = BASE_URL + "configuration";
 
     private final Logger logger = LoggerFactory.getLogger(HealthCheckRestController.class.getName());
-
-    @Value("${bootstrap.servers}")
-    private String KAFKA_BOOTSTRAP_SERVERS;
-    @Value("${security.protocol}")
-    private String SECURITY_PROTOCOL;
-    @Value("${ssl.truststore.location}")
-    private String SSL_TRUSTSTORE_LOCATION;
-    @Value("${ssl.truststore.password}")
-    private String SSL_TRUSTSTORE_PASSWORD;
 
     private List<Boolean> checks;
 
@@ -63,7 +49,6 @@ public class HealthCheckRestController {
         checks = new ArrayList<>();
         checks.add(httpUrlFetchTest(WSDL_URL));
         checks.add(httpUrlFetchTest(CONFIGURATION_URL));
-        checks.add(kafkaBrokerConnectionTest());
         
         for (boolean check : checks) {
             if (!check) {
@@ -83,30 +68,6 @@ public class HealthCheckRestController {
             return false;
         } finally {
             if (httpConnection != null) httpConnection.disconnect();
-        }
-    }
-
-    private boolean kafkaBrokerConnectionTest() {
-        Properties props = new Properties();
-        props.put("bootstrap.servers", KAFKA_BOOTSTRAP_SERVERS);
-        props.put("client.id", "altinnkanal");
-        props.put("group.id", "test-group");
-        props.put("enable.auto.commit", "true");
-        props.put("key.deserializer", "org.apache.kafka.common.serialization.StringDeserializer");
-        props.put("value.deserializer", "org.apache.kafka.common.serialization.StringDeserializer");
-        props.put("request.timeout.ms", "5000");
-        props.put("session.timeout.ms", "4000");
-        props.put("heartbeat.interval.ms", "2500");
-        props.put("fetch.max.wait.ms", "2500");
-        props.put("security.protocol", SECURITY_PROTOCOL);
-        props.put("ssl.truststore.location", SSL_TRUSTSTORE_LOCATION);
-        props.put("ssl.truststore.password", SSL_TRUSTSTORE_PASSWORD);
-        try (KafkaConsumer kafkaConsumer = new KafkaConsumer<String, String>(props)) {
-            kafkaConsumer.partitionsFor("connect-statuses");
-            return true;
-        } catch (Exception e) {
-            logger.error("Kafka broker readiness test failed", e);
-            return false;
         }
     }
 }
