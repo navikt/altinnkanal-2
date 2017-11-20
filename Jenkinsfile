@@ -40,6 +40,12 @@ pipeline {
 				junit 'target/surefire-reports/*.xml'
 			}
 		}
+		stage('integration tests') {
+			steps {
+				sh 'mvn failsafe:integration-test'
+				junit 'target/failsafe-reports/*.xml'
+			}
+		}
 		stage('deploy docker image') {
 			steps {
 				script {
