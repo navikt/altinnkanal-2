@@ -36,13 +36,8 @@ pipeline {
 		}
 		stage('test') {
 			steps {
-				sh 'mvn test'
+				sh 'mvn verify'
 				junit 'target/surefire-reports/*.xml'
-			}
-		}
-		stage('integration tests') {
-			steps {
-				sh 'mvn failsafe:integration-test'
 				junit 'target/failsafe-reports/*.xml'
 			}
 		}
