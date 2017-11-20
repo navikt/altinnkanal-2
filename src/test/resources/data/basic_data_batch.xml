@@ -2,8 +2,8 @@
     <DataUnits>
         <DataUnit archiveReference="sup">
             <FormTask>
-                <ServiceCode>Test</ServiceCode>
-                <ServiceEditionCode>Test2</ServiceEditionCode>
+                <ServiceCode>{{serviceCode}}</ServiceCode>
+                <ServiceEditionCode>{{serviceEditionCode}}</ServiceEditionCode>
                 <Form>
                     <DataFormatId>1</DataFormatId>
                     <DataFormatVersion>2</DataFormatVersion>
