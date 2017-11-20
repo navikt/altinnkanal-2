@@ -6,19 +6,20 @@ import no.altinn.webservices.OnlineBatchReceiverSoap;
 import no.nav.altinnkanal.entities.TopicMappingUpdate;
 import no.nav.altinnkanal.services.LogService;
 import no.nav.altinnkanal.services.TopicService;
+import org.apache.cxf.jaxws.JaxWsProxyFactoryBean;
 import org.eclipse.jetty.server.Server;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.boot.context.embedded.LocalServerPort;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.kafka.test.context.EmbeddedKafka;
 import org.springframework.kafka.test.rule.KafkaEmbedded;
-import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.util.SocketUtils;
@@ -34,8 +35,10 @@ import static org.junit.Assert.*;
 
 @RunWith(SpringRunner.class)
 @TestPropertySource({"classpath:application-test.properties"})
-@SpringBootTest(classes = {BootstrapROBEA.class, OnlineBatchReceiverSoapIT.ITConfiguration.class})
-@ActiveProfiles("integration-test")
+@SpringBootTest(
+        classes = {BootstrapROBEA.class, OnlineBatchReceiverSoapIT.ITConfiguration.class},
+        webEnvironment =  SpringBootTest.WebEnvironment.RANDOM_PORT
+)
 @EmbeddedKafka
 public class OnlineBatchReceiverSoapIT {
     @Autowired
@@ -45,11 +48,12 @@ public class OnlineBatchReceiverSoapIT {
     @Autowired
     private JdbcTemplate jdbcTemplate;
 
-    // TODO: Replace interface with actual soap calls
-    @Autowired
+    @LocalServerPort
+    private int localServerPort;
     private OnlineBatchReceiverSoap soapEndpoint;
 
     private String simpleBatch;
+    private String simpleBatchMissingSec;
 
     private String createPayload(String serviceCode, String serviceEditionCode) {
         return simpleBatch
@@ -109,32 +113,79 @@ public class OnlineBatchReceiverSoapIT {
         }
     }
 
+    private String readResource(String resourceFileName) throws Exception {
+        try (BufferedReader reader = new BufferedReader(new InputStreamReader(getClass().getResourceAsStream(resourceFileName)))) {
+            return reader.lines().collect(Collectors.joining("\n"));
+        }
+    }
+
 
     @Before
     public void setUp() throws Exception {
-        try (BufferedReader reader = new BufferedReader(new InputStreamReader(getClass().getResourceAsStream("/data/basic_data_batch.xml")))) {
-            simpleBatch = reader.lines().collect(Collectors.joining("\n"));
-        }
+        simpleBatch = readResource("/data/basic_data_batch.xml");
+        simpleBatchMissingSec = readResource("/data/basic_data_batch_missing_sec.xml");
 
         jdbcTemplate.execute("DELETE FROM `topic_mapping_log`;");
         jdbcTemplate.execute("DELETE FROM `topic_mappings`;");
+
+        JaxWsProxyFactoryBean factory = new JaxWsProxyFactoryBean();
+        factory.setServiceClass(OnlineBatchReceiverSoap.class);
+        factory.setAddress("http://localhost:" + localServerPort + "/altinnkanal/OnlineBatchReceiverSoap");
+
+        soapEndpoint = (OnlineBatchReceiverSoap) factory.create();
+    }
+
+    private void createMappingRoute(String serviceCode, String serviceEditionCode, String topic, boolean enabled) throws Exception {
+        TopicMappingUpdate topicMappingUpdate = logService.logChange(new TopicMappingUpdate(serviceCode,
+                serviceEditionCode, topic, enabled, "Test topic", LocalDateTime.now(), "t99999"));
+        topicService.createTopicMapping(serviceCode, serviceEditionCode, topic, topicMappingUpdate.getId(), enabled);
     }
 
 
     @Test
-    public void testValidROBEARequest() throws Exception {
+    public void testValidScSec() throws Exception {
         final String serviceCode = "1232";
         final String serviceEditionCode = "4";
         final String topic = "test_topic_1232_4";
+
+        createMappingRoute(serviceCode, serviceEditionCode, topic, true);
+
         String payload = createPayload(serviceCode, serviceEditionCode);
 
-        TopicMappingUpdate topicMappingUpdate = logService.logChange(new TopicMappingUpdate(serviceCode,
-                serviceEditionCode, topic, true, "Test topic", LocalDateTime.now(), "t99999"));
-        topicService.createTopicMapping(serviceCode, serviceEditionCode, topic, topicMappingUpdate.getId(), true);
-
-        String result = soapEndpoint.receiveOnlineBatchExternalAttachment(null, null, null, 0,
-                payload, new byte[0]);
+        String result = soapEndpoint.receiveOnlineBatchExternalAttachment(null, null,
+                null, 0, payload, new byte[0]);
 
         assertEquals("OK", result);
+    }
+
+    @Test
+    public void testDisabledScSec() throws Exception {
+        final String serviceCode = "1233";
+        final String serviceEditionCode = "1";
+        final String topic = "test_topic_1233_1";
+
+        createMappingRoute(serviceCode, serviceEditionCode, topic, false);
+
+        String payload = createPayload(serviceCode, serviceEditionCode);
+
+        String result = soapEndpoint.receiveOnlineBatchExternalAttachment(null, null,
+                null, 0, payload, new byte[0]);
+
+        assertEquals("FAILED_DO_NOT_RETRY", result);
+    }
+
+    @Test
+    public void testMissingSecInPayload() throws Exception {
+        final String serviceCode = "1233";
+        final String serviceEditionCode = "2";
+        final String topic = "test_topic_1233_2";
+
+        createMappingRoute(serviceCode, serviceEditionCode, topic, true);
+        System.out.println(simpleBatchMissingSec);
+
+        String result = soapEndpoint.receiveOnlineBatchExternalAttachment(null, null,
+                null, 0, simpleBatchMissingSec, new byte[0]);
+
+        assertEquals("FAILED", result);
     }
 }

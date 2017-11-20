@@ -98,7 +98,8 @@ public class OnlineBatchReceiverSoapImpl implements OnlineBatchReceiverSoap {
             return "OK";
         } catch (Exception e) {
             logger.error("Failed to send a ROBEA request to Kafka (SC: {}, SEC: {})", serviceCode, serviceEditionCode, e);
-            requestsFailedError.labels(serviceCode, serviceEditionCode).inc();
+            // Use String.format or else prometheus will throw an NPE when the request is missing a SC or SEC
+            requestsFailedError.labels(String.format("%s", serviceCode), String.format("%s", serviceEditionCode)).inc();
             return "FAILED";
         }
     }
