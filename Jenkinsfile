@@ -36,8 +36,6 @@ pipeline {
 		stage('test') {
 			steps {
 				sh 'mvn verify'
-				junit 'target/surefire-reports/*.xml'
-				junit 'target/failsafe-reports/*.xml'
 			}
 		}
 		stage('deploy docker image') {
@@ -101,9 +99,14 @@ pipeline {
 	}
 	post {
         always {
+			junit 'target/surefire-reports/*.xml'
+			junit 'target/failsafe-reports/*.xml'
         	archive 'target/*.jar'
         	archive 'preprod.truststore.jks'
 			deleteDir()
         }
+		failure {
+			deleteDir()
+		}
     }
 }
