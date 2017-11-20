@@ -181,7 +181,6 @@ public class OnlineBatchReceiverSoapIT {
         final String topic = "test_topic_1233_2";
 
         createMappingRoute(serviceCode, serviceEditionCode, topic, true);
-        System.out.println(simpleBatchMissingSec);
 
         String result = soapEndpoint.receiveOnlineBatchExternalAttachment(null, null,
                 null, 0, simpleBatchMissingSec, new byte[0]);
