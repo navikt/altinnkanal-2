@@ -1,7 +1,5 @@
 #!/usr/bin/env groovy
 
-
-
 pipeline {
 	agent any
 	tools {
@@ -16,6 +14,7 @@ pipeline {
 		ZONE='fss'
 		APPLICATION_NAMESPACE='default'
 
+		// env vars for tests
 		LDAP_URL='ldap://ldapgw.test.local'
 		LDAP_USER_BASEDN='ou=NAV,ou=BusinessUnits,dc=test,dc=local'
 		SPRING_DATASOURCE_PASSWORD='root'

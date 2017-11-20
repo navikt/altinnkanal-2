@@ -2,7 +2,6 @@ package no.nav.altinnkanal.rest;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.context.annotation.PropertySource;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -15,7 +14,6 @@ import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
 
-@PropertySource("classpath:kafka.properties")
 @Controller
 public class HealthCheckRestController {
 
