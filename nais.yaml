@@ -6,10 +6,10 @@ port: 8080
 healthcheck:
   liveness:
     path: /isAlive
-    initialDelay: 50
+    initialDelay: 120
   readiness:
     path: /isReady
-    initialDelay: 50
+    initialDelay: 120
 prometheus:
   enabled: true
   path: /prometheus
