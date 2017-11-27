@@ -6,13 +6,18 @@ import no.altinn.webservices.OnlineBatchReceiverSoap;
 import no.nav.altinnkanal.entities.TopicMappingUpdate;
 import no.nav.altinnkanal.services.LogService;
 import no.nav.altinnkanal.services.TopicService;
+import org.apache.cxf.configuration.security.AuthorizationPolicy;
+import org.apache.cxf.endpoint.Client;
+import org.apache.cxf.frontend.ClientProxy;
 import org.apache.cxf.jaxws.JaxWsProxyFactoryBean;
+import org.apache.cxf.transport.http.HTTPConduit;
 import org.eclipse.jetty.server.Server;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.context.embedded.LocalServerPort;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.context.annotation.Bean;
@@ -41,6 +46,11 @@ import static org.junit.Assert.*;
 )
 @EmbeddedKafka
 public class OnlineBatchReceiverSoapIT {
+    @Value("${soap.auth.username}")
+    private String username;
+    @Value("${soap.auth.password}")
+    private String password;
+
     @Autowired
     private LogService logService;
     @Autowired
@@ -133,6 +143,12 @@ public class OnlineBatchReceiverSoapIT {
         factory.setAddress("http://localhost:" + localServerPort + "/altinnkanal/OnlineBatchReceiverSoap");
 
         soapEndpoint = (OnlineBatchReceiverSoap) factory.create();
+        Client client = ClientProxy.getClient(soapEndpoint);
+        HTTPConduit http = (HTTPConduit) client.getConduit();
+        AuthorizationPolicy authPolicy = new AuthorizationPolicy();
+        authPolicy.setUserName(username);
+        authPolicy.setPassword(password);
+        http.setAuthorization(authPolicy);
     }
 
     private void createMappingRoute(String serviceCode, String serviceEditionCode, String topic, boolean enabled) throws Exception {

@@ -1,89 +1,129 @@
 package no.nav.altinnkanal.config;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.PropertySource;
+import org.springframework.core.annotation.Order;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.config.annotation.method.configuration.EnableGlobalMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
+import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.web.authentication.SavedRequestAwareAuthenticationSuccessHandler;
 import org.springframework.stereotype.Component;
 
 @EnableGlobalMethodSecurity(prePostEnabled = true)
 @EnableWebSecurity
-@Configuration
-public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
-
-    @Override
-    protected void configure(HttpSecurity http) throws Exception {
-    SavedRequestAwareAuthenticationSuccessHandler successHandler = new SavedRequestAwareAuthenticationSuccessHandler();
-    successHandler.setUseReferer(true);
-    http.authorizeRequests()
-                .antMatchers("/configuration/**", "/configuration").permitAll().and()
-                .formLogin()
-                .loginProcessingUrl("/configuration/login")
-                .loginPage("/configuration/login")
-                .successHandler(successHandler)
-                .defaultSuccessUrl("/configuration")
-                .permitAll()
-                .and()
-                .csrf().ignoringAntMatchers("/altinnkanal/**").and()
-                .logout().logoutUrl("/configuration/logout").logoutSuccessUrl("/configuration").permitAll();
-    }
-
-    @Autowired
-    public void configureGlobal(AuthenticationManagerBuilder auth, LdapConfiguration config) throws Exception {
-        auth.ldapAuthentication()
-                .userSearchBase(config.userBasedn)
-                .userSearchFilter("cn={0}")
-                .groupSearchBase("ou=AccountGroups, ou=Groups," + config.userBasedn)
-                .groupSearchFilter("Member={0}")
-                .contextSource()
-                .url(config.url)
-                .managerDn(config.username)
-                .managerPassword(config.password);
-    }
-
-    @Component
-    @ConfigurationProperties("ldap")
-    public static class LdapConfiguration {
+public class SecurityConfiguration {
+    @Configuration
+    @Order(1)
+    @PropertySource("classpath:application.properties")
+    public static class BasicSecurityConfiguration extends WebSecurityConfigurerAdapter {
+        @Value("${soap.auth.username}")
         private String username;
+        @Value("${soap.auth.password}")
         private String password;
-        private String userBasedn;
-        private String url;
 
-        public String getUsername() {
-            return username;
+        @Override
+        protected void configure(HttpSecurity http) throws Exception {
+            http.antMatcher("/altinnkanal/**")
+                .authorizeRequests().anyRequest().fullyAuthenticated()
+                    .and()
+                .csrf().disable()
+                .httpBasic()
+                    .and()
+                .sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS);
         }
 
-        public String getPassword() {
-            return password;
+        @Override
+        public void configure(AuthenticationManagerBuilder auth) throws Exception {
+            auth.inMemoryAuthentication()
+                    .withUser("test")
+                    .password("test")
+                    .roles("USER");
+        }
+    }
+
+    @Configuration
+    @Order(2)
+    public static class LdapSecurityConfiguration extends WebSecurityConfigurerAdapter {
+        @Override
+        protected void configure(HttpSecurity http) throws Exception {
+            SavedRequestAwareAuthenticationSuccessHandler successHandler = new SavedRequestAwareAuthenticationSuccessHandler();
+            successHandler.setUseReferer(true);
+            http.authorizeRequests()
+                    .antMatchers("/configuration/**", "/configuration").permitAll()
+                        .and()
+                    .formLogin()
+                        .loginProcessingUrl("/configuration/login")
+                        .loginPage("/configuration/login")
+                        .successHandler(successHandler)
+                        .defaultSuccessUrl("/configuration")
+                        .permitAll()
+                        .and()
+                    .csrf().ignoringAntMatchers("/altinnkanal/**")
+                        .and()
+                    .logout()
+                        .logoutUrl("/configuration/logout")
+                        .logoutSuccessUrl("/configuration")
+                        .permitAll();
         }
 
-        public String getUserBasedn() {
-            return userBasedn;
+        @Autowired
+        public void configureGlobal(AuthenticationManagerBuilder auth, LdapConfiguration config) throws Exception {
+            auth.ldapAuthentication()
+                    .userSearchBase(config.userBasedn)
+                    .userSearchFilter("cn={0}")
+                    .groupSearchBase("ou=AccountGroups, ou=Groups," + config.userBasedn)
+                    .groupSearchFilter("Member={0}")
+                    .contextSource()
+                    .url(config.url)
+                    .managerDn(config.username)
+                    .managerPassword(config.password);
         }
 
-        public String getUrl() {
-            return url;
-        }
+        @Component
+        @ConfigurationProperties("ldap")
+        public static class LdapConfiguration {
+            private String username;
+            private String password;
+            private String userBasedn;
+            private String url;
 
-        public void setUsername(String username) {
-            this.username = username;
-        }
+            public String getUsername() {
+                return username;
+            }
 
-        public void setPassword(String password) {
-            this.password = password;
-        }
+            public String getPassword() {
+                return password;
+            }
 
-        public void setUserBasedn(String userBasedn) {
-            this.userBasedn = userBasedn;
-        }
+            public String getUserBasedn() {
+                return userBasedn;
+            }
 
-        public void setUrl(String url) {
-            this.url = url;
+            public String getUrl() {
+                return url;
+            }
+
+            public void setUsername(String username) {
+                this.username = username;
+            }
+
+            public void setPassword(String password) {
+                this.password = password;
+            }
+
+            public void setUserBasedn(String userBasedn) {
+                this.userBasedn = userBasedn;
+            }
+
+            public void setUrl(String url) {
+                this.url = url;
+            }
         }
     }
 }
