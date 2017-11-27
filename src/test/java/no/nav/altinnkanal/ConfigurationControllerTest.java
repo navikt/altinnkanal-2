@@ -1,8 +1,6 @@
 package no.nav.altinnkanal;
 
-import no.nav.altinnkanal.entities.TopicMappingUpdate;
 import no.nav.altinnkanal.mvc.ConfigurationController;
-import no.nav.altinnkanal.mvc.CreateUpdateTopicMappingRequest;
 import no.nav.altinnkanal.services.LogService;
 import no.nav.altinnkanal.services.TopicService;
 import org.junit.Before;
@@ -16,17 +14,8 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.web.servlet.view.InternalResourceViewResolver;
 
-import java.security.Principal;
-import java.time.Clock;
-import java.time.Instant;
-import java.time.LocalDateTime;
-import java.time.ZoneId;
-
-import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
-import static org.mockito.Mockito.*;
 
 @RunWith(SpringRunner.class)
 public class ConfigurationControllerTest {
@@ -34,8 +23,6 @@ public class ConfigurationControllerTest {
     private MockMvc mockMvc;
     @Mock private LogService logService;
     @Mock private TopicService topicService;
-    @Mock private CreateUpdateTopicMappingRequest createUpdateTopicMappingRequest;
-    @Mock private TopicMappingUpdate topicMappingUpdate;
     @InjectMocks private ConfigurationController controller;
 
     @Before
@@ -103,52 +90,4 @@ public class ConfigurationControllerTest {
                 .andExpect(model().attributeExists("update"))
                 .andExpect(model().attribute("update", true));
     }
-
-    /*@Test
-    public void postNewTopicMappingTest() throws Exception {
-        // TODO: Make this work.
-        long tmuId = 1;
-        String cutmrTopic = "test";
-        boolean cutmrEnabled = true;
-
-        when(topicMappingUpdate.getId()).thenReturn(tmuId);
-        when(createUpdateTopicMappingRequest.getTopic()).thenReturn(cutmrTopic);
-        when(createUpdateTopicMappingRequest.isEnabled()).thenReturn(cutmrEnabled);
-
-        Clock clock = Clock.fixed(Instant.now(), ZoneId.systemDefault());
-        TopicMappingUpdate tmu = new TopicMappingUpdate("test", "test", "test",
-                true, "test", LocalDateTime.now(clock), "TEST_USER");
-        when(logService.logChange(any(TopicMappingUpdate.class))).thenReturn(tmu);
-        doNothing().when(topicService).updateTopicMapping(anyString(), anyString(), anyString(), anyLong(), anyBoolean()); // <- NPE - y tho?
-
-        Principal principal = () -> "TEST_USER";
-        mockMvc.perform(post("/configuration/{serviceCode}/{serviceEditionCode}/edit", "test", "test")
-                .with(csrf())
-                .principal(principal)
-                .param("topicMapping.serviceCode", "test")
-                .param("topicMapping.serviceEditionCode", "test")
-                .param("topicMapping.topic", "test")
-                .param("topicMapping.enabled", "true")
-                .param("topicMapping.comment", "test"))
-                .andExpect(status().isOk())
-                .andExpect(view().name("redirect:/configuration"))
-                .andReturn();
-    }
-
-    @Test
-    public void postEditTopicMappingTest() throws Exception {
-        Principal principal = () -> "TEST_USER";
-        mockMvc.perform(post("/configuration/{serviceCode}/{serviceEditionCode}/edit", "test", "test")
-                .with(csrf())
-                .principal(principal)
-                .param("serviceCode", "test")
-                .param("serviceEditionCode", "test")
-                .param("topic", "test")
-                .param("enabled", "true")
-                .param("comment", "test"))
-                .andExpect(status().isOk())
-                .andExpect(view().name("redirect:/configuration"))
-                .andReturn();
-    }*/
-
 }
