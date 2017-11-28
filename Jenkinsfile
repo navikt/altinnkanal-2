@@ -20,6 +20,7 @@ pipeline {
 		LDAP_USER_BASEDN='ou=NAV,ou=BusinessUnits,dc=test,dc=local'
 		SPRING_DATASOURCE_PASSWORD='root'
 		SPRING_DATASOURCE_URL='jdbc:mysql://localhost/altinnkanal'
+		MAVEN_OPTS='-Dspring.profiles.active=local -Djavax.net.ssl.trustStore=preprod.truststore.jks -Djavax.net.ssl.trustStorePassword=password'
 	}
 	stages {
 		stage('build') {
