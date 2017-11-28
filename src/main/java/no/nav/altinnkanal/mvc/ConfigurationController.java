@@ -1,6 +1,7 @@
 package no.nav.altinnkanal.mvc;
 
 import no.altinn.webservices.OnlineBatchReceiverSoap;
+import no.nav.altinnkanal.entities.TopicMapping;
 import no.nav.altinnkanal.entities.TopicMappingUpdate;
 import no.nav.altinnkanal.services.LogService;
 import no.nav.altinnkanal.services.TopicService;
@@ -101,11 +102,12 @@ public class ConfigurationController {
     @PreAuthorize(ROLE_CHECK)
     @PostMapping("/{serviceCode}/{serviceEditionCode}/edit")
     public ModelAndView editTopicMapping(Principal principal, @PathVariable String serviceCode, @PathVariable String serviceEditionCode, CreateUpdateTopicMappingRequest update) throws Exception {
+        TopicMappingUpdate topicMapping = logService.getLastChangeFor(serviceCode, serviceEditionCode);
         TopicMappingUpdate topicMappingUpdate = logService.logChange(new TopicMappingUpdate(update.getServiceCode(),
                 update.getServiceEditionCode(), update.getTopic(), update.isEnabled(), update.getComment(),
                 LocalDateTime.now(), principal.getName()));
         topicService.updateTopicMapping(serviceCode, serviceEditionCode, update.getTopic(), topicMappingUpdate.getId(), update.isEnabled());
-        logger.info(append("object", topicMappingUpdate), "TopicMapping - Changed Entry");
+        logger.info(append("old_object", topicMapping).and(append("new_object", topicMappingUpdate)), "TopicMapping - Changed Entry");
         return new ModelAndView("redirect:/configuration");
     }
 }
