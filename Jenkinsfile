@@ -26,19 +26,15 @@ pipeline {
 		stage('build') {
 			steps {
 				script {
-					sh "keytool -keystore preprod.truststore.jks -storepass password -keypass password -alias \"CARoot\" -import -file certs/preprod/B27_issuing_intern.crt -noprompt"
-					//sh "keytool -keystore preprod.truststore.jks -storepass password -keypass password -alias \"CARoot2\" -import -file certs/preprod/B27_root_ca.crt -noprompt"
-					//sh "keytool -keystore preprod.truststore.jks -storepass password -keypass password -alias \"CARoot3\" -import -file certs/preprod/B27_issuing.crt -noprompt"
-					//sh "keytool -keystore preprod.truststore.jks -storepass password -keypass password -alias \"CARoot4\" -import -file certs/preprod/B27_sub_ca.crt -noprompt"
-					sh "keytool -keystore preprod.truststore.jks -storepass password -keypass password -alias \"CARoot2\" -import -file certs/preprod/D26_issuing_intern.crt -noprompt"
-
 					commitHash = sh(script: 'git rev-parse HEAD', returnStdout: true).trim()
 		            commitHashShort = sh(script: 'git rev-parse --short HEAD', returnStdout: true).trim()
 		            commitUrl = "http://stash.devillo.no/projects/${env.GIT_PROJECT}/repos/${env.APPLICATION_NAME}/commits/${commitHash}"
-
-		            /* gets the person who committed last as "Surname, First name" */
 		            committer = sh(script: 'git log -1 --pretty=format:"%an"', returnStdout: true).trim()
+		            slackMessage = "<${env.BUILD_URL}|#${env.BUILD_NUMBER}> (<${commitUrl}|${commitHashShort}>) of ${env.GIT_PROJECT}/${env.APPLICATION_NAME}@master by ${committer}"
+		            sh "keytool -keystore preprod.truststore.jks -storepass password -keypass password -alias \"CARoot\" -import -file certs/preprod/B27_issuing_intern.crt -noprompt"
+					sh "keytool -keystore preprod.truststore.jks -storepass password -keypass password -alias \"CARoot2\" -import -file certs/preprod/D26_issuing_intern.crt -noprompt"
 				}
+				slackSend message: "[STARTED] ${slackMessage} :fastparrot:"
 				sh 'mvn -B -DskipTests clean package'
 			}
 		}
@@ -50,8 +46,12 @@ pipeline {
 		stage('deploy docker image') {
 			steps {
 				milestone 1
-				input 'Continue to Deploy?'
+				slackSend color: "warning", message: "[DEPLOY - User Input Needed] ${slackMessage} :parrot:"
+				script {
+					userInput = input(message: "Continue to Deploy?", submitterParameter: "submitter")
+				}
 				milestone 2
+				slackSend color: "warning", message: "[DEPLOY - Approved by ${userInput}] ${slackMessage} :aussieparrot:"
 				script {
 					checkout scm
 					docker.withRegistry('https://docker.adeo.no:5000/') {
@@ -116,13 +116,18 @@ pipeline {
         	archive 'target/*.jar'
         	archive 'preprod.truststore.jks'
 			deleteDir()
+			script {
+				if (currentBuild.result == 'ABORTED') {
+					slackSend color: "warning", message: "[ABORTED] ${slackMessage} :confusedparrot:"
+				}
+			}
         }
         success {
-        	slackSend color: "good", message: "Build <${env.BUILD_URL}|#${env.BUILD_NUMBER}> (<${commitUrl}|${commitHashShort}>) of ${env.GIT_PROJECT}/${env.APPLICATION_NAME}@master by ${committer} passed :feelsrareman:"
+        	slackSend color: "good", message: "[SUCCESS] ${slackMessage} :feelsrareman:"
         }
 		failure {
 			deleteDir()
-			slackSend color: "danger", message: "Build <${env.BUILD_URL}|#${env.BUILD_NUMBER}> (<${commitUrl}|${commitHashShort}>) of ${env.GIT_PROJECT}/${env.APPLICATION_NAME}@master by ${committer} failed :feelsohwait:"
+			slackSend color: "danger", message: "[FAILURE] ${slackMessage} :feelsohwait:"
 		}
     }
 }
