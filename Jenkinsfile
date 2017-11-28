@@ -20,7 +20,7 @@ pipeline {
 		LDAP_USER_BASEDN='ou=NAV,ou=BusinessUnits,dc=test,dc=local'
 		SPRING_DATASOURCE_PASSWORD='root'
 		SPRING_DATASOURCE_URL='jdbc:mysql://localhost/altinnkanal'
-		MAVEN_OPTS='-Dspring.profiles.active=local -Djavax.net.ssl.trustStore=preprod.truststore.jks -Djavax.net.ssl.trustStorePassword=password'
+		MAVEN_OPTS='-Djavax.net.ssl.trustStore=preprod.truststore.jks -Djavax.net.ssl.trustStorePassword=password'
 	}
 	stages {
 		stage('build') {
@@ -39,6 +39,7 @@ pipeline {
 		            /* gets the person who committed last as "Surname, First name" */
 		            committer = sh(script: 'git log -1 --pretty=format:"%an"', returnStdout: true).trim()
 				}
+				sh 'echo "Hello! $MAVEN_OPTS"'
 				sh 'mvn -B -DskipTests clean package'
 			}
 		}
