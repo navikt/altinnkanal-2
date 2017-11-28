@@ -62,6 +62,8 @@ public class TopicServiceImpl implements TopicService {
                 .setServiceEditionCode(serviceEditionCode)
                 .build();
 
+        // Kinda dirty hack to make unit testing easier, we should ensure that it doesn't trigger updateCache two times
+        updateCache(serviceCode, serviceEditionCode);
         kafkaService.publish(topic, topicUpdate);
     }
 

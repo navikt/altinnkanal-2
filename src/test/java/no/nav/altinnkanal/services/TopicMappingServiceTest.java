@@ -1,6 +1,8 @@
 package no.nav.altinnkanal.services;
 
+import no.nav.altinnkanal.avro.NotifyTopicUpdate;
 import no.nav.altinnkanal.entities.TopicMapping;
+import org.apache.kafka.clients.consumer.Consumer;
 import org.apache.kafka.clients.producer.Producer;
 import org.junit.Before;
 import org.junit.Test;
@@ -13,6 +15,8 @@ import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.context.junit4.SpringRunner;
 
 import static org.junit.Assert.*;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.when;
 
 @TestPropertySource("classpath:application-test.properties")
 @SpringBootTest
@@ -25,7 +29,9 @@ public class TopicMappingServiceTest {
     @Autowired
     private JdbcTemplate jdbcTemplate;
     @MockBean
-    private Producer<String, byte[]> producer;
+    private Producer<String, Object> producer;
+    @MockBean
+    private Consumer<String, NotifyTopicUpdate> consumer;
 
     @Before
     public void setUp() throws Exception {

@@ -1,7 +1,9 @@
 package no.nav.altinnkanal.services;
 
 import no.altinn.webservices.OnlineBatchReceiverSoap;
+import no.nav.altinnkanal.avro.NotifyTopicUpdate;
 import no.nav.altinnkanal.entities.TopicMapping;
+import org.apache.kafka.clients.consumer.Consumer;
 import org.apache.kafka.clients.producer.Producer;
 import org.apache.kafka.clients.producer.ProducerRecord;
 import org.apache.kafka.clients.producer.RecordMetadata;
@@ -33,6 +35,8 @@ public class KafkaServiceTest {
     private TopicService topicRepository;
     @MockBean
     private Producer<String, Object> producer;
+    @MockBean
+    private Consumer<String, NotifyTopicUpdate> consumer;
 
     @Autowired
     private OnlineBatchReceiverSoap onlineBatchReceiver;

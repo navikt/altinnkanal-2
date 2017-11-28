@@ -39,7 +39,6 @@ pipeline {
 		            /* gets the person who committed last as "Surname, First name" */
 		            committer = sh(script: 'git log -1 --pretty=format:"%an"', returnStdout: true).trim()
 				}
-				sh 'echo "Hello! $MAVEN_OPTS"'
 				sh 'mvn -B -DskipTests clean package'
 			}
 		}
@@ -119,11 +118,11 @@ pipeline {
 			deleteDir()
         }
         success {
-        	slackSend color: "good", message: "Build <${env.BUILD_URL}|#${env.BUILD_NUMBER}> (<${commitUrl}|${commitHashShort}>) of ${env.GIT_PROJECT}/${env.APPLICATION_NAME}@master by ${committer} passed"
+        	slackSend color: "good", message: "Build <${env.BUILD_URL}|#${env.BUILD_NUMBER}> (<${commitUrl}|${commitHashShort}>) of ${env.GIT_PROJECT}/${env.APPLICATION_NAME}@master by ${committer} passed :feelsrareman:"
         }
 		failure {
 			deleteDir()
-			slackSend color: "danger", message: "Build <${env.BUILD_URL}|#${env.BUILD_NUMBER}> (<${commitUrl}|${commitHashShort}>) of ${env.GIT_PROJECT}/${env.APPLICATION_NAME}@master by ${committer} failed"
+			slackSend color: "danger", message: "Build <${env.BUILD_URL}|#${env.BUILD_NUMBER}> (<${commitUrl}|${commitHashShort}>) of ${env.GIT_PROJECT}/${env.APPLICATION_NAME}@master by ${committer} failed :feelsohwait:"
 		}
     }
 }

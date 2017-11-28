@@ -1,6 +1,8 @@
 package no.nav.altinnkanal.services;
 
+import no.nav.altinnkanal.avro.NotifyTopicUpdate;
 import no.nav.altinnkanal.entities.TopicMappingUpdate;
+import org.apache.kafka.clients.consumer.Consumer;
 import org.apache.kafka.clients.producer.Producer;
 import org.junit.Before;
 import org.junit.Test;
@@ -28,7 +30,9 @@ public class LogServiceTest {
     @Autowired
     private JdbcTemplate jdbcTemplate;
     @MockBean
-    private Producer<String, byte[]> producer;
+    private Producer<String, Object> producer;
+    @MockBean
+    private Consumer<String, NotifyTopicUpdate> consumer;
 
     @Before
     public void setUp() throws Exception {
