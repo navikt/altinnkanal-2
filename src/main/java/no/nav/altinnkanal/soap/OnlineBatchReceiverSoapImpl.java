@@ -87,7 +87,6 @@ public class OnlineBatchReceiverSoapImpl implements OnlineBatchReceiverSoap {
                 return "FAILED_DO_NOT_RETRY";
             }
 
-            // TODO: Validate/check if received metadata matches sent record?
             RecordMetadata metadata = kafkaService.publish(topicMapping.getTopic(), externalAttachment).get();
 
             double latency = requestLatency.observeDuration();

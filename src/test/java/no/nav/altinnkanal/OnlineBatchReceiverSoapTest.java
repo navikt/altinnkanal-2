@@ -1,6 +1,7 @@
 package no.nav.altinnkanal;
 
 import no.altinn.webservices.OnlineBatchReceiverSoap;
+import no.nav.altinnkanal.avro.ExternalAttachment;
 import no.nav.altinnkanal.entities.TopicMapping;
 import no.nav.altinnkanal.services.KafkaService;
 import no.nav.altinnkanal.services.TopicService;
@@ -65,7 +66,7 @@ public class OnlineBatchReceiverSoapTest {
 
         when(metadataFuture.get()).thenReturn(mock(RecordMetadata.class));
 
-        when(kafkaService.publish(anyString(), any())).thenReturn(metadataFuture);
+        when(kafkaService.publish(anyString(), any(ExternalAttachment.class))).thenReturn(metadataFuture);
 
         assertEquals("OK", soapService.receiveOnlineBatchExternalAttachment("username", "password", "123uhjoas", 0, simpleBatch, new byte[0]));
     }

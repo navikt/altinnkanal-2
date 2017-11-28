@@ -1,6 +1,7 @@
 package no.nav.altinnkanal.services;
 
 import no.nav.altinnkanal.avro.ExternalAttachment;
+import no.nav.altinnkanal.avro.NotifyTopicUpdate;
 import org.apache.commons.lang.SerializationException;
 import org.apache.kafka.clients.producer.Producer;
 import org.apache.kafka.clients.producer.ProducerRecord;
@@ -10,6 +11,7 @@ import org.springframework.stereotype.Service;
 
 import javax.annotation.PreDestroy;
 import java.io.IOException;
+import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 
 @Service
@@ -24,6 +26,11 @@ public class KafkaServiceImpl implements KafkaService {
     @Override
     public Future<RecordMetadata> publish(String topic, ExternalAttachment externalAttachment) throws IOException, SerializationException {
         return producer.send(new ProducerRecord<>(topic, externalAttachment));
+    }
+
+    @Override
+    public Future<RecordMetadata> publish(String topic, NotifyTopicUpdate topicUpdate) throws IOException, ExecutionException, InterruptedException {
+        return producer.send(new ProducerRecord<>(topic, topicUpdate));
     }
 
     @PreDestroy
