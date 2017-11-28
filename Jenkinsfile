@@ -6,6 +6,7 @@ pipeline {
 		maven 'default'
 	}
 	environment {
+		GIT_PROJECT='INT'
 		APPLICATION_NAME='altinnkanal-2'
 		FASIT_ENV='t4'
 		VERSION_MAJOR='1'
@@ -29,6 +30,13 @@ pipeline {
 					//sh "keytool -keystore preprod.truststore.jks -storepass password -keypass password -alias \"CARoot3\" -import -file certs/preprod/B27_issuing.crt -noprompt"
 					//sh "keytool -keystore preprod.truststore.jks -storepass password -keypass password -alias \"CARoot4\" -import -file certs/preprod/B27_sub_ca.crt -noprompt"
 					sh "keytool -keystore preprod.truststore.jks -storepass password -keypass password -alias \"CARoot2\" -import -file certs/preprod/D26_issuing_intern.crt -noprompt"
+
+					commitHash = sh(script: 'git rev-parse HEAD', returnStdout: true).trim()
+		            commitHashShort = sh(script: 'git rev-parse --short HEAD', returnStdout: true).trim()
+		            commitUrl = "http://stash.devillo.no/projects/${env.GIT_PROJECT}/repos/${env.APPLICATION_NAME}/commits/${commitHash}"
+
+		            /* gets the person who committed last as "Surname, First name" */
+		            committer = sh(script: 'git log -1 --pretty=format:"%an"', returnStdout: true).trim()
 				}
 				sh 'mvn -B -DskipTests clean package'
 			}
@@ -108,8 +116,12 @@ pipeline {
         	archive 'preprod.truststore.jks'
 			deleteDir()
         }
+        success {
+        	slackSend color: "good", message: "Build <${env.BUILD_URL}|#${env.BUILD_NUMBER}> (<${commitUrl}|${commitHashShort}>) of ${env.GIT_PROJECT}/${env.APPLICATION_NAME}@master by ${committer} passed"
+        }
 		failure {
 			deleteDir()
+			slackSend color: "danger", message: "Build <${env.BUILD_URL}|#${env.BUILD_NUMBER}> (<${commitUrl}|${commitHashShort}>) of ${env.GIT_PROJECT}/${env.APPLICATION_NAME}@master by ${committer} failed"
 		}
     }
 }
