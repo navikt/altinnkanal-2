@@ -1,8 +1,11 @@
 package no.nav.altinnkanal.mvc;
 
+import no.altinn.webservices.OnlineBatchReceiverSoap;
 import no.nav.altinnkanal.entities.TopicMappingUpdate;
 import no.nav.altinnkanal.services.LogService;
 import no.nav.altinnkanal.services.TopicService;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Controller;
@@ -14,6 +17,8 @@ import javax.validation.Valid;
 import java.security.Principal;
 import java.time.LocalDateTime;
 
+import static net.logstash.logback.marker.Markers.append;
+
 @RequestMapping("/configuration")
 @Controller
 public class ConfigurationController {
@@ -21,6 +26,7 @@ public class ConfigurationController {
     private final static String ROLE_CHECK = "hasRole('" + EDIT_ROLE_NAME + "')";
     private final LogService logService;
     private final TopicService topicService;
+    private final Logger logger = LoggerFactory.getLogger(OnlineBatchReceiverSoap.class.getName());
 
     @Autowired
     public ConfigurationController(LogService logService, TopicService topicService) {
@@ -70,7 +76,7 @@ public class ConfigurationController {
                     LocalDateTime.now(), principal.getName()));
             topicService.createTopicMapping(update.getServiceCode(), update.getServiceEditionCode(), update.getTopic(),
                     topic.getId(), update.isEnabled());
-
+            logger.info(append("object", topic), "TopicMapping - New Entry");
             return new ModelAndView("redirect:/configuration");
         }
     }
@@ -99,6 +105,7 @@ public class ConfigurationController {
                 update.getServiceEditionCode(), update.getTopic(), update.isEnabled(), update.getComment(),
                 LocalDateTime.now(), principal.getName()));
         topicService.updateTopicMapping(serviceCode, serviceEditionCode, update.getTopic(), topicMappingUpdate.getId(), update.isEnabled());
+        logger.info(append("object", topicMappingUpdate), "TopicMapping - Changed Entry");
         return new ModelAndView("redirect:/configuration");
     }
 }
