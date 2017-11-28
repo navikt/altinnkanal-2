@@ -4,7 +4,9 @@
         <encoder class="net.logstash.logback.encoder.LogstashEncoder" />
     </appender>
 
-    <root level="all">
+    <logger name="org.apache.cxf.service.invoker.AbstractInvoker" level="OFF" />
+
+    <root level="ALL">
         <appender-ref ref="stdout_json" />
     </root>
 
