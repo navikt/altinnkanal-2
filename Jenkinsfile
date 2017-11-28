@@ -40,6 +40,9 @@ pipeline {
 		}
 		stage('deploy docker image') {
 			steps {
+				milestone 1
+				input 'Continue to Deploy?'
+				milestone 2
 				script {
 					checkout scm
 					docker.withRegistry('https://docker.adeo.no:5000/') {
