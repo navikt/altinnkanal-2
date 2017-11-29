@@ -2,6 +2,7 @@ package no.nav.altinnkanal;
 
 import io.confluent.kafka.schemaregistry.rest.SchemaRegistryConfig;
 import io.confluent.kafka.schemaregistry.rest.SchemaRegistryRestApplication;
+import kafka.server.KafkaServer;
 import no.altinn.webservices.OnlineBatchReceiverSoap;
 import no.nav.altinnkanal.entities.TopicMappingUpdate;
 import no.nav.altinnkanal.services.LogService;
@@ -13,6 +14,7 @@ import org.apache.cxf.jaxws.JaxWsProxyFactoryBean;
 import org.apache.cxf.transport.http.HTTPConduit;
 import org.eclipse.jetty.server.Server;
 import org.junit.Before;
+import org.junit.ClassRule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -23,7 +25,6 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.jdbc.core.JdbcTemplate;
-import org.springframework.kafka.test.context.EmbeddedKafka;
 import org.springframework.kafka.test.rule.KafkaEmbedded;
 import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.context.junit4.SpringRunner;
@@ -44,7 +45,7 @@ import static org.junit.Assert.*;
         classes = {BootstrapROBEA.class, OnlineBatchReceiverSoapIT.ITConfiguration.class},
         webEnvironment =  SpringBootTest.WebEnvironment.RANDOM_PORT
 )
-@EmbeddedKafka
+
 public class OnlineBatchReceiverSoapIT {
     @Value("${soap.auth.username}")
     private String username;
@@ -57,6 +58,9 @@ public class OnlineBatchReceiverSoapIT {
     private TopicService topicService;
     @Autowired
     private JdbcTemplate jdbcTemplate;
+
+    @ClassRule
+    public static KafkaEmbedded kafkaEmbedded = new KafkaEmbedded(1, true);
 
     @LocalServerPort
     private int localServerPort;
@@ -73,8 +77,6 @@ public class OnlineBatchReceiverSoapIT {
 
     @Configuration
     public static class ITConfiguration {
-        @Autowired
-        private KafkaEmbedded kafkaEmbedded;
         @Autowired
         @Qualifier("schemaRegistryServer")
         private Server server;
@@ -100,7 +102,6 @@ public class OnlineBatchReceiverSoapIT {
             kafkaProperties.setProperty("bootstrap.servers", kafkaEmbedded.getBrokersAsString());
             kafkaProperties.setProperty("schema.registry.url", schemaRegistryConfig.getList(
                     SchemaRegistryConfig.LISTENERS_CONFIG).stream().collect(Collectors.joining(",")));
-
             kafkaProperties.remove("security.protocol");
 
             return kafkaProperties;
@@ -126,6 +127,19 @@ public class OnlineBatchReceiverSoapIT {
     private String readResource(String resourceFileName) throws Exception {
         try (BufferedReader reader = new BufferedReader(new InputStreamReader(getClass().getResourceAsStream(resourceFileName)))) {
             return reader.lines().collect(Collectors.joining("\n"));
+        }
+    }
+
+    private void stopKafkaServers() throws Exception {
+        for (KafkaServer kafkaServer : kafkaEmbedded.getKafkaServers()) {
+            kafkaServer.shutdown();
+            kafkaServer.awaitShutdown();
+        }
+    }
+
+    private void startKafkaServers() throws Exception {
+        for (KafkaServer kafkaServer : kafkaEmbedded.getKafkaServers()) {
+            kafkaServer.startup();
         }
     }
 
@@ -202,5 +216,28 @@ public class OnlineBatchReceiverSoapIT {
                 null, 0, simpleBatchMissingSec, new byte[0]);
 
         assertEquals("FAILED", result);
+    }
+
+    @Test
+    public void testKafkaBrokerTemporarilyUnavailable() throws Exception {
+        final String serviceCode = "1232";
+        final String serviceEditionCode = "4";
+        final String topic = "test_topic_1232_4";
+
+        createMappingRoute(serviceCode, serviceEditionCode, topic, true);
+
+        String payload = createPayload(serviceCode, serviceEditionCode);
+
+        // shutdown embedded Kafka
+        stopKafkaServers();
+        String result = soapEndpoint.receiveOnlineBatchExternalAttachment(null, null,
+                null, 0, payload, new byte[0]);
+        assertEquals("FAILED", result);
+
+        // restart embedded Kafka
+        startKafkaServers();
+        result = soapEndpoint.receiveOnlineBatchExternalAttachment(null, null,
+                null, 0, payload, new byte[0]);
+        assertEquals("OK", result);
     }
 }
