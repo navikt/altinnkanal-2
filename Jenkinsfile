@@ -43,15 +43,9 @@ pipeline {
 				sh 'mvn verify'
 			}
 		}
+		
 		stage('deploy docker image') {
 			steps {
-				milestone 1
-				slackSend color: "warning", message: "[DEPLOY - User Input Needed] ${slackMessage} :parrot:"
-				script {
-					userInput = input(message: "Continue to Deploy?", submitterParameter: "submitter")
-				}
-				milestone 2
-				slackSend color: "warning", message: "[DEPLOY - Approved by ${userInput}] ${slackMessage} :aussieparrot:"
 				script {
 					checkout scm
 					docker.withRegistry('https://docker.adeo.no:5000/') {
@@ -108,6 +102,21 @@ pipeline {
 				}
 			}
 		}
+		stage('deploy to prod?') {
+			// TODO: Add Jira integration deploy requests
+			when {
+				environment name: 'FASIT_ENV', value: 'p'
+			}
+			steps {
+				milestone 1
+				slackSend color: "warning", message: "[DEPLOY - User Input Needed] ${slackMessage} :parrot:"
+				script {
+					userInput = input(message: "Continue to Deploy?", submitterParameter: "submitter")
+				}
+				milestone 2 
+				slackSend color: "warning", message: "[DEPLOY - Approved by ${userInput}] ${slackMessage} :aussieparrot:"
+			}
+		}
 	}
 	post {
         always {
@@ -118,16 +127,16 @@ pipeline {
 			deleteDir()
 			script {
 				if (currentBuild.result == 'ABORTED') {
-					slackSend color: "warning", message: "[ABORTED] ${slackMessage} :confusedparrot:"
+					slackSend color: "warning", message: "[${currentBuild.currentResult}] ${slackMessage} :confusedparrot:"
 				}
 			}
         }
         success {
-        	slackSend color: "good", message: "[SUCCESS] ${slackMessage} :feelsrareman:"
+        	slackSend color: "good", message: "[${currentBuild.currentResult}] ${slackMessage} passed in ${currentBuild.durationString.replace(' and counting', '')} :feelsrareman:"
         }
 		failure {
 			deleteDir()
-			slackSend color: "danger", message: "[FAILURE] ${slackMessage} :feelsohwait:"
+			slackSend color: "danger", message: "[${currentBuild.currentResult}] ${slackMessage} :feelsohwait:"
 		}
     }
 }
