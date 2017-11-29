@@ -11,7 +11,7 @@ import java.util.List;
 
 @Service
 public class LogServiceImpl implements LogService {
-    JdbcTemplate jdbcTemplate;
+    private JdbcTemplate jdbcTemplate;
 
     @Autowired
     public LogServiceImpl(JdbcTemplate jdbcTemplate) {
