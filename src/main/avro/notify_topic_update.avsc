@@ -1,9 +1,0 @@
-{
-  "namespace": "no.nav.altinnkanal.avro",
-  "name": "NotifyTopicUpdate",
-  "type": "record",
-  "fields": [
-    { "name": "serviceCode", "type": "string" },
-    { "name": "serviceEditionCode", "type": "string" }
-  ]
-}

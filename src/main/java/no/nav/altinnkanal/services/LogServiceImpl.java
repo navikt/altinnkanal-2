@@ -58,6 +58,12 @@ public class LogServiceImpl implements LogService {
                 new String[]{ serviceCode, serviceEditionCode }, (resultSet, rowCount) -> fromResultSet(resultSet)).get(0);
     }
 
+    @Override
+    public long getLastLogEntryId() throws SQLException {
+        return jdbcTemplate.query("SELECT MAX(`id`) AS `last_log_entry_id` FROM `topic_mapping_log`;",
+                (resultSet, i) -> resultSet.getLong("last_log_entry_id")).get(0);
+    }
+
     private TopicMappingUpdate fromResultSet(ResultSet resultSet) throws SQLException {
         TopicMappingUpdate topicMappingUpdate = new TopicMappingUpdate(
                 resultSet.getString("service_code"),

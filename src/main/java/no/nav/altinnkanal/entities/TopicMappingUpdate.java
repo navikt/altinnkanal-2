@@ -89,4 +89,18 @@ public class TopicMappingUpdate {
     public void setUpdatedBy(String updatedBy) {
         this.updatedBy = updatedBy;
     }
+
+    @Override
+    public String toString() {
+        return "TopicMappingUpdate{" +
+                "id=" + id +
+                ", serviceCode='" + serviceCode + '\'' +
+                ", serviceEditionCode='" + serviceEditionCode + '\'' +
+                ", topic='" + topic + '\'' +
+                ", enabled=" + enabled +
+                ", comment='" + comment + '\'' +
+                ", updateDate=" + updateDate +
+                ", updatedBy='" + updatedBy + '\'' +
+                '}';
+    }
 }

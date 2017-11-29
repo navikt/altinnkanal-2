@@ -56,4 +56,15 @@ public class TopicMapping {
     public void setLogEntry(long logEntry) {
         this.logEntry = logEntry;
     }
+
+    @Override
+    public String toString() {
+        return "TopicMapping{" +
+                "serviceCode='" + serviceCode + '\'' +
+                ", serviceEditionCode='" + serviceEditionCode + '\'' +
+                ", topic='" + topic + '\'' +
+                ", logEntry=" + logEntry +
+                ", enabled=" + enabled +
+                '}';
+    }
 }
