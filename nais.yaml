@@ -6,10 +6,17 @@ port: 8080
 healthcheck:
   liveness:
     path: /isAlive
-    initialDelay: 120
+    # wait 30 seconds before trying to check status,
+    # and then try 60 times with 1 second intervals before
+    # killing the pod: 30 + 1*60 = 90 seconds before pod is killed
+    initialDelay: 30
+    periodSeconds: 1
+    failureThreshold: 60
   readiness:
     path: /isReady
-    initialDelay: 20
+    initialDelay: 30
+    periodSeconds: 1
+    failureThreshold: 60
 prometheus:
   enabled: true
   path: /prometheus
