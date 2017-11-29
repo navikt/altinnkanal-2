@@ -1,5 +1,7 @@
 package no.nav.altinnkanal.entities;
 
+import java.util.Objects;
+
 public class TopicMapping {
     private String serviceCode;
     private String serviceEditionCode;
@@ -55,6 +57,27 @@ public class TopicMapping {
 
     public void setLogEntry(long logEntry) {
         this.logEntry = logEntry;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o)
+            return true;
+        if (o == null || getClass() != o.getClass())
+            return false;
+
+        TopicMapping that = (TopicMapping) o;
+
+        return logEntry == that.logEntry
+                && Objects.equals(serviceCode, that.serviceCode)
+                && Objects.equals(serviceEditionCode, that.serviceEditionCode)
+                && Objects.equals(topic, that.topic)
+                && Objects.equals(enabled, that.enabled);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(serviceCode, serviceEditionCode, topic, logEntry, enabled);
     }
 
     @Override
