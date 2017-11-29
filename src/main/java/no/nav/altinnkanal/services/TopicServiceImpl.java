@@ -76,7 +76,9 @@ public class TopicServiceImpl implements TopicService {
 
         logger.debug("Querying database for topic updates {}", keyValue("force", force));
 
-        if (lastLogEntry >= logService.getLastLogEntryId() && !force) {
+        long lastPersistedLogEntry = logService.getLastLogEntryId();
+
+        if (lastLogEntry >= lastPersistedLogEntry && !force) {
             logger.debug("No updates detected, aborting cache update");
             return;
         }
@@ -100,6 +102,7 @@ public class TopicServiceImpl implements TopicService {
         }
 
         this.topicMappings = updated;
+        this.lastLogEntry = lastPersistedLogEntry;
 
         cacheUpdateTimer.close();
     }
