@@ -39,22 +39,11 @@ public class ConfigurationControllerTest {
     }
 
     @Test
-    public void getConfigurationViewEnabledTest() throws Exception {
+    public void getConfigurationViewTest() throws Exception {
         mockMvc.perform(get("/configuration"))
                 .andExpect(status().isOk())
                 .andExpect(view().name("configuration"))
-                .andExpect(model().attributeExists("topicMappingEntries", "enabled"))
-                .andExpect(model().attribute("enabled", true));
-    }
-
-    @Test
-    public void getConfigurationViewDisabledTest() throws Exception {
-        mockMvc.perform(get("/configuration")
-                .param("enabled", "false"))
-                .andExpect(status().isOk())
-                .andExpect(view().name("configuration"))
-                .andExpect(model().attributeExists("topicMappingEntries", "enabled"))
-                .andExpect(model().attribute("enabled", false));
+                .andExpect(model().attributeExists("topicMappingEntries"));
     }
 
     @Test

@@ -1,15 +1,18 @@
 {{# layout }}
 
     {{# error }}
-    <div class="alert alert-error">
-        Invalid username or password!
+    <div class="alert alert-danger" role="alert">
+        Innloggingsfeil. Prøv igjen.
     </div>
     {{/ error }}
-    <form method="post" class="pure-form pure-form-stacked">
-        <input type="text" name="username">
-        <input type="password" name="password">
+    <form method="post" class="form-signin">
+        <h3 class=""form-signin-heading>Vennligst logg inn</h3>
+        <label for="inputUsername" class="sr-only">NAV ident</label>
+        <input type="text" id="inputUsername" class="form-control" placeholder="NAV ident" name="username" required autofocus>
+        <label for="inputPassword" class="sr-only">Passord</label>
+        <input type="password" id="inputPassword" class="form-control" placeholder="Passord" name="password" required>
         <input type="hidden" name="{{ _csrf.parameterName }}" value="{{ _csrf.token }}">
-        <input type="submit" value="Logg inn" class="pure-button">
+        <button type="submit" class="btn btn-lg btn-primary btn-block">Logg inn</button>
     </form>
 {{/ layout }}
 {{> layout }}

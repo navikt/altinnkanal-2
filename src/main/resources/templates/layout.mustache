@@ -3,41 +3,48 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <link rel="stylesheet" href="/css/pure-min.css">
+    <link rel="stylesheet" href="/css/bootstrap.min.css">
     <link rel="stylesheet" href="/css/app.css">
     <title>Altinnkanal Configuration Page</title>
 </head>
 <body>
-    <div class="header">
-        <div class="home-menu pure-menu pure-menu-horizontal pure-menu-fixed">
-            <a href="/configuration" class="pure-menu-heading pure-menu-link">Altinnkanal Configuration Page</a>
-            <ul class="pure-menu-list">
-                <li class="pure-menu-item">
-                    <a href="/configuration/new" class="pure-menu-link">Ny videresending</a>
-                </li>
-            </ul>
-            <ul class="pure-menu-list menu-right">
-                {{# ident }}
-                    <li class="pure-menu-item">
-                        Logget inn som: {{ ident }}
+    <nav class="navbar navbar-inverse navbar-fixed-top">
+        <div class="container-fluid">
+            <div class="navbar-header">
+                <a href="/configuration" class="navbar-brand">Altinnkanal Adminkonsoll</a>
+            </div>
+            <div id="navbar" class="navbar-collapse collapse">
+
+                <ul class="nav navbar-nav navbar-left">
+                    <li>
+                        <a href="/configuration/new">Ny videresending</a>
                     </li>
-                    <li class="pure-menu-item">
-                        <form action="/configuration/logout" method="post">
-                            <input type="submit" class="pure-button logout-button" value="Logg ut">
-                            <input type="hidden" name="{{_csrf.parameterName }}" value="{{ _csrf.token }}">
-                        </form>
-                    </li>
-                {{/ ident }}
-                {{^ ident }}
-                    <li class="pure-menu-item">
-                        <a href="/configuration/login" class="pure-menu-link">Logg inn</a>
-                    </li>
-                {{/ ident }}
-            </ul>
+                </ul>
+                <ul class="nav navbar-nav navbar-right">
+                    {{# ident }}
+                        <li class="navbar-text">
+                            Logget inn som: {{ ident }}
+                        </li>
+                        <li class="navbar-btn">
+                            <form action="/configuration/logout" method="post">
+                                <button type="submit" class="btn btn-link" value="Logg ut">Logg ut</button>
+                                <input type="hidden" name="{{_csrf.parameterName }}" value="{{ _csrf.token }}">
+                            </form>
+                        </li>
+                    {{/ ident }}
+                    {{^ ident }}
+                        <li>
+                            <a href="/configuration/login">Logg inn</a>
+                        </li>
+                    {{/ ident }}
+                </ul>
+            </div>
         </div>
-    </div>
-    <div class="content">
-        {{{ layout.body }}}
+    </nav>
+    <div class="container-fluid">
+        <div class="row">
+            {{{ layout.body }}}
+        </div>
     </div>
 </body>
 </html>

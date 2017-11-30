@@ -1,7 +1,6 @@
 package no.nav.altinnkanal.mvc;
 
 import no.altinn.webservices.OnlineBatchReceiverSoap;
-import no.nav.altinnkanal.entities.TopicMapping;
 import no.nav.altinnkanal.entities.TopicMappingUpdate;
 import no.nav.altinnkanal.services.LogService;
 import no.nav.altinnkanal.services.TopicService;
@@ -17,6 +16,8 @@ import org.springframework.web.servlet.ModelAndView;
 import javax.validation.Valid;
 import java.security.Principal;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 
 import static net.logstash.logback.marker.Markers.append;
 
@@ -43,10 +44,11 @@ public class ConfigurationController {
     }
 
     @GetMapping
-    public ModelAndView listAllTopicMappings(@RequestParam(name = "enabled", defaultValue = "true") Boolean enabled) throws Exception {
+    public ModelAndView listAllTopicMappings() throws Exception {
+        List<TopicMappingUpdate> allMappings = new ArrayList<>(logService.getUniqueChangelog(true));
+        allMappings.addAll(logService.getUniqueChangelog(false));
         return new ModelAndView("configuration")
-                .addObject("topicMappingEntries", logService.getUniqueChangelog(enabled))
-                .addObject("enabled", enabled);
+                .addObject("topicMappingEntries", allMappings);
     }
 
     @GetMapping("/login")
@@ -108,6 +110,18 @@ public class ConfigurationController {
                 LocalDateTime.now(), principal.getName()));
         topicService.updateTopicMapping(serviceCode, serviceEditionCode, update.getTopic(), topicMappingUpdate.getId(), update.isEnabled());
         logger.info(append("old_object", topicMapping).and(append("new_object", topicMappingUpdate)), "TopicMapping - Changed Entry");
+        return new ModelAndView("redirect:/configuration");
+    }
+
+    @PreAuthorize(ROLE_CHECK)
+    @GetMapping("/{serviceCode}/{serviceEditionCode}/toggleEnabled")
+    public ModelAndView toggleEnabledTopicMapping(Principal principal, @PathVariable String serviceCode, @PathVariable String serviceEditionCode) throws Exception {
+        TopicMappingUpdate topicMapping = logService.getLastChangeFor(serviceCode, serviceEditionCode);
+        TopicMappingUpdate topicMappingUpdate = logService.logChange(new TopicMappingUpdate(topicMapping.getServiceCode(),
+                topicMapping.getServiceEditionCode(), topicMapping.getTopic(), !topicMapping.isEnabled(), topicMapping.getComment(),
+                LocalDateTime.now(), principal.getName()));
+        topicService.updateTopicMapping(serviceCode, serviceEditionCode, topicMapping.getTopic(), topicMappingUpdate.getId(), !topicMapping.isEnabled());
+        logger.info(append("old_state", topicMapping.isEnabled()).and(append("new_state", !topicMapping.isEnabled())), "TopicMapping - Toggled Routing State");
         return new ModelAndView("redirect:/configuration");
     }
 }

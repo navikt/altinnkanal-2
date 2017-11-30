@@ -1,38 +1,41 @@
 {{# layout }}
-    <div class="pure-g">
-        <div class="pure-u-1">
-            <h3>Changelog (newest first)</h3>
-        </div>
-        <div class="pure-u-1">
-            <table class="pure-table">
-                <thead>
-                <tr>
-                    <th>Service code</th>
-                    <th>Service edition code</th>
-                    <th>Topic</th>
-                    <th>Enabled</th>
-                    <th>Comment</th>
-                    <th>Update date</th>
-                    <th>Updated by</th>
+    <div class="row">
+        <h3>Endringslogg (nyeste først)</h3>
+        <p><strong>Service Code:</strong> {{ serviceCode }}</p>
+        <p><strong>Service Edition Code:</strong> {{ serviceEditionCode }}</p>
+    </div>
+    <div class="row">
+        <table class="table table-hover">
+            <thead>
+            <tr>
+                <th>Oppdatert</th>
+                <th>Oppdatert av</th>
+                <th>Topic</th>
+                <th>Aktivert</th>
+                <th>Kommentar</th>
+            </tr>
+            </thead>
+            <tbody>
+            {{# log }}
+                {{# enabled}}
+                <tr class="success">
+                {{/ enabled}}
+                {{^ enabled }}
+                <tr class="danger">
+                {{/enabled}}
+                    <td>{{ updateDate }}</td>
+                    <td>{{ updatedBy }}</td>
+                    <td>{{ topic }}</td>
+                    <td>{{ enabled }}</td>
+                    <td>{{ comment }}</td>
                 </tr>
-                </thead>
-                <tbody>
-                {{# log }}
-                    <tr>
-                        <th>{{ serviceCode }}</th>
-                        <th>{{ serviceEditionCode }}</th>
-                        <th>{{ topic }}</th>
-                        <th>{{ enabled }}</th>
-                        <th>{{ comment }}</th>
-                        <th>{{ updateDate }}</th>
-                        <th>{{ updatedBy }}</th>
-                    </tr>
-                {{/ log }}
-                </tbody>
-            </table>
-        </div>
-        <div class="pure-u-1">
-            <a href="/configuration/{{ serviceCode }}/{{ serviceEditionCode }}/edit" class="edit-button pure-button">Edit</a>
-        </div>
+            {{/ log }}
+            </tbody>
+        </table>
+
+        <a href="/configuration/{{ serviceCode }}/{{ serviceEditionCode }}/edit" class="btn btn-info">
+            Rediger
+        </a>
+
 {{/layout}}
 {{> layout }}

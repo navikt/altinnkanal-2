@@ -1,40 +1,56 @@
 {{# layout }}
-    <div class="pure-g">
-        <div class="pure-u-1">
-            <h3>List of {{# enabled }}enabled{{/ enabled }}{{^ enabled }}disabled{{/ enabled }} entries</h3>
-            <a href="/configuration{{# enabled}}?enabled=false{{/enabled}}">Show
-                {{^ enabled }}enabled{{/ enabled }}{{# enabled }}disabled{{/ enabled }} entries</a>
-        </div>
-        <div class="pure-u-1">
-            <table class="pure-table pure-table-bordered">
-                <thead>
-                    <tr>
-                        <th>Service code</th>
-                        <th>Service edition code</th>
-                        <th>Topic</th>
-                        <th>Comment</th>
-                        <th>Last updated</th>
-                        <th>Updated by</th>
-                    </tr>
-                </thead>
-                <tbody>
-                {{# topicMappingEntries }}
-                    <tr>
-                        <th>{{ serviceCode }}</th>
-                        <th>{{ serviceEditionCode }}</th>
-                        <th>{{ topic }}</th>
-                        <th>{{ comment }}</th>
-                        <th>
-                            <a href="/configuration/{{serviceCode}}/{{serviceEditionCode}}">
-                                {{ updateDate }}
-                            </a>
-                        </th>
-                        <th>{{ updatedBy }}</th>
-                    </tr>
-                {{/ topicMappingEntries }}
-                </tbody>
-            </table>
-        </div>
-    <div>
+    <div class="row">
+        <h3>Liste over videresendinger</h3>
+    </div>
+    <div class="row">
+        <table class="table table-hover">
+            <thead>
+                <tr>
+                    <th>Service Code</th>
+                    <th>Service Edition Code</th>
+                    <th>Topic</th>
+                    <th>Sist oppdatert</th>
+                    <th>Oppdatert av</th>
+                </tr>
+            </thead>
+            <tbody>
+            {{# topicMappingEntries }}
+                {{# enabled}}
+                <tr class="success">
+                {{/ enabled}}
+                {{^ enabled }}
+                <tr class="danger">
+                {{/enabled}}
+                    <td>{{ serviceCode }}</td>
+                    <td>{{ serviceEditionCode }}</td>
+                    <td>{{ topic }}</td>
+                    <td>
+                        <a href="/configuration/{{serviceCode}}/{{serviceEditionCode}}">
+                            {{ updateDate }}
+                        </a>
+                    </td>
+                    <td>{{ updatedBy }}</td>
+                    <td>
+                        <a href="/configuration/{{ serviceCode }}/{{ serviceEditionCode }}/edit" class="btn btn-info">
+                            Rediger
+                        </a>
+                    </td>
+                    <td>
+                    {{# enabled}}
+                        <a href="/configuration/{{ serviceCode }}/{{ serviceEditionCode }}/toggleEnabled" class="btn btn-danger">Deaktiver</a>
+                    {{/ enabled}}
+                    {{^ enabled }}
+                        <a href="/configuration/{{ serviceCode }}/{{ serviceEditionCode }}/toggleEnabled" class="btn btn-success">Aktiver</a>
+                    {{/enabled}}
+                    </td>
+                </tr>
+            {{/ topicMappingEntries }}
+            </tbody>
+        </table>
+        <a href="/configuration/new" class="btn btn-primary">
+            Ny videresending
+        </a>
+    </div>
+
 {{/ layout }}
 {{> layout }}
