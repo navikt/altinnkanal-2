@@ -31,26 +31,25 @@ public class OnlineBatchReceiverSoapImpl implements OnlineBatchReceiverSoap {
     private final KafkaService kafkaService;
 
     private static final Counter requestsTotal = Counter.build()
-            .name("requests_total").help("Total requests.")
-            .labelNames("sc", "sec").register();
+            .name("altinnkanal_requests_total")
+            .help("Total requests.").register();
     private static final Counter requestsSuccess = Counter.build()
-            .name("requests_success").help("Total successful requests.")
-            .labelNames("sc", "sec").register();
+            .name("altinnkanal_requests_success")
+            .help("Total successful requests.").register();
     private static final Counter requestsFailedDisabled = Counter.build()
-            .name("requests_disabled").help("Total failed requests due to disabled SC/SEC codes.")
-            .labelNames("sc", "sec").register();
+            .name("altinnkanal_requests_disabled")
+            .help("Total failed requests due to disabled SC/SEC codes.").register();
     private static final Counter requestsFailedMissing = Counter.build()
-            .name("requests_missing").help("Total failed requests due to missing/unknown SC/SEC codes.")
-            .labelNames("sc", "sec").register();
+            .name("altinnkanal_requests_missing")
+            .help("Total failed requests due to missing/unknown SC/SEC codes.").register();
     private static final Counter requestsFailedError = Counter.build()
-            .name("requests_error").help("Total failed requests due to error.")
-            .labelNames("sc", "sec").register();
-
+            .name("altinnkanal_requests_error")
+            .help("Total failed requests due to error.").register();
     private static final Summary requestSize = Summary.build()
-            .name("request_size_bytes_sum").help("Request size in bytes.")
+            .name("altinnkanal_request_size_bytes_sum").help("Request size in bytes.")
             .register();
     private static final Summary requestTime = Summary.build()
-            .name("request_time_ms").help("Request time in milliseconds.")
+            .name("altinnkanal_request_time_ms").help("Request time in milliseconds.")
             .register();
 
     @Autowired
@@ -69,18 +68,18 @@ public class OnlineBatchReceiverSoapImpl implements OnlineBatchReceiverSoap {
 
             serviceCode = externalAttachment.getSc().toString();
             serviceEditionCode = externalAttachment.getSec().toString();
-            requestsTotal.labels(serviceCode, serviceEditionCode).inc();
+            requestsTotal.inc();
 
             TopicMapping topicMapping = topicService.getTopicMapping(serviceCode, serviceEditionCode);
 
             if (topicMapping == null || !topicMapping.isEnabled()) {
                 if (topicMapping == null) {
-                    requestsFailedMissing.labels(serviceCode, serviceEditionCode).inc();
+                    requestsFailedMissing.inc();
                     logger.info("Denied ROBEA request due to missing/unknown SC/SEC codes: {}, {}",
                             keyValue("SC", serviceCode), keyValue("SEC", serviceEditionCode));
                 }
                 else {
-                    requestsFailedDisabled.labels(serviceCode, serviceEditionCode).inc();
+                    requestsFailedDisabled.inc();
                     logger.info("Denied ROBEA request due to disabled SC/SEC codes: {}, {}",
                             keyValue("SC", serviceCode), keyValue("SEC", serviceEditionCode));
                 }
@@ -91,7 +90,7 @@ public class OnlineBatchReceiverSoapImpl implements OnlineBatchReceiverSoap {
 
             double latency = requestLatency.observeDuration();
             requestSize.observe(metadata.serializedValueSize());
-            requestsSuccess.labels(serviceCode, serviceEditionCode).inc();
+            requestsSuccess.inc();
             logger.debug("Successfully published ROBEA request to Kafka: {}, {}, {}, {})",
                     keyValue("SC", serviceCode), keyValue("SEC", serviceEditionCode),
                     keyValue("latency", String.format("%.0f", latency * 1000) + " ms"),
@@ -100,8 +99,7 @@ public class OnlineBatchReceiverSoapImpl implements OnlineBatchReceiverSoap {
         } catch (Exception e) {
             logger.error("Failed to send a ROBEA request to Kafka {}, {}",
                     keyValue("SC", serviceCode), keyValue("SEC", serviceEditionCode), e);
-            // Use String.format or else prometheus will throw an NPE when the request is missing a SC or SEC
-            requestsFailedError.labels(String.format("%s", serviceCode), String.format("%s", serviceEditionCode)).inc();
+            requestsFailedError.inc();
             return "FAILED";
         }
     }
