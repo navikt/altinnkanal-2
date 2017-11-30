@@ -30,6 +30,7 @@ pipeline {
 		            commitHashShort = sh(script: 'git rev-parse --short HEAD', returnStdout: true).trim()
 		            commitUrl = "http://stash.devillo.no/projects/${env.GIT_PROJECT}/repos/${env.APPLICATION_NAME}/commits/${commitHash}"
 		            committer = sh(script: 'git log -1 --pretty=format:"%an"', returnStdout: true).trim()
+		            appVersion = "${env.VERSION_MAJOR}.${env.VERSION_MINOR}.${env.BUILD_ID}-${commitHashShort}"
 		            slackMessage = "<${env.BUILD_URL}|#${env.BUILD_NUMBER}> (<${commitUrl}|${commitHashShort}>) of ${env.GIT_PROJECT}/${env.APPLICATION_NAME}@master by ${committer}"
 		            sh "keytool -keystore preprod.truststore.jks -storepass password -keypass password -alias \"CARoot\" -import -file certs/preprod/B27_issuing_intern.crt -noprompt"
 					sh "keytool -keystore preprod.truststore.jks -storepass password -keypass password -alias \"CARoot2\" -import -file certs/preprod/D26_issuing_intern.crt -noprompt"
@@ -49,7 +50,7 @@ pipeline {
 				script {
 					checkout scm
 					docker.withRegistry('https://docker.adeo.no:5000/') {
-						def image = docker.build("integrasjon/${env.APPLICATION_NAME}:${env.VERSION_MAJOR}.${env.VERSION_MINOR}.${env.BUILD_ID}")
+						def image = docker.build("integrasjon/${env.APPLICATION_NAME}:${appVersion}")
 						image.push()
 						image.push 'latest'
 					}
@@ -61,7 +62,7 @@ pipeline {
 				script {
 					withCredentials([[$class: 'UsernamePasswordMultiBinding', credentialsId: 'nexus-user', usernameVariable: 'NEXUS_USERNAME', passwordVariable: 'NEXUS_PASSWORD']]) {
 						sh "nais validate"
-						sh "nais upload --app ${env.APPLICATION_NAME} -v ${env.VERSION_MAJOR}.${env.VERSION_MINOR}.${env.BUILD_ID}"
+						sh "nais upload --app ${env.APPLICATION_NAME} -v ${appVersion}"
 					}
 				}
 			}
@@ -73,7 +74,7 @@ pipeline {
 			            def postBody = [
 			                    application: "${env.APPLICATION_NAME}",
 			                    environment: "${env.FASIT_ENV}",
-			                    version    : "${env.VERSION_MAJOR}.${env.VERSION_MINOR}.${env.BUILD_ID}",
+			                    version    : "${appVersion}",
 			                    username   : "${env.NAIS_USERNAME}",
 			                    password   : "${env.NAIS_PASSWORD}",
 			                    zone       : "${env.ZONE}",
