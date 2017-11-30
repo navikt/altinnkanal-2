@@ -4,11 +4,11 @@ Requires kubectl and kubeconfigs setup as well as helm installed.
 
 Installing the chart:
 
-helm install --namespace integrasjon -f values.yaml --name integrasjon  stable/mariadb 
+helm install -f values.yaml --name altinnkanal-db stable/mariadb 
 
 Deleting the chart:
 
-helm delete integrasjon --purge
+helm delete altinnkanal-db --purge
 
 
 See: 
