@@ -5,7 +5,7 @@
       "type": "grafana",
       "id": "grafana",
       "name": "Grafana",
-      "version": "4.5.2"
+      "version": "4.6.2"
     },
     {
       "type": "panel",
@@ -21,7 +21,17 @@
     }
   ],
   "annotations": {
-    "list": []
+    "list": [
+      {
+        "builtIn": 1,
+        "datasource": "-- Grafana --",
+        "enable": true,
+        "hide": true,
+        "iconColor": "rgba(0, 211, 255, 1)",
+        "name": "Annotations & Alerts",
+        "type": "dashboard"
+      }
+    ]
   },
   "editable": true,
   "gnetId": null,
@@ -33,7 +43,1034 @@
   "rows": [
     {
       "collapse": false,
-      "height": 252,
+      "height": 92,
+      "panels": [
+        {
+          "cacheTimeout": null,
+          "colorBackground": false,
+          "colorValue": false,
+          "colors": [
+            "rgba(245, 54, 54, 0.9)",
+            "rgba(27, 176, 2, 0.89)",
+            "rgba(50, 172, 45, 0.97)"
+          ],
+          "datasource": "$datasource",
+          "decimals": null,
+          "format": "short",
+          "gauge": {
+            "maxValue": 100,
+            "minValue": 0,
+            "show": false,
+            "thresholdLabels": false,
+            "thresholdMarkers": true
+          },
+          "height": "",
+          "hideTimeOverride": true,
+          "id": 1,
+          "interval": null,
+          "links": [],
+          "mappingType": 1,
+          "mappingTypes": [
+            {
+              "name": "value to text",
+              "value": 1
+            },
+            {
+              "name": "range to text",
+              "value": 2
+            }
+          ],
+          "maxDataPoints": 100,
+          "nullPointMode": "connected",
+          "nullText": null,
+          "postfix": "",
+          "postfixFontSize": "50%",
+          "prefix": "",
+          "prefixFontSize": "50%",
+          "rangeMaps": [
+            {
+              "from": "null",
+              "text": "N/A",
+              "to": "null"
+            }
+          ],
+          "repeat": null,
+          "span": 1,
+          "sparkline": {
+            "fillColor": "rgba(27, 176, 2, 0.1)",
+            "full": true,
+            "lineColor": "rgba(27, 176, 2, 0.89)",
+            "show": true
+          },
+          "tableColumn": "Value",
+          "targets": [
+            {
+              "dsType": "influxdb",
+              "expr": "sum(altinnkanal_requests_success)",
+              "format": "time_series",
+              "groupBy": [],
+              "instant": false,
+              "intervalFactor": 1,
+              "measurement": "kafka_published",
+              "orderByTime": "ASC",
+              "policy": "default",
+              "refId": "A",
+              "resultFormat": "table",
+              "select": [
+                [
+                  {
+                    "params": [
+                      "status"
+                    ],
+                    "type": "field"
+                  },
+                  {
+                    "params": [],
+                    "type": "count"
+                  }
+                ]
+              ],
+              "step": 1,
+              "tags": [
+                {
+                  "key": "status",
+                  "operator": "=",
+                  "value": "success"
+                }
+              ]
+            }
+          ],
+          "thresholds": "",
+          "timeFrom": null,
+          "timeShift": null,
+          "title": "# of Successful Requests",
+          "type": "singlestat",
+          "valueFontSize": "50%",
+          "valueMaps": [
+            {
+              "op": "=",
+              "text": "0",
+              "value": "null"
+            },
+            {
+              "op": "=",
+              "text": "0",
+              "value": "N/A"
+            }
+          ],
+          "valueName": "current"
+        },
+        {
+          "cacheTimeout": null,
+          "colorBackground": false,
+          "colorValue": false,
+          "colors": [
+            "rgba(245, 54, 54, 0.9)",
+            "rgba(238, 29, 29, 0.89)",
+            "rgba(50, 172, 45, 0.97)"
+          ],
+          "datasource": "$datasource",
+          "decimals": 0,
+          "format": "none",
+          "gauge": {
+            "maxValue": 100,
+            "minValue": 0,
+            "show": false,
+            "thresholdLabels": false,
+            "thresholdMarkers": true
+          },
+          "height": "",
+          "hideTimeOverride": true,
+          "id": 2,
+          "interval": null,
+          "links": [],
+          "mappingType": 1,
+          "mappingTypes": [
+            {
+              "name": "value to text",
+              "value": 1
+            },
+            {
+              "name": "range to text",
+              "value": 2
+            }
+          ],
+          "maxDataPoints": 100,
+          "minSpan": null,
+          "nullPointMode": "connected",
+          "nullText": null,
+          "postfix": "",
+          "postfixFontSize": "50%",
+          "prefix": "",
+          "prefixFontSize": "50%",
+          "rangeMaps": [
+            {
+              "from": "null",
+              "text": "N/A",
+              "to": "null"
+            }
+          ],
+          "span": 1,
+          "sparkline": {
+            "fillColor": "rgba(238, 29, 29, 0.1)",
+            "full": true,
+            "lineColor": "rgba(238, 29, 29, 0.89)",
+            "show": true
+          },
+          "tableColumn": "Value",
+          "targets": [
+            {
+              "dsType": "influxdb",
+              "expr": "sum(altinnkanal_requests_error)",
+              "format": "time_series",
+              "groupBy": [],
+              "instant": false,
+              "intervalFactor": 1,
+              "legendFormat": "",
+              "measurement": "kafka_published",
+              "orderByTime": "ASC",
+              "policy": "default",
+              "refId": "A",
+              "resultFormat": "table",
+              "select": [
+                [
+                  {
+                    "params": [
+                      "status"
+                    ],
+                    "type": "field"
+                  },
+                  {
+                    "params": [],
+                    "type": "count"
+                  }
+                ]
+              ],
+              "step": 1,
+              "tags": [
+                {
+                  "key": "status",
+                  "operator": "=",
+                  "value": "success"
+                }
+              ]
+            }
+          ],
+          "thresholds": "",
+          "timeFrom": null,
+          "title": "# of Failed Requests (Error)",
+          "transparent": false,
+          "type": "singlestat",
+          "valueFontSize": "50%",
+          "valueMaps": [
+            {
+              "op": "=",
+              "text": "0",
+              "value": "null"
+            },
+            {
+              "op": "=",
+              "text": "0",
+              "value": "N/A"
+            }
+          ],
+          "valueName": "current"
+        },
+        {
+          "cacheTimeout": null,
+          "colorBackground": false,
+          "colorValue": false,
+          "colors": [
+            "rgba(245, 54, 54, 0.9)",
+            "rgba(217, 115, 22, 0.89)",
+            "rgba(50, 172, 45, 0.97)"
+          ],
+          "datasource": "$datasource",
+          "decimals": 0,
+          "format": "none",
+          "gauge": {
+            "maxValue": 100,
+            "minValue": 0,
+            "show": false,
+            "thresholdLabels": false,
+            "thresholdMarkers": true
+          },
+          "height": "",
+          "hideTimeOverride": true,
+          "id": 3,
+          "interval": null,
+          "links": [],
+          "mappingType": 1,
+          "mappingTypes": [
+            {
+              "name": "value to text",
+              "value": 1
+            },
+            {
+              "name": "range to text",
+              "value": 2
+            }
+          ],
+          "maxDataPoints": 100,
+          "nullPointMode": "connected",
+          "nullText": null,
+          "postfix": "",
+          "postfixFontSize": "50%",
+          "prefix": "",
+          "prefixFontSize": "50%",
+          "rangeMaps": [
+            {
+              "from": "null",
+              "text": "N/A",
+              "to": "null"
+            }
+          ],
+          "span": 1,
+          "sparkline": {
+            "fillColor": "rgba(217, 115, 22, 0.1)",
+            "full": true,
+            "lineColor": "rgba(217, 115, 22, 0.89)",
+            "show": true
+          },
+          "tableColumn": "Value",
+          "targets": [
+            {
+              "dsType": "influxdb",
+              "expr": "sum(altinnkanal_requests_missing)",
+              "format": "time_series",
+              "groupBy": [],
+              "instant": false,
+              "intervalFactor": 1,
+              "legendFormat": "",
+              "measurement": "kafka_published",
+              "orderByTime": "ASC",
+              "policy": "default",
+              "refId": "A",
+              "resultFormat": "table",
+              "select": [
+                [
+                  {
+                    "params": [
+                      "status"
+                    ],
+                    "type": "field"
+                  },
+                  {
+                    "params": [],
+                    "type": "count"
+                  }
+                ]
+              ],
+              "step": 1,
+              "tags": [
+                {
+                  "key": "status",
+                  "operator": "=",
+                  "value": "failed_missing"
+                }
+              ]
+            }
+          ],
+          "thresholds": "",
+          "timeFrom": null,
+          "title": "# of Failed Requests (Unknown SC/SEC)",
+          "transparent": false,
+          "type": "singlestat",
+          "valueFontSize": "50%",
+          "valueMaps": [
+            {
+              "op": "=",
+              "text": "0",
+              "value": "null"
+            },
+            {
+              "op": "=",
+              "text": "0",
+              "value": "N/A"
+            }
+          ],
+          "valueName": "current"
+        },
+        {
+          "cacheTimeout": null,
+          "colorBackground": false,
+          "colorValue": false,
+          "colors": [
+            "rgba(245, 54, 54, 0.9)",
+            "rgba(217, 180, 22, 0.89)",
+            "rgba(50, 172, 45, 0.97)"
+          ],
+          "datasource": "$datasource",
+          "decimals": 0,
+          "format": "none",
+          "gauge": {
+            "maxValue": 100,
+            "minValue": 0,
+            "show": false,
+            "thresholdLabels": false,
+            "thresholdMarkers": true
+          },
+          "height": "",
+          "hideTimeOverride": true,
+          "id": 4,
+          "interval": null,
+          "links": [],
+          "mappingType": 1,
+          "mappingTypes": [
+            {
+              "name": "value to text",
+              "value": 1
+            },
+            {
+              "name": "range to text",
+              "value": 2
+            }
+          ],
+          "maxDataPoints": 100,
+          "nullPointMode": "connected",
+          "nullText": null,
+          "postfix": "",
+          "postfixFontSize": "50%",
+          "prefix": "",
+          "prefixFontSize": "50%",
+          "rangeMaps": [
+            {
+              "from": "null",
+              "text": "N/A",
+              "to": "null"
+            }
+          ],
+          "span": 1,
+          "sparkline": {
+            "fillColor": "rgba(217, 180, 22, 0.1)",
+            "full": true,
+            "lineColor": "rgba(217, 180, 22, 0.89)",
+            "show": true
+          },
+          "tableColumn": "Value",
+          "targets": [
+            {
+              "dsType": "influxdb",
+              "expr": "sum(altinnkanal_requests_disabled)",
+              "format": "time_series",
+              "groupBy": [],
+              "instant": false,
+              "interval": "",
+              "intervalFactor": 1,
+              "measurement": "kafka_published",
+              "orderByTime": "ASC",
+              "policy": "default",
+              "refId": "A",
+              "resultFormat": "table",
+              "select": [
+                [
+                  {
+                    "params": [
+                      "status"
+                    ],
+                    "type": "field"
+                  },
+                  {
+                    "params": [],
+                    "type": "count"
+                  }
+                ]
+              ],
+              "step": 1,
+              "tags": [
+                {
+                  "key": "status",
+                  "operator": "=",
+                  "value": "failed_disabled"
+                }
+              ]
+            }
+          ],
+          "thresholds": "",
+          "timeFrom": null,
+          "title": "# of Failed Requests (Disabled SC/SEC)",
+          "type": "singlestat",
+          "valueFontSize": "50%",
+          "valueMaps": [
+            {
+              "op": "=",
+              "text": "0",
+              "value": "null"
+            },
+            {
+              "op": "=",
+              "text": "0",
+              "value": "N/A"
+            }
+          ],
+          "valueName": "current"
+        },
+        {
+          "cacheTimeout": null,
+          "colorBackground": false,
+          "colorValue": false,
+          "colors": [
+            "rgba(245, 54, 54, 0.9)",
+            "rgba(0, 68, 221, 0.89)",
+            "rgba(50, 172, 45, 0.97)"
+          ],
+          "datasource": "$datasource",
+          "decimals": null,
+          "format": "short",
+          "gauge": {
+            "maxValue": 100,
+            "minValue": 0,
+            "show": false,
+            "thresholdLabels": false,
+            "thresholdMarkers": true
+          },
+          "height": "",
+          "hideTimeOverride": true,
+          "id": 5,
+          "interval": null,
+          "links": [],
+          "mappingType": 1,
+          "mappingTypes": [
+            {
+              "name": "value to text",
+              "value": 1
+            },
+            {
+              "name": "range to text",
+              "value": 2
+            }
+          ],
+          "maxDataPoints": 100,
+          "nullPointMode": "connected",
+          "nullText": null,
+          "postfix": "",
+          "postfixFontSize": "50%",
+          "prefix": "",
+          "prefixFontSize": "50%",
+          "rangeMaps": [
+            {
+              "from": "null",
+              "text": "N/A",
+              "to": "null"
+            }
+          ],
+          "span": 1,
+          "sparkline": {
+            "fillColor": "rgba(31, 118, 189, 0.18)",
+            "full": true,
+            "lineColor": "rgb(78, 133, 178)",
+            "show": true
+          },
+          "tableColumn": "Value",
+          "targets": [
+            {
+              "dsType": "influxdb",
+              "expr": "sum(altinnkanal_requests_total)",
+              "format": "time_series",
+              "groupBy": [],
+              "instant": false,
+              "interval": "",
+              "intervalFactor": 1,
+              "legendFormat": "",
+              "measurement": "kafka_published",
+              "orderByTime": "ASC",
+              "policy": "default",
+              "refId": "A",
+              "resultFormat": "time_series",
+              "select": [
+                [
+                  {
+                    "params": [
+                      "status"
+                    ],
+                    "type": "field"
+                  },
+                  {
+                    "params": [],
+                    "type": "count"
+                  }
+                ]
+              ],
+              "step": 1,
+              "tags": []
+            }
+          ],
+          "thresholds": "",
+          "timeFrom": null,
+          "timeShift": null,
+          "title": "Total Incoming Requests",
+          "type": "singlestat",
+          "valueFontSize": "50%",
+          "valueMaps": [
+            {
+              "op": "=",
+              "text": "0",
+              "value": "null"
+            },
+            {
+              "op": "=",
+              "text": "0",
+              "value": "N/A"
+            }
+          ],
+          "valueName": "current"
+        },
+        {
+          "cacheTimeout": null,
+          "colorBackground": false,
+          "colorValue": false,
+          "colors": [
+            "rgba(245, 54, 54, 0.9)",
+            "rgba(237, 129, 40, 0.89)",
+            "rgba(50, 172, 45, 0.97)"
+          ],
+          "datasource": "$datasource",
+          "format": "none",
+          "gauge": {
+            "maxValue": 100,
+            "minValue": 0,
+            "show": false,
+            "thresholdLabels": false,
+            "thresholdMarkers": true
+          },
+          "hideTimeOverride": true,
+          "id": 21,
+          "interval": null,
+          "links": [],
+          "mappingType": 1,
+          "mappingTypes": [
+            {
+              "name": "value to text",
+              "value": 1
+            },
+            {
+              "name": "range to text",
+              "value": 2
+            }
+          ],
+          "maxDataPoints": 100,
+          "nullPointMode": "connected",
+          "nullText": null,
+          "postfix": "",
+          "postfixFontSize": "50%",
+          "prefix": "",
+          "prefixFontSize": "50%",
+          "rangeMaps": [
+            {
+              "from": "null",
+              "text": "N/A",
+              "to": "null"
+            }
+          ],
+          "span": 3,
+          "sparkline": {
+            "fillColor": "rgba(40, 203, 0, 0.18)",
+            "full": false,
+            "lineColor": "rgb(34, 202, 0)",
+            "show": true
+          },
+          "tableColumn": "image",
+          "targets": [
+            {
+              "dsType": "influxdb",
+              "expr": "sum(kube_pod_container_info{container=~\"^$app$\"}) by (image)",
+              "format": "table",
+              "groupBy": [
+                {
+                  "params": [
+                    "$__interval"
+                  ],
+                  "type": "time"
+                },
+                {
+                  "params": [
+                    "null"
+                  ],
+                  "type": "fill"
+                }
+              ],
+              "instant": true,
+              "intervalFactor": 2,
+              "legendFormat": "",
+              "orderByTime": "ASC",
+              "policy": "default",
+              "refId": "A",
+              "resultFormat": "time_series",
+              "select": [
+                [
+                  {
+                    "params": [
+                      "value"
+                    ],
+                    "type": "field"
+                  },
+                  {
+                    "params": [],
+                    "type": "mean"
+                  }
+                ]
+              ],
+              "step": 2,
+              "tags": []
+            }
+          ],
+          "thresholds": "",
+          "timeFrom": null,
+          "title": "image",
+          "type": "singlestat",
+          "valueFontSize": "30%",
+          "valueMaps": [
+            {
+              "op": "=",
+              "text": "N/A",
+              "value": "null"
+            }
+          ],
+          "valueName": "name"
+        },
+        {
+          "cacheTimeout": null,
+          "colorBackground": false,
+          "colorValue": false,
+          "colors": [
+            "rgba(245, 54, 54, 0.9)",
+            "rgba(237, 129, 40, 0.89)",
+            "rgba(50, 172, 45, 0.97)"
+          ],
+          "datasource": "$datasource",
+          "format": "none",
+          "gauge": {
+            "maxValue": 100,
+            "minValue": 0,
+            "show": false,
+            "thresholdLabels": false,
+            "thresholdMarkers": true
+          },
+          "id": 23,
+          "interval": null,
+          "links": [],
+          "mappingType": 1,
+          "mappingTypes": [
+            {
+              "name": "value to text",
+              "value": 1
+            },
+            {
+              "name": "range to text",
+              "value": 2
+            }
+          ],
+          "maxDataPoints": 100,
+          "nullPointMode": "connected",
+          "nullText": null,
+          "postfix": "",
+          "postfixFontSize": "50%",
+          "prefix": "",
+          "prefixFontSize": "50%",
+          "rangeMaps": [
+            {
+              "from": "null",
+              "text": "N/A",
+              "to": "null"
+            }
+          ],
+          "span": 2,
+          "sparkline": {
+            "fillColor": "rgba(40, 203, 0, 0.18)",
+            "full": false,
+            "lineColor": "rgb(34, 202, 0)",
+            "show": true
+          },
+          "tableColumn": "",
+          "targets": [
+            {
+              "dsType": "influxdb",
+              "expr": "sum(nodejs_version_info{app='$app'} or jvm_info{app='$app'} or python_info{app='$app'}) by (version)",
+              "format": "time_series",
+              "groupBy": [
+                {
+                  "params": [
+                    "$__interval"
+                  ],
+                  "type": "time"
+                },
+                {
+                  "params": [
+                    "null"
+                  ],
+                  "type": "fill"
+                }
+              ],
+              "intervalFactor": 2,
+              "legendFormat": "{{version}}",
+              "orderByTime": "ASC",
+              "policy": "default",
+              "refId": "A",
+              "resultFormat": "time_series",
+              "select": [
+                [
+                  {
+                    "params": [
+                      "value"
+                    ],
+                    "type": "field"
+                  },
+                  {
+                    "params": [],
+                    "type": "mean"
+                  }
+                ]
+              ],
+              "step": 1800,
+              "tags": []
+            }
+          ],
+          "thresholds": "",
+          "title": "runtime version",
+          "type": "singlestat",
+          "valueFontSize": "50%",
+          "valueMaps": [
+            {
+              "op": "=",
+              "text": "N/A",
+              "value": "null"
+            }
+          ],
+          "valueName": "name"
+        },
+        {
+          "cacheTimeout": null,
+          "colorBackground": false,
+          "colorValue": false,
+          "colors": [
+            "rgba(245, 54, 54, 0.9)",
+            "rgba(237, 129, 40, 0.89)",
+            "rgba(50, 172, 45, 0.97)"
+          ],
+          "datasource": "$datasource",
+          "format": "none",
+          "gauge": {
+            "maxValue": 100,
+            "minValue": 0,
+            "show": false,
+            "thresholdLabels": false,
+            "thresholdMarkers": true
+          },
+          "hideTimeOverride": true,
+          "id": 9,
+          "interval": null,
+          "links": [],
+          "mappingType": 1,
+          "mappingTypes": [
+            {
+              "name": "value to text",
+              "value": 1
+            },
+            {
+              "name": "range to text",
+              "value": 2
+            }
+          ],
+          "maxDataPoints": 100,
+          "nullPointMode": "connected",
+          "nullText": null,
+          "postfix": "",
+          "postfixFontSize": "50%",
+          "prefix": "",
+          "prefixFontSize": "50%",
+          "rangeMaps": [
+            {
+              "from": "null",
+              "text": "N/A",
+              "to": "null"
+            }
+          ],
+          "span": 1,
+          "sparkline": {
+            "fillColor": "rgba(40, 203, 0, 0.18)",
+            "full": true,
+            "lineColor": "rgb(34, 202, 0)",
+            "show": true
+          },
+          "tableColumn": "Value",
+          "targets": [
+            {
+              "dsType": "influxdb",
+              "expr": "count(kube_pod_container_info{pod=~\"^$app.+\", namespace=~\"^$namespace$\"})",
+              "format": "time_series",
+              "groupBy": [
+                {
+                  "params": [
+                    "$__interval"
+                  ],
+                  "type": "time"
+                },
+                {
+                  "params": [
+                    "null"
+                  ],
+                  "type": "fill"
+                }
+              ],
+              "instant": false,
+              "intervalFactor": 1,
+              "orderByTime": "ASC",
+              "policy": "default",
+              "refId": "A",
+              "resultFormat": "time_series",
+              "select": [
+                [
+                  {
+                    "params": [
+                      "value"
+                    ],
+                    "type": "field"
+                  },
+                  {
+                    "params": [],
+                    "type": "mean"
+                  }
+                ]
+              ],
+              "step": 1800,
+              "tags": []
+            }
+          ],
+          "thresholds": "",
+          "timeFrom": null,
+          "title": "# of pods",
+          "type": "singlestat",
+          "valueFontSize": "80%",
+          "valueMaps": [
+            {
+              "op": "=",
+              "text": "N/A",
+              "value": "null"
+            }
+          ],
+          "valueName": "current"
+        },
+        {
+          "cacheTimeout": null,
+          "colorBackground": false,
+          "colorValue": false,
+          "colors": [
+            "rgba(245, 54, 54, 0.9)",
+            "rgba(237, 129, 40, 0.89)",
+            "rgba(50, 172, 45, 0.97)"
+          ],
+          "datasource": "$datasource",
+          "format": "none",
+          "gauge": {
+            "maxValue": 100,
+            "minValue": 0,
+            "show": false,
+            "thresholdLabels": false,
+            "thresholdMarkers": true
+          },
+          "id": 20,
+          "interval": null,
+          "links": [],
+          "mappingType": 1,
+          "mappingTypes": [
+            {
+              "name": "value to text",
+              "value": 1
+            },
+            {
+              "name": "range to text",
+              "value": 2
+            }
+          ],
+          "maxDataPoints": 100,
+          "nullPointMode": "connected",
+          "nullText": null,
+          "postfix": "",
+          "postfixFontSize": "50%",
+          "prefix": "",
+          "prefixFontSize": "50%",
+          "rangeMaps": [
+            {
+              "from": "null",
+              "text": "N/A",
+              "to": "null"
+            }
+          ],
+          "span": 1,
+          "sparkline": {
+            "fillColor": "rgba(40, 203, 0, 0.18)",
+            "full": true,
+            "lineColor": "rgb(34, 202, 0)",
+            "show": true
+          },
+          "tableColumn": "",
+          "targets": [
+            {
+              "dsType": "influxdb",
+              "expr": "sum(kube_pod_container_status_restarts{pod=~\"^$app.+\", namespace=~\"^$namespace$\"})",
+              "format": "time_series",
+              "groupBy": [
+                {
+                  "params": [
+                    "$__interval"
+                  ],
+                  "type": "time"
+                },
+                {
+                  "params": [
+                    "null"
+                  ],
+                  "type": "fill"
+                }
+              ],
+              "instant": false,
+              "intervalFactor": 1,
+              "orderByTime": "ASC",
+              "policy": "default",
+              "refId": "A",
+              "resultFormat": "time_series",
+              "select": [
+                [
+                  {
+                    "params": [
+                      "value"
+                    ],
+                    "type": "field"
+                  },
+                  {
+                    "params": [],
+                    "type": "mean"
+                  }
+                ]
+              ],
+              "step": 1800,
+              "tags": []
+            }
+          ],
+          "thresholds": "",
+          "title": "# of restarts",
+          "type": "singlestat",
+          "valueFontSize": "80%",
+          "valueMaps": [
+            {
+              "op": "=",
+              "text": "N/A",
+              "value": "null"
+            }
+          ],
+          "valueName": "total"
+        }
+      ],
+      "repeat": null,
+      "repeatIteration": null,
+      "repeatRowId": null,
+      "showTitle": false,
+      "title": "Dashboard Row",
+      "titleSize": "h6"
+    },
+    {
+      "collapse": false,
+      "height": 222,
       "panels": [
         {
           "aliasColors": {},
@@ -44,15 +1081,15 @@
           "decimals": null,
           "fill": 3,
           "hideTimeOverride": false,
-          "id": 6,
+          "id": 24,
           "legend": {
             "alignAsTable": true,
-            "avg": false,
+            "avg": true,
             "current": true,
             "hideEmpty": true,
             "hideZero": true,
             "max": true,
-            "min": false,
+            "min": true,
             "rightSide": true,
             "show": true,
             "sideWidth": null,
@@ -64,35 +1101,177 @@
           "lines": true,
           "linewidth": 1,
           "links": [],
-          "nullPointMode": "null",
+          "nullPointMode": "null as zero",
           "percentage": false,
           "pointradius": 5,
           "points": false,
           "renderer": "flot",
-          "repeat": null,
           "seriesOverrides": [],
           "spaceLength": 10,
-          "span": 12,
+          "span": 6,
           "stack": true,
           "steppedLine": false,
           "targets": [
             {
-              "expr": "rate(requests_total{app=\"altinnkanal-2\"}[2m])",
+              "expr": "rate(altinnkanal_requests_total{app=\"$app\"}[2m])",
               "format": "time_series",
+              "instant": false,
               "interval": "",
-              "intervalFactor": 2,
-              "legendFormat": "{{instance}} -- {{sc}} / {{sec}}",
+              "intervalFactor": 1,
+              "legendFormat": "{{kubernetes_pod_name}}",
               "refId": "A",
-              "step": 4
+              "step": 120
             }
           ],
           "thresholds": [],
           "timeFrom": null,
           "timeShift": null,
-          "title": "requests/sec by SC/SEC [2m]",
+          "title": "WebService Endpoint Requests/Sec [2m]",
           "tooltip": {
             "shared": true,
-            "sort": 0,
+            "sort": 2,
+            "value_type": "individual"
+          },
+          "type": "graph",
+          "xaxis": {
+            "buckets": null,
+            "mode": "time",
+            "name": null,
+            "show": true,
+            "values": []
+          },
+          "yaxes": [
+            {
+              "format": "short",
+              "label": null,
+              "logBase": 1,
+              "max": null,
+              "min": null,
+              "show": true
+            },
+            {
+              "format": "short",
+              "label": null,
+              "logBase": 1,
+              "max": null,
+              "min": null,
+              "show": true
+            }
+          ]
+        },
+        {
+          "aliasColors": {},
+          "bars": false,
+          "dashLength": 10,
+          "dashes": false,
+          "datasource": "$datasource",
+          "description": "Numbers fluctuate - Sum of metrics from pods alive at the time. Counters disappear from aggregation when pods are restarted/terminated.",
+          "fill": 1,
+          "id": 25,
+          "legend": {
+            "avg": false,
+            "current": false,
+            "max": false,
+            "min": false,
+            "show": true,
+            "total": false,
+            "values": false
+          },
+          "lines": true,
+          "linewidth": 1,
+          "links": [],
+          "nullPointMode": "connected",
+          "percentage": false,
+          "pointradius": 1,
+          "points": false,
+          "renderer": "flot",
+          "seriesOverrides": [],
+          "spaceLength": 10,
+          "span": 6,
+          "stack": false,
+          "steppedLine": false,
+          "targets": [
+            {
+              "dsType": "influxdb",
+              "expr": "sum(altinnkanal_requests_total)",
+              "format": "time_series",
+              "groupBy": [
+                {
+                  "params": [
+                    "$__interval"
+                  ],
+                  "type": "time"
+                },
+                {
+                  "params": [
+                    "null"
+                  ],
+                  "type": "fill"
+                }
+              ],
+              "interval": "",
+              "intervalFactor": 1,
+              "legendFormat": "Total # of Requests",
+              "orderByTime": "ASC",
+              "policy": "default",
+              "refId": "A",
+              "resultFormat": "time_series",
+              "select": [
+                [
+                  {
+                    "params": [
+                      "value"
+                    ],
+                    "type": "field"
+                  },
+                  {
+                    "params": [],
+                    "type": "mean"
+                  }
+                ]
+              ],
+              "tags": []
+            },
+            {
+              "expr": "sum(altinnkanal_requests_success)",
+              "format": "time_series",
+              "interval": "",
+              "intervalFactor": 1,
+              "legendFormat": "# of Requests (Successful)",
+              "refId": "B"
+            },
+            {
+              "expr": "sum(altinnkanal_requests_disabled)",
+              "format": "time_series",
+              "interval": "",
+              "intervalFactor": 1,
+              "legendFormat": "# of Requests (Disabled SC/SEC)",
+              "refId": "C"
+            },
+            {
+              "expr": "sum(altinnkanal_requests_error)",
+              "format": "time_series",
+              "interval": "",
+              "intervalFactor": 1,
+              "legendFormat": "# of Requests (Error)",
+              "refId": "D"
+            },
+            {
+              "expr": "sum(altinnkanal_requests_missing)",
+              "format": "time_series",
+              "interval": "",
+              "intervalFactor": 1,
+              "legendFormat": "# of Requests (Missing SC/SEC)",
+              "refId": "E"
+            }
+          ],
+          "thresholds": [],
+          "timeFrom": null,
+          "timeShift": null,
+          "title": "WebService Endpoint Requests",
+          "tooltip": {
+            "shared": true,
+            "sort": 2,
             "value_type": "individual"
           },
           "type": "graph",
@@ -132,652 +1311,8 @@
     },
     {
       "collapse": false,
-      "height": 235,
+      "height": 273,
       "panels": [
-        {
-          "cacheTimeout": null,
-          "colorBackground": false,
-          "colorValue": false,
-          "colors": [
-            "rgba(245, 54, 54, 0.9)",
-            "rgba(237, 129, 40, 0.89)",
-            "rgba(50, 172, 45, 0.97)"
-          ],
-          "datasource": "$datasource",
-          "format": "none",
-          "gauge": {
-            "maxValue": 100,
-            "minValue": 0,
-            "show": false,
-            "thresholdLabels": false,
-            "thresholdMarkers": true
-          },
-          "id": 9,
-          "interval": null,
-          "links": [],
-          "mappingType": 1,
-          "mappingTypes": [
-            {
-              "name": "value to text",
-              "value": 1
-            },
-            {
-              "name": "range to text",
-              "value": 2
-            }
-          ],
-          "maxDataPoints": 100,
-          "nullPointMode": "connected",
-          "nullText": null,
-          "postfix": "",
-          "postfixFontSize": "50%",
-          "prefix": "",
-          "prefixFontSize": "50%",
-          "rangeMaps": [
-            {
-              "from": "null",
-              "text": "N/A",
-              "to": "null"
-            }
-          ],
-          "span": 1,
-          "sparkline": {
-            "fillColor": "rgba(40, 203, 0, 0.18)",
-            "full": false,
-            "lineColor": "rgb(34, 202, 0)",
-            "show": true
-          },
-          "tableColumn": "",
-          "targets": [
-            {
-              "dsType": "influxdb",
-              "expr": "count(kube_pod_container_info{pod=~\"^$app.+\", namespace=~\"^$namespace$\"})",
-              "format": "time_series",
-              "groupBy": [
-                {
-                  "params": [
-                    "$__interval"
-                  ],
-                  "type": "time"
-                },
-                {
-                  "params": [
-                    "null"
-                  ],
-                  "type": "fill"
-                }
-              ],
-              "intervalFactor": 2,
-              "orderByTime": "ASC",
-              "policy": "default",
-              "refId": "A",
-              "resultFormat": "time_series",
-              "select": [
-                [
-                  {
-                    "params": [
-                      "value"
-                    ],
-                    "type": "field"
-                  },
-                  {
-                    "params": [],
-                    "type": "mean"
-                  }
-                ]
-              ],
-              "step": 60,
-              "tags": []
-            }
-          ],
-          "thresholds": "",
-          "title": "# of pods",
-          "type": "singlestat",
-          "valueFontSize": "80%",
-          "valueMaps": [
-            {
-              "op": "=",
-              "text": "N/A",
-              "value": "null"
-            }
-          ],
-          "valueName": "avg"
-        },
-        {
-          "cacheTimeout": null,
-          "colorBackground": false,
-          "colorValue": true,
-          "colors": [
-            "rgba(245, 54, 54, 0.9)",
-            "rgba(27, 176, 2, 0.89)",
-            "rgba(50, 172, 45, 0.97)"
-          ],
-          "datasource": "$datasource",
-          "decimals": 0,
-          "format": "short",
-          "gauge": {
-            "maxValue": 100,
-            "minValue": 0,
-            "show": false,
-            "thresholdLabels": false,
-            "thresholdMarkers": true
-          },
-          "height": "200px",
-          "hideTimeOverride": true,
-          "id": 1,
-          "interval": null,
-          "links": [],
-          "mappingType": 1,
-          "mappingTypes": [
-            {
-              "name": "value to text",
-              "value": 1
-            },
-            {
-              "name": "range to text",
-              "value": 2
-            }
-          ],
-          "maxDataPoints": 100,
-          "nullPointMode": "connected",
-          "nullText": null,
-          "postfix": "",
-          "postfixFontSize": "50%",
-          "prefix": "",
-          "prefixFontSize": "50%",
-          "rangeMaps": [
-            {
-              "from": "null",
-              "text": "N/A",
-              "to": "null"
-            }
-          ],
-          "repeat": null,
-          "span": 1,
-          "sparkline": {
-            "fillColor": "rgba(31, 118, 189, 0.18)",
-            "full": false,
-            "lineColor": "rgb(31, 120, 193)",
-            "show": true
-          },
-          "tableColumn": "Value",
-          "targets": [
-            {
-              "dsType": "influxdb",
-              "expr": "sum(requests_success)",
-              "format": "table",
-              "groupBy": [],
-              "intervalFactor": 2,
-              "measurement": "kafka_published",
-              "orderByTime": "ASC",
-              "policy": "default",
-              "refId": "A",
-              "resultFormat": "table",
-              "select": [
-                [
-                  {
-                    "params": [
-                      "status"
-                    ],
-                    "type": "field"
-                  },
-                  {
-                    "params": [],
-                    "type": "count"
-                  }
-                ]
-              ],
-              "step": 2,
-              "tags": [
-                {
-                  "key": "status",
-                  "operator": "=",
-                  "value": "success"
-                }
-              ]
-            }
-          ],
-          "thresholds": "",
-          "timeFrom": "5s",
-          "timeShift": null,
-          "title": "# of Successful Requests",
-          "type": "singlestat",
-          "valueFontSize": "80%",
-          "valueMaps": [
-            {
-              "op": "=",
-              "text": "N/A",
-              "value": "null"
-            }
-          ],
-          "valueName": "avg"
-        },
-        {
-          "cacheTimeout": null,
-          "colorBackground": false,
-          "colorValue": true,
-          "colors": [
-            "rgba(245, 54, 54, 0.9)",
-            "rgba(238, 29, 29, 0.89)",
-            "rgba(50, 172, 45, 0.97)"
-          ],
-          "datasource": "$datasource",
-          "decimals": 0,
-          "format": "short",
-          "gauge": {
-            "maxValue": 100,
-            "minValue": 0,
-            "show": false,
-            "thresholdLabels": false,
-            "thresholdMarkers": true
-          },
-          "height": "200px",
-          "hideTimeOverride": true,
-          "id": 2,
-          "interval": null,
-          "links": [],
-          "mappingType": 1,
-          "mappingTypes": [
-            {
-              "name": "value to text",
-              "value": 1
-            },
-            {
-              "name": "range to text",
-              "value": 2
-            }
-          ],
-          "maxDataPoints": 100,
-          "nullPointMode": "connected",
-          "nullText": null,
-          "postfix": "",
-          "postfixFontSize": "50%",
-          "prefix": "",
-          "prefixFontSize": "50%",
-          "rangeMaps": [
-            {
-              "from": "null",
-              "text": "N/A",
-              "to": "null"
-            }
-          ],
-          "span": 1,
-          "sparkline": {
-            "fillColor": "rgba(31, 118, 189, 0.18)",
-            "full": false,
-            "lineColor": "rgb(31, 120, 193)",
-            "show": false
-          },
-          "tableColumn": "Value",
-          "targets": [
-            {
-              "dsType": "influxdb",
-              "expr": "sum(requests_error)",
-              "format": "table",
-              "groupBy": [],
-              "intervalFactor": 1,
-              "legendFormat": "",
-              "measurement": "kafka_published",
-              "orderByTime": "ASC",
-              "policy": "default",
-              "refId": "A",
-              "resultFormat": "table",
-              "select": [
-                [
-                  {
-                    "params": [
-                      "status"
-                    ],
-                    "type": "field"
-                  },
-                  {
-                    "params": [],
-                    "type": "count"
-                  }
-                ]
-              ],
-              "step": 1,
-              "tags": [
-                {
-                  "key": "status",
-                  "operator": "=",
-                  "value": "success"
-                }
-              ]
-            }
-          ],
-          "thresholds": "",
-          "timeFrom": "5s",
-          "title": "# of Failed Requests (Error)",
-          "transparent": false,
-          "type": "singlestat",
-          "valueFontSize": "80%",
-          "valueMaps": [
-            {
-              "op": "=",
-              "text": "0",
-              "value": "undefined"
-            }
-          ],
-          "valueName": "avg"
-        },
-        {
-          "cacheTimeout": null,
-          "colorBackground": false,
-          "colorValue": true,
-          "colors": [
-            "rgba(245, 54, 54, 0.9)",
-            "rgba(217, 115, 22, 0.89)",
-            "rgba(50, 172, 45, 0.97)"
-          ],
-          "datasource": "$datasource",
-          "decimals": 0,
-          "format": "short",
-          "gauge": {
-            "maxValue": 100,
-            "minValue": 0,
-            "show": false,
-            "thresholdLabels": false,
-            "thresholdMarkers": true
-          },
-          "height": "200px",
-          "hideTimeOverride": true,
-          "id": 3,
-          "interval": null,
-          "links": [],
-          "mappingType": 1,
-          "mappingTypes": [
-            {
-              "name": "value to text",
-              "value": 1
-            },
-            {
-              "name": "range to text",
-              "value": 2
-            }
-          ],
-          "maxDataPoints": 100,
-          "nullPointMode": "connected",
-          "nullText": null,
-          "postfix": "",
-          "postfixFontSize": "50%",
-          "prefix": "",
-          "prefixFontSize": "50%",
-          "rangeMaps": [
-            {
-              "from": "null",
-              "text": "N/A",
-              "to": "null"
-            }
-          ],
-          "span": 1,
-          "sparkline": {
-            "fillColor": "rgba(31, 118, 189, 0.18)",
-            "full": false,
-            "lineColor": "rgb(31, 120, 193)",
-            "show": false
-          },
-          "tableColumn": "Value",
-          "targets": [
-            {
-              "dsType": "influxdb",
-              "expr": "sum(requests_missing)",
-              "format": "table",
-              "groupBy": [],
-              "intervalFactor": 2,
-              "measurement": "kafka_published",
-              "orderByTime": "ASC",
-              "policy": "default",
-              "refId": "A",
-              "resultFormat": "table",
-              "select": [
-                [
-                  {
-                    "params": [
-                      "status"
-                    ],
-                    "type": "field"
-                  },
-                  {
-                    "params": [],
-                    "type": "count"
-                  }
-                ]
-              ],
-              "step": 2,
-              "tags": [
-                {
-                  "key": "status",
-                  "operator": "=",
-                  "value": "failed_missing"
-                }
-              ]
-            }
-          ],
-          "thresholds": "",
-          "timeFrom": "15s",
-          "title": "# of Failed Requests (Missing)",
-          "type": "singlestat",
-          "valueFontSize": "80%",
-          "valueMaps": [
-            {
-              "op": "=",
-              "text": "N/A",
-              "value": "null"
-            }
-          ],
-          "valueName": "avg"
-        },
-        {
-          "cacheTimeout": null,
-          "colorBackground": false,
-          "colorValue": true,
-          "colors": [
-            "rgba(245, 54, 54, 0.9)",
-            "rgba(217, 180, 22, 0.89)",
-            "rgba(50, 172, 45, 0.97)"
-          ],
-          "datasource": "$datasource",
-          "decimals": 0,
-          "format": "short",
-          "gauge": {
-            "maxValue": 100,
-            "minValue": 0,
-            "show": false,
-            "thresholdLabels": false,
-            "thresholdMarkers": true
-          },
-          "height": "200px",
-          "hideTimeOverride": true,
-          "id": 4,
-          "interval": null,
-          "links": [],
-          "mappingType": 1,
-          "mappingTypes": [
-            {
-              "name": "value to text",
-              "value": 1
-            },
-            {
-              "name": "range to text",
-              "value": 2
-            }
-          ],
-          "maxDataPoints": 100,
-          "nullPointMode": "connected",
-          "nullText": null,
-          "postfix": "",
-          "postfixFontSize": "50%",
-          "prefix": "",
-          "prefixFontSize": "50%",
-          "rangeMaps": [
-            {
-              "from": "null",
-              "text": "N/A",
-              "to": "null"
-            }
-          ],
-          "span": 1,
-          "sparkline": {
-            "fillColor": "rgba(31, 118, 189, 0.18)",
-            "full": false,
-            "lineColor": "rgb(31, 120, 193)",
-            "show": false
-          },
-          "tableColumn": "Value",
-          "targets": [
-            {
-              "dsType": "influxdb",
-              "expr": "sum(requests_disabled)",
-              "format": "table",
-              "groupBy": [],
-              "intervalFactor": 2,
-              "measurement": "kafka_published",
-              "orderByTime": "ASC",
-              "policy": "default",
-              "refId": "A",
-              "resultFormat": "table",
-              "select": [
-                [
-                  {
-                    "params": [
-                      "status"
-                    ],
-                    "type": "field"
-                  },
-                  {
-                    "params": [],
-                    "type": "count"
-                  }
-                ]
-              ],
-              "step": 2,
-              "tags": [
-                {
-                  "key": "status",
-                  "operator": "=",
-                  "value": "failed_disabled"
-                }
-              ]
-            }
-          ],
-          "thresholds": "",
-          "timeFrom": "5s",
-          "title": "# of Failed Requests (Disabled)",
-          "type": "singlestat",
-          "valueFontSize": "80%",
-          "valueMaps": [
-            {
-              "op": "=",
-              "text": "N/A",
-              "value": "null"
-            }
-          ],
-          "valueName": "avg"
-        },
-        {
-          "cacheTimeout": null,
-          "colorBackground": false,
-          "colorValue": false,
-          "colors": [
-            "rgba(245, 54, 54, 0.9)",
-            "rgba(0, 68, 221, 0.89)",
-            "rgba(50, 172, 45, 0.97)"
-          ],
-          "datasource": "$datasource",
-          "decimals": 0,
-          "format": "short",
-          "gauge": {
-            "maxValue": 100,
-            "minValue": 0,
-            "show": false,
-            "thresholdLabels": false,
-            "thresholdMarkers": true
-          },
-          "height": "200px",
-          "hideTimeOverride": true,
-          "id": 5,
-          "interval": null,
-          "links": [],
-          "mappingType": 1,
-          "mappingTypes": [
-            {
-              "name": "value to text",
-              "value": 1
-            },
-            {
-              "name": "range to text",
-              "value": 2
-            }
-          ],
-          "maxDataPoints": 100,
-          "nullPointMode": "connected",
-          "nullText": null,
-          "postfix": "",
-          "postfixFontSize": "50%",
-          "prefix": "",
-          "prefixFontSize": "50%",
-          "rangeMaps": [
-            {
-              "from": "null",
-              "text": "N/A",
-              "to": "null"
-            }
-          ],
-          "span": 1,
-          "sparkline": {
-            "fillColor": "rgba(31, 118, 189, 0.18)",
-            "full": false,
-            "lineColor": "rgb(78, 133, 178)",
-            "show": true
-          },
-          "tableColumn": "Value",
-          "targets": [
-            {
-              "dsType": "influxdb",
-              "expr": "sum(requests_total)",
-              "format": "table",
-              "groupBy": [],
-              "intervalFactor": 1,
-              "legendFormat": "",
-              "measurement": "kafka_published",
-              "orderByTime": "ASC",
-              "policy": "default",
-              "refId": "A",
-              "resultFormat": "time_series",
-              "select": [
-                [
-                  {
-                    "params": [
-                      "status"
-                    ],
-                    "type": "field"
-                  },
-                  {
-                    "params": [],
-                    "type": "count"
-                  }
-                ]
-              ],
-              "step": 1,
-              "tags": []
-            }
-          ],
-          "thresholds": "",
-          "timeFrom": "1s",
-          "timeShift": null,
-          "title": "Total Incoming Requests",
-          "type": "singlestat",
-          "valueFontSize": "100%",
-          "valueMaps": [
-            {
-              "op": "=",
-              "text": "N/A",
-              "value": "null"
-            }
-          ],
-          "valueName": "total"
-        },
         {
           "aliasColors": {},
           "bars": false,
@@ -796,6 +1331,8 @@
             "min": false,
             "rightSide": false,
             "show": true,
+            "sort": "current",
+            "sortDesc": true,
             "total": true,
             "values": true
           },
@@ -809,14 +1346,14 @@
           "renderer": "flot",
           "seriesOverrides": [],
           "spaceLength": 10,
-          "span": 3,
+          "span": 6,
           "stack": false,
           "steppedLine": true,
           "targets": [
             {
               "alias": "Time",
               "dsType": "influxdb",
-              "expr": "rate(request_time_ms_sum{app=\"altinnkanal-2\"}[5m]) / rate(request_time_ms_count{app=\"altinnkanal-2\"}[5m])",
+              "expr": "rate(altinnkanal_request_time_ms_sum{app=\"$app\"}[5m]) / rate(altinnkanal_request_time_ms_count{app=\"$app\"}[5m])",
               "format": "time_series",
               "groupBy": [
                 {
@@ -835,7 +1372,7 @@
               "hide": false,
               "interval": "",
               "intervalFactor": 1,
-              "legendFormat": "{{app}} -- {{instance}} -- {{kubernetes_pod_name}}",
+              "legendFormat": "{{kubernetes_pod_name}}",
               "measurement": "kafka_publish_time",
               "orderByTime": "ASC",
               "policy": "default",
@@ -855,7 +1392,7 @@
                   }
                 ]
               ],
-              "step": 10,
+              "step": 120,
               "tags": []
             }
           ],
@@ -865,7 +1402,7 @@
           "title": "Avg Publish Time [5m]",
           "tooltip": {
             "shared": true,
-            "sort": 0,
+            "sort": 2,
             "value_type": "individual"
           },
           "transparent": false,
@@ -915,7 +1452,9 @@
             "max": true,
             "min": true,
             "show": true,
-            "total": true,
+            "sort": "current",
+            "sortDesc": true,
+            "total": false,
             "values": true
           },
           "lines": true,
@@ -928,14 +1467,14 @@
           "renderer": "flot",
           "seriesOverrides": [],
           "spaceLength": 10,
-          "span": 3,
-          "stack": false,
+          "span": 6,
+          "stack": true,
           "steppedLine": false,
           "targets": [
             {
               "alias": "Data Size",
               "dsType": "influxdb",
-              "expr": "rate(request_size_bytes_sum_sum{app=\"altinnkanal-2\"}[5m]) / rate(request_size_bytes_sum_count{app=\"altinnkanal-2\"}[5m])",
+              "expr": "rate(altinnkanal_request_size_bytes_sum_sum{app=\"$app\"}[5m]) / rate(altinnkanal_request_size_bytes_sum_count{app=\"$app\"}[5m])",
               "format": "time_series",
               "groupBy": [
                 {
@@ -951,8 +1490,9 @@
                   "type": "fill"
                 }
               ],
+              "instant": false,
               "intervalFactor": 1,
-              "legendFormat": "{{app}} -- {{instance}} -- {{kubernetes_pod_name}}",
+              "legendFormat": " {{kubernetes_pod_name}}",
               "measurement": "kafka_publish_time",
               "orderByTime": "ASC",
               "policy": "default",
@@ -972,7 +1512,7 @@
                   }
                 ]
               ],
-              "step": 10,
+              "step": 120,
               "tags": []
             }
           ],
@@ -982,7 +1522,7 @@
           "title": "Avg Publish Size [5m]",
           "tooltip": {
             "shared": true,
-            "sort": 0,
+            "sort": 2,
             "value_type": "individual"
           },
           "transparent": false,
@@ -1024,7 +1564,7 @@
     },
     {
       "collapse": false,
-      "height": 239,
+      "height": 196,
       "panels": [
         {
           "cacheTimeout": null,
@@ -1075,7 +1615,7 @@
           "span": 1,
           "sparkline": {
             "fillColor": "rgba(31, 118, 189, 0.18)",
-            "full": false,
+            "full": true,
             "lineColor": "rgb(31, 120, 193)",
             "show": true
           },
@@ -1099,6 +1639,7 @@
                   "type": "fill"
                 }
               ],
+              "instant": false,
               "intervalFactor": 2,
               "orderByTime": "ASC",
               "policy": "default",
@@ -1118,7 +1659,7 @@
                   }
                 ]
               ],
-              "step": 60,
+              "step": 1800,
               "tags": []
             }
           ],
@@ -1133,7 +1674,7 @@
               "value": "null"
             }
           ],
-          "valueName": "avg"
+          "valueName": "current"
         },
         {
           "aliasColors": {
@@ -1223,7 +1764,7 @@
                   }
                 ]
               ],
-              "step": 10,
+              "step": 240,
               "tags": []
             },
             {
@@ -1265,7 +1806,7 @@
                   }
                 ]
               ],
-              "step": 10,
+              "step": 240,
               "tags": []
             },
             {
@@ -1288,7 +1829,7 @@
               ],
               "hide": false,
               "intervalFactor": 2,
-              "legendFormat": "",
+              "legendFormat": "{{pod_name}}",
               "orderByTime": "ASC",
               "policy": "default",
               "refId": "A",
@@ -1307,7 +1848,7 @@
                   }
                 ]
               ],
-              "step": 10,
+              "step": 240,
               "tags": []
             }
           ],
@@ -1317,7 +1858,7 @@
           "title": "pod memory usage",
           "tooltip": {
             "shared": true,
-            "sort": 0,
+            "sort": 2,
             "value_type": "individual"
           },
           "type": "graph",
@@ -1396,7 +1937,7 @@
           "span": 1,
           "sparkline": {
             "fillColor": "rgba(31, 118, 189, 0.18)",
-            "full": false,
+            "full": true,
             "lineColor": "rgb(6, 142, 219)",
             "show": true
           },
@@ -1439,7 +1980,7 @@
                   }
                 ]
               ],
-              "step": 60,
+              "step": 1800,
               "tags": []
             }
           ],
@@ -1454,7 +1995,7 @@
               "value": "null"
             }
           ],
-          "valueName": "avg"
+          "valueName": "current"
         },
         {
           "aliasColors": {},
@@ -1518,7 +2059,8 @@
                   "type": "fill"
                 }
               ],
-              "interval": "1s",
+              "instant": false,
+              "interval": "",
               "intervalFactor": 1,
               "legendFormat": "{{pod_name}}",
               "orderByTime": "ASC",
@@ -1539,24 +2081,25 @@
                   }
                 ]
               ],
-              "step": 5,
+              "step": 120,
               "tags": []
             },
             {
               "expr": "sum(kube_pod_container_resource_limits_cpu_cores{container=~\"^$app$\", namespace=~\"^$namespace$\"}) / count(kube_pod_container_resource_limits_cpu_cores{container=~\"^$app$\", namespace=~\"^$namespace$\"})",
               "format": "time_series",
-              "intervalFactor": 2,
+              "instant": false,
+              "intervalFactor": 1,
               "legendFormat": "limits",
               "refId": "B",
-              "step": 10
+              "step": 240
             },
             {
               "expr": "sum(kube_pod_container_resource_requests_cpu_cores{container=~\"^$app$\", namespace=~\"^$namespace$\"}) / count(kube_pod_container_resource_requests_cpu_cores{container=~\"^$app$\", namespace=~\"^$namespace$\"})",
               "format": "time_series",
-              "intervalFactor": 2,
+              "intervalFactor": 1,
               "legendFormat": "requests",
               "refId": "C",
-              "step": 10
+              "step": 240
             }
           ],
           "thresholds": [],
@@ -1565,9 +2108,10 @@
           "title": "pod cpu usage",
           "tooltip": {
             "shared": true,
-            "sort": 0,
+            "sort": 2,
             "value_type": "individual"
           },
+          "transparent": false,
           "type": "graph",
           "xaxis": {
             "buckets": null,
@@ -1605,7 +2149,7 @@
     },
     {
       "collapse": false,
-      "height": 262,
+      "height": 250,
       "panels": [
         {
           "aliasColors": {},
@@ -1634,7 +2178,7 @@
           "renderer": "flot",
           "seriesOverrides": [],
           "spaceLength": 10,
-          "span": 6,
+          "span": 4,
           "stack": false,
           "steppedLine": false,
           "targets": [
@@ -1677,7 +2221,7 @@
                   }
                 ]
               ],
-              "step": 10,
+              "step": 240,
               "tags": []
             }
           ],
@@ -1744,7 +2288,7 @@
           "renderer": "flot",
           "seriesOverrides": [],
           "spaceLength": 10,
-          "span": 6,
+          "span": 4,
           "stack": false,
           "steppedLine": false,
           "targets": [
@@ -1787,7 +2331,7 @@
                   }
                 ]
               ],
-              "step": 10,
+              "step": 240,
               "tags": []
             }
           ],
@@ -1826,6 +2370,107 @@
               "show": true
             }
           ]
+        },
+        {
+          "aliasColors": {},
+          "bars": false,
+          "dashLength": 10,
+          "dashes": false,
+          "datasource": "$datasource",
+          "fill": 1,
+          "id": 22,
+          "legend": {
+            "avg": false,
+            "current": false,
+            "max": false,
+            "min": false,
+            "show": true,
+            "total": false,
+            "values": false
+          },
+          "lines": true,
+          "linewidth": 1,
+          "links": [],
+          "nullPointMode": "null",
+          "percentage": false,
+          "pointradius": 5,
+          "points": false,
+          "renderer": "flot",
+          "seriesOverrides": [],
+          "spaceLength": 10,
+          "span": 4,
+          "stack": false,
+          "steppedLine": false,
+          "targets": [
+            {
+              "expr": "histogram_quantile(0.99, sum(rate(traefik_request_duration_seconds_bucket{service=~\"^$app.adeo..+|^$app.nais..+|^$app-$namespace.nais.*\", code=~\"200\"}[5m])) by (le)) ",
+              "format": "time_series",
+              "hide": false,
+              "intervalFactor": 2,
+              "legendFormat": "99th percentile",
+              "refId": "B",
+              "step": 240
+            },
+            {
+              "expr": "histogram_quantile(0.90, sum(rate(traefik_request_duration_seconds_bucket{service=~\"^$app.adeo..+|^$app.nais..+|^$app-$namespace.nais.*\", code=~\"200\"}[5m])) by (le)) ",
+              "format": "time_series",
+              "intervalFactor": 2,
+              "legendFormat": "90th percentile",
+              "refId": "C",
+              "step": 240
+            },
+            {
+              "expr": "histogram_quantile(0.75, sum(rate(traefik_request_duration_seconds_bucket{service=~\"^$app.adeo..+|^$app.nais..+|^$app-$namespace.nais.*\", code=~\"200\"}[5m])) by (le)) ",
+              "format": "time_series",
+              "intervalFactor": 2,
+              "legendFormat": "75th percentile",
+              "refId": "D",
+              "step": 240
+            },
+            {
+              "expr": "histogram_quantile(0.50, sum(rate(traefik_request_duration_seconds_bucket{service=~\"^$app.adeo..+|^$app.nais..+|^$app-$namespace.nais.*\", code=~\"200\"}[5m])) by (le)) ",
+              "format": "time_series",
+              "intervalFactor": 2,
+              "legendFormat": "50th percentile",
+              "refId": "A",
+              "step": 240
+            }
+          ],
+          "thresholds": [],
+          "timeFrom": null,
+          "timeShift": null,
+          "title": "latency histogram",
+          "tooltip": {
+            "shared": true,
+            "sort": 0,
+            "value_type": "individual"
+          },
+          "type": "graph",
+          "xaxis": {
+            "buckets": null,
+            "mode": "time",
+            "name": null,
+            "show": true,
+            "values": []
+          },
+          "yaxes": [
+            {
+              "format": "s",
+              "label": null,
+              "logBase": 1,
+              "max": null,
+              "min": null,
+              "show": true
+            },
+            {
+              "format": "short",
+              "label": null,
+              "logBase": 1,
+              "max": null,
+              "min": null,
+              "show": true
+            }
+          ]
         }
       ],
       "repeat": null,
@@ -1836,8 +2481,8 @@
       "titleSize": "h6"
     },
     {
-      "collapse": false,
-      "height": 404,
+      "collapse": true,
+      "height": 288,
       "panels": [
         {
           "aliasColors": {},
@@ -1913,7 +2558,7 @@
                   }
                 ]
               ],
-              "step": 20,
+              "step": 240,
               "tags": []
             }
           ],
@@ -2024,7 +2669,7 @@
                   }
                 ]
               ],
-              "step": 20,
+              "step": 240,
               "tags": []
             }
           ],
@@ -2134,7 +2779,7 @@
                   }
                 ]
               ],
-              "step": 20,
+              "step": 240,
               "tags": []
             }
           ],
@@ -2243,7 +2888,7 @@
                   }
                 ]
               ],
-              "step": 20,
+              "step": 240,
               "tags": []
             },
             {
@@ -2284,7 +2929,7 @@
                   }
                 ]
               ],
-              "step": 20,
+              "step": 240,
               "tags": []
             }
           ],
@@ -2339,33 +2984,6 @@
   "templating": {
     "list": [
       {
-        "auto": true,
-        "auto_count": 30,
-        "auto_min": "10s",
-        "current": {
-          "text": "auto",
-          "value": "$__auto_interval"
-        },
-        "hide": 2,
-        "label": null,
-        "name": "interval",
-        "options": [
-          {
-            "selected": true,
-            "text": "auto",
-            "value": "$__auto_interval"
-          },
-          {
-            "selected": false,
-            "text": "2m",
-            "value": "2m"
-          }
-        ],
-        "query": "2m",
-        "refresh": 2,
-        "type": "interval"
-      },
-      {
         "current": {
           "text": "nais-preprod-fss",
           "value": "nais-preprod-fss"
@@ -2418,11 +3036,38 @@
         "tagsQuery": "",
         "type": "query",
         "useTags": false
+      },
+      {
+        "auto": true,
+        "auto_count": 30,
+        "auto_min": "10s",
+        "current": {
+          "text": "2m",
+          "value": "2m"
+        },
+        "hide": 2,
+        "label": null,
+        "name": "interval",
+        "options": [
+          {
+            "selected": false,
+            "text": "auto",
+            "value": "$__auto_interval"
+          },
+          {
+            "selected": true,
+            "text": "2m",
+            "value": "2m"
+          }
+        ],
+        "query": "2m",
+        "refresh": 2,
+        "type": "interval"
       }
     ]
   },
   "time": {
-    "from": "now-1h",
+    "from": "now-12h",
     "to": "now"
   },
   "timepicker": {
@@ -2452,5 +3097,5 @@
   },
   "timezone": "",
   "title": "Altinnkanal-2",
-  "version": 12
+  "version": 44
 }
