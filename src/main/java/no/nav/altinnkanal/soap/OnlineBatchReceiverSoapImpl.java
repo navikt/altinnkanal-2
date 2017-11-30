@@ -66,8 +66,9 @@ public class OnlineBatchReceiverSoapImpl implements OnlineBatchReceiverSoap {
         try {
             ExternalAttachment externalAttachment = toAvroObject(dataBatch);
 
-            serviceCode = externalAttachment.getSc().toString();
-            serviceEditionCode = externalAttachment.getSec().toString();
+            serviceCode = externalAttachment.getSc();
+            serviceEditionCode = externalAttachment.getSec();
+
             requestsTotal.inc();
 
             TopicMapping topicMapping = topicService.getTopicMapping(serviceCode, serviceEditionCode);
@@ -99,7 +100,9 @@ public class OnlineBatchReceiverSoapImpl implements OnlineBatchReceiverSoap {
         } catch (Exception e) {
             logger.error("Failed to send a ROBEA request to Kafka {}, {}",
                     keyValue("SC", serviceCode), keyValue("SEC", serviceEditionCode), e);
+
             requestsFailedError.inc();
+
             return "FAILED";
         }
     }

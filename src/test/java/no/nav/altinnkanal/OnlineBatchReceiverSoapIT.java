@@ -131,16 +131,12 @@ public class OnlineBatchReceiverSoapIT {
     }
 
     private void stopKafkaServers() throws Exception {
-        for (KafkaServer kafkaServer : kafkaEmbedded.getKafkaServers()) {
-            kafkaServer.shutdown();
-            kafkaServer.awaitShutdown();
-        }
+        kafkaEmbedded.getKafkaServers().forEach(KafkaServer::shutdown);
+        kafkaEmbedded.getKafkaServers().forEach(KafkaServer::awaitShutdown);
     }
 
     private void startKafkaServers() throws Exception {
-        for (KafkaServer kafkaServer : kafkaEmbedded.getKafkaServers()) {
-            kafkaServer.startup();
-        }
+        kafkaEmbedded.getKafkaServers().forEach(KafkaServer::startup);
     }
 
 

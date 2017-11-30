@@ -61,6 +61,10 @@
                         </goals>
                     </execution>
                 </executions>
+                <configuration>
+                    <stringType>String</stringType>
+                    <createSetters>false</createSetters>
+                </configuration>
             </plugin>
 
             <plugin>
