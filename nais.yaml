@@ -24,10 +24,10 @@ ingress:
   enabled: true
 resources:
   limits:
-    cpu: 1000m
-    memory: 2Gi
+    cpu: 600m
+    memory: 600Mi
   requests:
-    cpu: 400m
+    cpu: 100m
     memory: 256Mi
 fasitResources:
   used:
