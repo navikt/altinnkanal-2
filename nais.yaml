@@ -33,6 +33,8 @@ fasitResources:
   used:
   - alias: ldap
     resourceType: ldap
+  - alias: app_truststore
+    resourceType: certificate
   exposed:
   - alias: altinnkanal-2-ws-endpoint
     resourceType: Webserviceendpoint

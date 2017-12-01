@@ -20,7 +20,6 @@ pipeline {
 		LDAP_USER_BASEDN='ou=NAV,ou=BusinessUnits,dc=test,dc=local'
 		SPRING_DATASOURCE_PASSWORD='root'
 		SPRING_DATASOURCE_URL='jdbc:mysql://localhost/altinnkanal'
-		MAVEN_OPTS='-Djavax.net.ssl.trustStore=preprod.truststore.jks -Djavax.net.ssl.trustStorePassword=password'
 	}
 	stages {
 		stage('build') {
@@ -32,8 +31,6 @@ pipeline {
 		            committer = sh(script: 'git log -1 --pretty=format:"%an"', returnStdout: true).trim()
 		            appVersion = "${env.VERSION_MAJOR}.${env.VERSION_MINOR}.${env.BUILD_ID}-${commitHashShort}"
 		            slackMessage = "<${env.BUILD_URL}|#${env.BUILD_NUMBER}> (<${commitUrl}|${commitHashShort}>) of ${env.GIT_PROJECT}/${env.APPLICATION_NAME}@master by ${committer}"
-		            sh "keytool -keystore preprod.truststore.jks -storepass password -keypass password -alias \"CARoot\" -import -file certs/preprod/B27_issuing_intern.crt -noprompt"
-					sh "keytool -keystore preprod.truststore.jks -storepass password -keypass password -alias \"CARoot2\" -import -file certs/preprod/D26_issuing_intern.crt -noprompt"
 				}
 				slackSend message: "[STARTED] ${slackMessage} :fastparrot:"
 				sh 'mvn -B -DskipTests clean package'

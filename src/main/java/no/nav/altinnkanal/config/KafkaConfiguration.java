@@ -11,8 +11,6 @@ import java.util.Properties;
 
 @Configuration
 public class KafkaConfiguration {
-    @Value("${altinnkanal.topicMappingUpdate.topic}")
-    private String topicMappingUpdateTopic;
 
     @Bean("kafkaProperties")
     public Properties kafkaProperties() throws Exception {
