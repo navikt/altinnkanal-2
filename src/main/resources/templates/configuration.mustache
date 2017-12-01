@@ -15,17 +15,13 @@
             </thead>
             <tbody>
             {{# topicMappingEntries }}
-                {{# enabled}}
-                <tr class="success">
-                {{/ enabled}}
-                {{^ enabled }}
-                <tr class="danger">
-                {{/enabled}}
+                {{# enabled }}<tr class="success">{{/ enabled }}
+                {{^ enabled }}<tr class="danger">{{/ enabled }}
                     <td>{{ serviceCode }}</td>
                     <td>{{ serviceEditionCode }}</td>
                     <td>{{ topic }}</td>
                     <td>
-                        <a href="/configuration/{{serviceCode}}/{{serviceEditionCode}}">
+                        <a href="/configuration/{{ serviceCode }}/{{ serviceEditionCode }}">
                             {{ updateDate }}
                         </a>
                     </td>
@@ -36,12 +32,11 @@
                         </a>
                     </td>
                     <td>
-                    {{# enabled}}
-                        <a href="/configuration/{{ serviceCode }}/{{ serviceEditionCode }}/toggleEnabled" class="btn btn-danger">Deaktiver</a>
-                    {{/ enabled}}
-                    {{^ enabled }}
-                        <a href="/configuration/{{ serviceCode }}/{{ serviceEditionCode }}/toggleEnabled" class="btn btn-success">Aktiver</a>
-                    {{/enabled}}
+                        <form action="/configuration/{{ serviceCode }}/{{ serviceEditionCode }}/toggleEnabled" method="post">
+                            {{# enabled }}<button type="submit" class="btn btn-danger">Deaktiver</button>{{/ enabled }}
+                            {{^ enabled }}<button type="submit" class="btn btn-success">Aktiver</button>{{/ enabled }}
+                            <input type="hidden" name="{{ _csrf.parameterName }}" value="{{ _csrf.token }}">
+                        </form>
                     </td>
                 </tr>
             {{/ topicMappingEntries }}

@@ -17,12 +17,8 @@
             </thead>
             <tbody>
             {{# log }}
-                {{# enabled}}
-                <tr class="success">
-                {{/ enabled}}
-                {{^ enabled }}
-                <tr class="danger">
-                {{/enabled}}
+                {{# enabled }}<tr class="success">{{/ enabled }}
+                {{^ enabled }}<tr class="danger">{{/enabled}}
                     <td>{{ updateDate }}</td>
                     <td>{{ updatedBy }}</td>
                     <td>{{ topic }}</td>
@@ -37,5 +33,5 @@
             Rediger
         </a>
 
-{{/layout}}
+{{/ layout }}
 {{> layout }}

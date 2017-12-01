@@ -114,7 +114,7 @@ public class ConfigurationController {
     }
 
     @PreAuthorize(ROLE_CHECK)
-    @GetMapping("/{serviceCode}/{serviceEditionCode}/toggleEnabled")
+    @PostMapping("/{serviceCode}/{serviceEditionCode}/toggleEnabled")
     public ModelAndView toggleEnabledTopicMapping(Principal principal, @PathVariable String serviceCode, @PathVariable String serviceEditionCode) throws Exception {
         TopicMappingUpdate topicMapping = logService.getLastChangeFor(serviceCode, serviceEditionCode);
         TopicMappingUpdate topicMappingUpdate = logService.logChange(new TopicMappingUpdate(topicMapping.getServiceCode(),
