@@ -118,14 +118,18 @@ public class OnlineBatchReceiverSoapImpl implements OnlineBatchReceiverSoap {
             int eventType = xmlReader.next();
             if (eventType == XMLEvent.START_ELEMENT) {
                 String tagName = xmlReader.getLocalName();
-                if (tagName.equals("ServiceCode")) {
-                    xmlReader.next();
-                    serviceCode = xmlReader.getText();
-                } else if (tagName.equals("ServiceEditionCode")) {
-                    xmlReader.next();
-                    serviceEditionCode = xmlReader.getText();
-                } else if (tagName.equals("DataUnit")) {
-                    archiveReference = xmlReader.getAttributeValue(null, "archiveReference");
+                switch (tagName) {
+                    case "ServiceCode":
+                        xmlReader.next();
+                        serviceCode = xmlReader.getText();
+                        break;
+                    case "ServiceEditionCode":
+                        xmlReader.next();
+                        serviceEditionCode = xmlReader.getText();
+                        break;
+                    case "DataUnit":
+                        archiveReference = xmlReader.getAttributeValue(null, "archiveReference");
+                        break;
                 }
             }
             if (archiveReference != null && serviceCode != null && serviceEditionCode != null)
@@ -135,7 +139,6 @@ public class OnlineBatchReceiverSoapImpl implements OnlineBatchReceiverSoap {
         xmlReader.close();
 
         String batchBase64 = base64Encoder.encodeToString(dataBatch.getBytes());
-
 
         ExternalAttachment externalAttachment = ExternalAttachment.newBuilder()
                 .setSc(serviceCode)

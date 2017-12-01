@@ -35,8 +35,6 @@ public class HealthCheckRestController {
 
     private final Logger logger = LoggerFactory.getLogger(HealthCheckRestController.class.getName());
 
-    private List<Boolean> checks;
-
     @ResponseBody
     @RequestMapping(value="isAlive", produces=MediaType.TEXT_PLAIN_VALUE)
     public ResponseEntity isAlive() {
@@ -54,7 +52,7 @@ public class HealthCheckRestController {
     }
 
     private boolean selfTest() {
-        checks = new ArrayList<>();
+        List<Boolean> checks = new ArrayList<>();
         checks.add(httpUrlFetchTest(WSDL_URL));
         checks.add(httpUrlFetchTest(CONFIGURATION_URL));
         
