@@ -8,7 +8,7 @@ pipeline {
 	environment {
 		GIT_PROJECT='INT'
 		APPLICATION_NAME='altinnkanal-2'
-		FASIT_ENV='q0'
+		FASIT_ENV='q1'
 		VERSION_MAJOR='1'
 		VERSION_MINOR='0'
 		NAIS_CREDENTIALS_ID='nais-user' // refers to Jenkins credentials id
