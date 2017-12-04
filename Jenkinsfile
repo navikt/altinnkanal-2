@@ -8,7 +8,7 @@ pipeline {
 	environment {
 		GIT_PROJECT='INT'
 		APPLICATION_NAME='altinnkanal-2'
-		FASIT_ENV='t4'
+		FASIT_ENV='q0'
 		VERSION_MAJOR='1'
 		VERSION_MINOR='0'
 		NAIS_CREDENTIALS_ID='nais-user' // refers to Jenkins credentials id
@@ -121,7 +121,6 @@ pipeline {
 			junit 'target/surefire-reports/*.xml'
 			junit 'target/failsafe-reports/*.xml'
         	archive 'target/*.jar'
-        	archive 'preprod.truststore.jks'
 			deleteDir()
 			script {
 				if (currentBuild.result == 'ABORTED') {
@@ -133,7 +132,6 @@ pipeline {
         	slackSend color: "good", message: "[${currentBuild.currentResult}] ${slackMessage} passed in ${currentBuild.durationString.replace(' and counting', '')} :feelsrareman:"
         }
 		failure {
-			deleteDir()
 			slackSend color: "danger", message: "[${currentBuild.currentResult}] ${slackMessage} :feelsohwait:"
 		}
     }
