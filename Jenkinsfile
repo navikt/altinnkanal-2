@@ -123,6 +123,8 @@ pipeline {
         	archive 'target/*.jar'
 			deleteDir()
 			script {
+				// clean up Docker builds
+				sh "docker system prune -af"
 				if (currentBuild.result == 'ABORTED') {
 					slackSend color: "warning", message: "[${currentBuild.currentResult}] ${slackMessage} :confusedparrot:"
 				}
