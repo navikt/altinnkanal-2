@@ -38,7 +38,7 @@ fasitResources:
   exposed:
   - alias: altinnkanal-2-ws-endpoint
     resourceType: Webserviceendpoint
-    path: /altinnkanal/OnlineBatchReceiverSoap
+    path: /webservices/OnlineBatchReceiverSoap
     securityToken: none
 #  exposed:
 #  - alias: altinnkanal-2-admin-panel

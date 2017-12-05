@@ -30,7 +30,7 @@ public class SecurityConfiguration {
 
         @Override
         protected void configure(HttpSecurity http) throws Exception {
-            http.antMatcher("/altinnkanal/**")
+            http.antMatcher("/webservices/**")
                 .authorizeRequests().anyRequest().fullyAuthenticated()
                     .and()
                 .csrf().disable()
@@ -42,8 +42,8 @@ public class SecurityConfiguration {
         @Override
         public void configure(AuthenticationManagerBuilder auth) throws Exception {
             auth.inMemoryAuthentication()
-                    .withUser("test")
-                    .password("test")
+                    .withUser(username)
+                    .password(password)
                     .roles("USER");
         }
     }
@@ -65,7 +65,7 @@ public class SecurityConfiguration {
                         .defaultSuccessUrl("/configuration")
                         .permitAll()
                         .and()
-                    .csrf().ignoringAntMatchers("/altinnkanal/**")
+                    .csrf().ignoringAntMatchers("/webservices/**")
                         .and()
                     .logout()
                         .logoutUrl("/configuration/logout")

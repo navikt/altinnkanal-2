@@ -150,7 +150,7 @@ public class OnlineBatchReceiverSoapIT {
 
         JaxWsProxyFactoryBean factory = new JaxWsProxyFactoryBean();
         factory.setServiceClass(OnlineBatchReceiverSoap.class);
-        factory.setAddress("http://localhost:" + localServerPort + "/altinnkanal/OnlineBatchReceiverSoap");
+        factory.setAddress("http://localhost:" + localServerPort + "/webservices/OnlineBatchReceiverSoap");
 
         soapEndpoint = (OnlineBatchReceiverSoap) factory.create();
         Client client = ClientProxy.getClient(soapEndpoint);
