@@ -102,6 +102,7 @@ public class OnlineBatchReceiverSoapIT {
             kafkaProperties.setProperty("bootstrap.servers", kafkaEmbedded.getBrokersAsString());
             kafkaProperties.setProperty("schema.registry.url", schemaRegistryConfig.getList(
                     SchemaRegistryConfig.LISTENERS_CONFIG).stream().collect(Collectors.joining(",")));
+            kafkaProperties.setProperty("reconnect.backoff.max.ms", "15000");
             kafkaProperties.remove("security.protocol");
 
             return kafkaProperties;
