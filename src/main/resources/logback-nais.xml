@@ -6,7 +6,7 @@
 
     <logger name="org.apache.cxf.service.invoker.AbstractInvoker" level="OFF" />
 
-    <root level="ALL">
+    <root level="INFO">
         <appender-ref ref="stdout_json" />
     </root>
 
