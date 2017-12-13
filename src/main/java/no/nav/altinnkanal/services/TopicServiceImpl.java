@@ -13,7 +13,7 @@ import org.springframework.stereotype.Service;
 import java.util.Collection;
 import java.util.HashMap;
 
-import static net.logstash.logback.argument.StructuredArguments.keyValue;
+import static net.logstash.logback.marker.Markers.append;
 
 @Service
 public class TopicServiceImpl implements TopicService {
@@ -74,7 +74,8 @@ public class TopicServiceImpl implements TopicService {
     private void executeCacheUpdate(boolean force) throws Exception {
         Summary.Timer cacheUpdateTimer = cacheUpdateTime.startTimer();
 
-        logger.debug("Querying database for topic updates {}", keyValue("force", force));
+        logger.debug(append("force_update", force),
+                "Querying database for topic updates {}", force);
 
         long lastPersistedLogEntry = logService.getLastLogEntryId();
 
@@ -94,10 +95,11 @@ public class TopicServiceImpl implements TopicService {
             updated.forEach((key, value) -> {
                 if (topicMappings.containsKey(key) && topicMappings.get(key).equals(value))
                     return;
-                logger.info("Updating topic mapping for service code: {} and service edition code {}, new entry is {}",
-                        keyValue("serviceCode", value.getServiceCode()),
-                        keyValue("serviceEditionCode", value.getServiceEditionCode()),
-                        keyValue("newEntry", value));
+                logger.info(append("service_code", value.getServiceCode())
+                            .and(append("service_edition_code", value.getServiceEditionCode()))
+                            .and(append("new_entry", value)),
+                    "Updating topic mapping for service code: {} and service edition code {}",
+                    value.getServiceCode(), value.getServiceEditionCode());
             });
         }
 

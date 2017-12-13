@@ -19,7 +19,7 @@ import javax.xml.stream.events.XMLEvent;
 import java.io.StringReader;
 import java.util.Base64;
 
-import static net.logstash.logback.argument.StructuredArguments.keyValue;
+import static net.logstash.logback.marker.Markers.append;
 
 @Service
 public class OnlineBatchReceiverSoapImpl implements OnlineBatchReceiverSoap {
@@ -76,13 +76,13 @@ public class OnlineBatchReceiverSoapImpl implements OnlineBatchReceiverSoap {
             if (topicMapping == null || !topicMapping.isEnabled()) {
                 if (topicMapping == null) {
                     requestsFailedMissing.inc();
-                    logger.info("Denied ROBEA request due to missing/unknown SC/SEC codes: {}, {}",
-                            keyValue("SC", serviceCode), keyValue("SEC", serviceEditionCode));
+                    logger.warn(append("service_code", serviceCode).and(append("service_edition_code", serviceEditionCode)),
+                            "Denied ROBEA request due to missing/unknown codes: SC={}, SEC={}", serviceCode, serviceEditionCode);
                 }
                 else {
                     requestsFailedDisabled.inc();
-                    logger.info("Denied ROBEA request due to disabled SC/SEC codes: {}, {}",
-                            keyValue("SC", serviceCode), keyValue("SEC", serviceEditionCode));
+                    logger.warn(append("service_code", serviceCode).and(append("service_edition_code", serviceEditionCode)),
+                            "Denied ROBEA request due to disabled codes: SC={}, SEC={}", serviceCode, serviceEditionCode);
                 }
                 return "FAILED_DO_NOT_RETRY";
             }
@@ -92,14 +92,19 @@ public class OnlineBatchReceiverSoapImpl implements OnlineBatchReceiverSoap {
             double latency = requestLatency.observeDuration();
             requestSize.observe(metadata.serializedValueSize());
             requestsSuccess.inc();
-            logger.debug("Successfully published ROBEA request to Kafka: {}, {}, {}, {})",
-                    keyValue("SC", serviceCode), keyValue("SEC", serviceEditionCode),
-                    keyValue("latency", String.format("%.0f", latency * 1000) + " ms"),
-                    keyValue("size", String.format("%.2f", metadata.serializedValueSize() / 1024f) + " MB"));
+
+            String requestLatencyString = String.format("%.0f", latency * 1000) + " ms";
+            String requestSizeString = String.format("%.2f", metadata.serializedValueSize() / 1024f) + " MB";
+
+            logger.info(append("service_code", serviceCode).and(append("service_edition_code", serviceEditionCode))
+                        .and(append("latency", requestLatencyString))
+                        .and(append("size", requestSizeString)),
+                    "Successfully published ROBEA request to Kafka: SC={}, SEC={}, latency={}, size={})",
+                    serviceCode, serviceEditionCode, requestLatencyString, requestSizeString);
             return "OK";
         } catch (Exception e) {
-            logger.error("Failed to send a ROBEA request to Kafka {}, {}",
-                    keyValue("SC", serviceCode), keyValue("SEC", serviceEditionCode), e);
+            logger.error(append("service_code", serviceCode).and(append("service_edition_code", serviceEditionCode)),
+                    "Failed to send a ROBEA request to Kafka: SC={}, SEC={}", serviceCode, serviceEditionCode, e);
 
             requestsFailedError.inc();
 
