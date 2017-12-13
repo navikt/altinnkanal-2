@@ -3,6 +3,7 @@ package no.nav.altinnkanal.soap;
 import io.prometheus.client.Counter;
 import io.prometheus.client.Summary;
 import no.altinn.webservices.OnlineBatchReceiverSoap;
+import no.nav.altinnkanal.RoutingStatus;
 import no.nav.altinnkanal.avro.ExternalAttachment;
 import no.nav.altinnkanal.entities.TopicMapping;
 import no.nav.altinnkanal.services.KafkaService;
@@ -76,12 +77,16 @@ public class OnlineBatchReceiverSoapImpl implements OnlineBatchReceiverSoap {
             if (topicMapping == null || !topicMapping.isEnabled()) {
                 if (topicMapping == null) {
                     requestsFailedMissing.inc();
-                    logger.warn(append("service_code", serviceCode).and(append("service_edition_code", serviceEditionCode)),
+                    logger.warn(append("service_code", serviceCode)
+                                .and(append("service_edition_code", serviceEditionCode))
+                                .and(append("routing_status", "FAILED_MISSING")),
                             "Denied ROBEA request due to missing/unknown codes: SC={}, SEC={}", serviceCode, serviceEditionCode);
                 }
                 else {
                     requestsFailedDisabled.inc();
-                    logger.warn(append("service_code", serviceCode).and(append("service_edition_code", serviceEditionCode)),
+                    logger.warn(append("service_code", serviceCode)
+                                .and(append("service_edition_code", serviceEditionCode))
+                                .and(append("routing_status", "FAILED_DISABLED")),
                             "Denied ROBEA request due to disabled codes: SC={}, SEC={}", serviceCode, serviceEditionCode);
                 }
                 return "FAILED_DO_NOT_RETRY";
@@ -98,12 +103,15 @@ public class OnlineBatchReceiverSoapImpl implements OnlineBatchReceiverSoap {
 
             logger.info(append("service_code", serviceCode).and(append("service_edition_code", serviceEditionCode))
                         .and(append("latency", requestLatencyString))
-                        .and(append("size", requestSizeString)),
+                        .and(append("size", requestSizeString))
+                        .and(append("routing_status", "SUCCESS")),
                     "Successfully published ROBEA request to Kafka: SC={}, SEC={}, latency={}, size={})",
                     serviceCode, serviceEditionCode, requestLatencyString, requestSizeString);
             return "OK";
         } catch (Exception e) {
-            logger.error(append("service_code", serviceCode).and(append("service_edition_code", serviceEditionCode)),
+            logger.error(append("service_code", serviceCode)
+                        .and(append("service_edition_code", serviceEditionCode))
+                        .and(append("routing_status", "FAILED")),
                     "Failed to send a ROBEA request to Kafka: SC={}, SEC={}", serviceCode, serviceEditionCode, e);
 
             requestsFailedError.inc();
