@@ -28,7 +28,7 @@ public class ConfigurationController {
     private final static String ROLE_CHECK = "hasRole('" + EDIT_ROLE_NAME + "')";
     private final LogService logService;
     private final TopicService topicService;
-    private final Logger logger = LoggerFactory.getLogger(OnlineBatchReceiverSoap.class.getName());
+    private final Logger logger = LoggerFactory.getLogger(ConfigurationController.class.getName());
 
     @Autowired
     public ConfigurationController(LogService logService, TopicService topicService) {
@@ -79,7 +79,8 @@ public class ConfigurationController {
                     LocalDateTime.now(), principal.getName()));
             topicService.createTopicMapping(update.getServiceCode(), update.getServiceEditionCode(), update.getTopic(),
                     topic.getId(), update.isEnabled());
-            logger.info(append("object", topic), "TopicMapping - New Entry");
+            logger.info(append("object", topic), "New topic mapping entry: SC={}, SEC={}",
+                    update.getServiceCode(), update.getServiceEditionCode());
             return new ModelAndView("redirect:/configuration");
         }
     }
@@ -109,7 +110,9 @@ public class ConfigurationController {
                 update.getServiceEditionCode(), update.getTopic(), update.isEnabled(), update.getComment(),
                 LocalDateTime.now(), principal.getName()));
         topicService.updateTopicMapping(serviceCode, serviceEditionCode, update.getTopic(), topicMappingUpdate.getId(), update.isEnabled());
-        logger.info(append("old_object", topicMapping).and(append("new_object", topicMappingUpdate)), "TopicMapping - Changed Entry");
+        logger.info(append("old_object", topicMapping)
+                .and(append("new_object", topicMappingUpdate)),
+                "Updated topic mapping entry: SC={}, SEC={}", serviceCode, serviceEditionCode);
         return new ModelAndView("redirect:/configuration");
     }
 
@@ -121,7 +124,10 @@ public class ConfigurationController {
                 topicMapping.getServiceEditionCode(), topicMapping.getTopic(), !topicMapping.isEnabled(), topicMapping.getComment(),
                 LocalDateTime.now(), principal.getName()));
         topicService.updateTopicMapping(serviceCode, serviceEditionCode, topicMapping.getTopic(), topicMappingUpdate.getId(), !topicMapping.isEnabled());
-        logger.info(append("old_state", topicMapping.isEnabled()).and(append("new_state", !topicMapping.isEnabled())), "TopicMapping - Toggled Routing State");
+        logger.info(append("old_state", topicMapping.isEnabled())
+                .and(append("new_state", !topicMapping.isEnabled())),
+                "Toggled state of topic mapping routing: SC={}, SEC={}, Old={}, New={}",
+                serviceCode, serviceEditionCode, topicMapping.isEnabled(), !topicMapping.isEnabled());
         return new ModelAndView("redirect:/configuration");
     }
 }

@@ -17,7 +17,7 @@ import static net.logstash.logback.marker.Markers.append;
 
 @Service
 public class TopicServiceImpl implements TopicService {
-    private final Logger logger = LoggerFactory.getLogger(OnlineBatchReceiverSoap.class);
+    private final Logger logger = LoggerFactory.getLogger(TopicService.class.getName());
     private static final Summary cacheUpdateTime = Summary.build()
             .name("cache_update_time_ms").help("Time to update cache in ms")
             .create();
@@ -98,7 +98,7 @@ public class TopicServiceImpl implements TopicService {
                 logger.info(append("service_code", value.getServiceCode())
                             .and(append("service_edition_code", value.getServiceEditionCode()))
                             .and(append("new_entry", value)),
-                    "Updating topic mapping for service code: {} and service edition code {}",
+                    "Updating topic mapping: SC={}, SEC={}",
                     value.getServiceCode(), value.getServiceEditionCode());
             });
         }
