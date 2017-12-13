@@ -3,7 +3,6 @@ package no.nav.altinnkanal.soap;
 import io.prometheus.client.Counter;
 import io.prometheus.client.Summary;
 import no.altinn.webservices.OnlineBatchReceiverSoap;
-import no.nav.altinnkanal.RoutingStatus;
 import no.nav.altinnkanal.avro.ExternalAttachment;
 import no.nav.altinnkanal.entities.TopicMapping;
 import no.nav.altinnkanal.services.KafkaService;
