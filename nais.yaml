@@ -35,6 +35,11 @@ fasitResources:
     resourceType: ldap
   - alias: app_truststore
     resourceType: certificate
+  - alias: altinnkanalWS
+    resourceType: credential
+    propertyMap:
+      username: SOAP_USERNAME
+      password: SOAP_PASSWORD
   exposed:
   - alias: altinnkanal-2-ws-endpoint
     resourceType: Webserviceendpoint
