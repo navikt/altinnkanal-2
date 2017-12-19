@@ -1,6 +1,5 @@
 package no.nav.altinnkanal.config;
 
-import org.apache.cxf.binding.soap.SoapFault;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.context.properties.ConfigurationProperties;
