@@ -1,7 +1,6 @@
 package no.nav.altinnkanal.services;
 
 import io.prometheus.client.Summary;
-import no.altinn.webservices.OnlineBatchReceiverSoap;
 import no.nav.altinnkanal.entities.TopicMapping;
 import no.nav.altinnkanal.entities.TopicMappingKey;
 import org.slf4j.Logger;

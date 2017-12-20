@@ -1,6 +1,5 @@
 package no.nav.altinnkanal.mvc;
 
-import no.altinn.webservices.OnlineBatchReceiverSoap;
 import no.nav.altinnkanal.entities.TopicMappingUpdate;
 import no.nav.altinnkanal.services.LogService;
 import no.nav.altinnkanal.services.TopicService;
@@ -16,8 +15,10 @@ import org.springframework.web.servlet.ModelAndView;
 import javax.validation.Valid;
 import java.security.Principal;
 import java.time.LocalDateTime;
-import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import static net.logstash.logback.marker.Markers.append;
 
@@ -45,8 +46,10 @@ public class ConfigurationController {
 
     @GetMapping
     public ModelAndView listAllTopicMappings() throws Exception {
-        List<TopicMappingUpdate> allMappings = new ArrayList<>(logService.getUniqueChangelog(true));
-        allMappings.addAll(logService.getUniqueChangelog(false));
+        List<TopicMappingUpdate> allMappings =
+                Stream.of(logService.getUniqueChangelog(true), logService.getUniqueChangelog(false))
+                    .flatMap(Collection::stream)
+                    .collect(Collectors.toList());
         return new ModelAndView("configuration")
                 .addObject("topicMappingEntries", allMappings);
     }
