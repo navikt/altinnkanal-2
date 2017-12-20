@@ -27,6 +27,8 @@ public class HealthCheckRestController {
     @Value("${soap.auth.password}")
     private String password;
 
+    private List<SelfTestResult> results = new ArrayList<>();
+
     private static final String APPLICATION_ALIVE = "Application is alive";
     private static final String APPLICATION_READY = "Application is ready";
     private static final String BASE_URL = "http://localhost:8080/";
@@ -44,38 +46,55 @@ public class HealthCheckRestController {
     @ResponseBody
     @RequestMapping(value="isReady", produces=MediaType.TEXT_PLAIN_VALUE)
     public ResponseEntity isReady() {
-        boolean ready = selfTest();
-        if (!ready) {
+        results.clear();
+        results.add(httpUrlFetchTest(WSDL_URL));
+        results.add(httpUrlFetchTest(CONFIGURATION_URL));
+
+        if (hasErrors(results)) {
             return new ResponseEntity(HttpStatus.INTERNAL_SERVER_ERROR);
         }
         return new ResponseEntity<>(APPLICATION_READY, HttpStatus.OK);
     }
 
-    private boolean selfTest() {
-        List<Boolean> checks = new ArrayList<>();
-        checks.add(httpUrlFetchTest(WSDL_URL));
-        checks.add(httpUrlFetchTest(CONFIGURATION_URL));
-        
-        for (boolean check : checks) {
-            if (!check) {
-                return false;
-            }
-        }
-        return true;
+    private boolean hasErrors(List<SelfTestResult> results) {
+        return results.stream().anyMatch(result -> result.getStatus() == Status.ERROR);
     }
 
-    private boolean httpUrlFetchTest(String urlString) {
+    private SelfTestResult httpUrlFetchTest(String urlString) {
         HttpURLConnection httpConnection = null;
         try {
             httpConnection = (HttpURLConnection) new URL(urlString).openConnection();
-            String encoded = Base64.getEncoder().encodeToString((username+":"+password).getBytes(StandardCharsets.UTF_8));
+            String encoded = base64EncodeToString(username + ":" + password);
             httpConnection.setRequestProperty("Authorization", "Basic "+encoded);
-            return httpConnection.getResponseCode() == HttpURLConnection.HTTP_OK;
+            if (httpConnection.getResponseCode() == HttpURLConnection.HTTP_OK) {
+                return new SelfTestResult(Status.OK);
+            } else {
+                return new SelfTestResult(Status.ERROR);
+            }
         } catch (Exception e) {
             logger.error("HTTP endpoint readiness test failed", e);
-            return false;
+            return new SelfTestResult(Status.ERROR);
         } finally {
             if (httpConnection != null) httpConnection.disconnect();
+        }
+    }
+
+    private String base64EncodeToString(String stringToBeEncoded) {
+        return Base64.getEncoder().encodeToString((stringToBeEncoded).getBytes(StandardCharsets.UTF_8));
+    }
+
+    enum Status {OK, ERROR}
+
+    static class SelfTestResult {
+
+        private Status status;
+
+        SelfTestResult(Status status) {
+            this.status = status;
+        }
+
+        Status getStatus() {
+            return status;
         }
     }
 }
