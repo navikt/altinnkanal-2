@@ -61,6 +61,7 @@ public class OnlineBatchReceiverSoapImpl implements OnlineBatchReceiverSoap {
     public String receiveOnlineBatchExternalAttachment(String username, String passwd, String receiversReference, long sequenceNumber, String dataBatch, byte[] attachments) {
         String serviceCode = null;
         String serviceEditionCode = null;
+        String archiveReference = null;
         Summary.Timer requestLatency = requestTime.startTimer();
 
         try {
@@ -68,6 +69,7 @@ public class OnlineBatchReceiverSoapImpl implements OnlineBatchReceiverSoap {
 
             serviceCode = externalAttachment.getSc();
             serviceEditionCode = externalAttachment.getSec();
+            archiveReference = externalAttachment.getArchRef();
 
             requestsTotal.inc();
 
@@ -78,15 +80,23 @@ public class OnlineBatchReceiverSoapImpl implements OnlineBatchReceiverSoap {
                     requestsFailedMissing.inc();
                     logger.warn(append("service_code", serviceCode)
                                 .and(append("service_edition_code", serviceEditionCode))
-                                .and(append("routing_status", "FAILED_MISSING")),
-                            "Denied ROBEA request due to missing/unknown codes: SC={}, SEC={}", serviceCode, serviceEditionCode);
+                                .and(append("routing_status", "FAILED_MISSING"))
+                                .and(append("receivers_reference", receiversReference))
+                                .and(append("archive_reference", archiveReference))
+                                .and(append("sequence_number", sequenceNumber)),
+                            "Denied ROBEA request due to missing/unknown codes: SC={}, SEC={}, recRef={}, archRef={}, seqNum={}",
+                            serviceCode, serviceEditionCode, receiversReference, archiveReference, sequenceNumber);
                 }
                 else {
                     requestsFailedDisabled.inc();
                     logger.warn(append("service_code", serviceCode)
                                 .and(append("service_edition_code", serviceEditionCode))
-                                .and(append("routing_status", "FAILED_DISABLED")),
-                            "Denied ROBEA request due to disabled codes: SC={}, SEC={}", serviceCode, serviceEditionCode);
+                                .and(append("routing_status", "FAILED_DISABLED"))
+                                .and(append("receivers_reference", receiversReference))
+                                .and(append("archive_reference", archiveReference))
+                                .and(append("sequence_number", sequenceNumber)),
+                            "Denied ROBEA request due to disabled codes: SC={}, SEC={}, recRef={}, archRef={}, seqNum={}",
+                            serviceCode, serviceEditionCode, receiversReference, archiveReference, sequenceNumber);
                 }
                 return "FAILED_DO_NOT_RETRY";
             }
@@ -103,18 +113,23 @@ public class OnlineBatchReceiverSoapImpl implements OnlineBatchReceiverSoap {
             logger.info(append("service_code", serviceCode).and(append("service_edition_code", serviceEditionCode))
                         .and(append("latency", requestLatencyString))
                         .and(append("size", requestSizeString))
-                        .and(append("routing_status", "SUCCESS")),
-                    "Successfully published ROBEA request to Kafka: SC={}, SEC={}, latency={}, size={})",
-                    serviceCode, serviceEditionCode, requestLatencyString, requestSizeString);
+                        .and(append("routing_status", "SUCCESS"))
+                        .and(append("receivers_reference", receiversReference))
+                        .and(append("archive_reference", archiveReference))
+                        .and(append("sequence_number", sequenceNumber)),
+                    "Successfully published ROBEA request to Kafka: SC={}, SEC={}, latency={}, size={}, recRef={}, archRef={}, seqNum={}",
+                    serviceCode, serviceEditionCode, requestLatencyString, requestSizeString, receiversReference, archiveReference, sequenceNumber);
             return "OK";
         } catch (Exception e) {
+            requestsFailedError.inc();
             logger.error(append("service_code", serviceCode)
                         .and(append("service_edition_code", serviceEditionCode))
-                        .and(append("routing_status", "FAILED")),
-                    "Failed to send a ROBEA request to Kafka: SC={}, SEC={}", serviceCode, serviceEditionCode, e);
-
-            requestsFailedError.inc();
-
+                        .and(append("routing_status", "FAILED"))
+                        .and(append("receivers_reference", receiversReference))
+                        .and(append("archive_reference", archiveReference))
+                        .and(append("sequence_number", sequenceNumber)),
+                    "Failed to send a ROBEA request to Kafka: SC={}, SEC={}, recRef={}, archRef={}, seqNum={}",
+                    serviceCode, serviceEditionCode, receiversReference, archiveReference, sequenceNumber, e);
             return "FAILED";
         }
     }
