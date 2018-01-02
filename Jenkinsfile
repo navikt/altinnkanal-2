@@ -88,15 +88,13 @@ pipeline {
 		stage('deploy to nais') {
 			steps {
 				script {
-					hook = registerWebhook()
-
 			        def postBody = [
 	                    fields: [
 	                        project          : [key: "DEPLOY"],
 	                        issuetype        : [id: "14302"],
 	                        customfield_14811: [value: "${env.FASIT_ENV}"],
 	                        customfield_14812: "${env.APPLICATION_NAME}:${appVersion}",
-	                        customfield_17410: "${hook.getURL()}",
+	                        customfield_17410: "${env.BUILD_URL}input/Deploy",
 	                        customfield_19015: [id: "22707", value: "Yes"],
 	                        customfield_19413: "${env.APPLICATION_NAMESPACE}",
 	                        customfield_19610: [value: "${env.ZONE}"],
@@ -122,15 +120,11 @@ pipeline {
 
 		            slackSend (color: "#1E90FF", message: "[DEPLOY IN PROGRESS] Waiting for deployment via Jira. See issue: <https://jira.adeo.no/browse/$jiraIssueId|${jiraIssueId}> :slowparrot:")
 		            
-		            echo "Waiting for Jenkins server to deploy the application..."
-		            echo "Waiting for POST to webhook: ${hook.getURL()}"
-
-	            	try {
-		                data = waitForWebhook(hook)
-		                echo "Webhook called with data: ${data}"
+		            try {
+		                input id: "deploy", message: "Waiting for remote Jenkins server to deploy the application..."
 		                currentBuild.description = ""
 		            } catch (Exception exception) {
-		                currentBuild.description = "Deploy failed, see <a href=\"https://jira.adeo.no/browse/$jiraIssueId\">$jiraIssueId</a>"
+		                currentBuild.description = "Deploy failed, see https://jira.adeo.no/browse/$jiraIssueId"
 		                throw exception
 		            }
 		        }
