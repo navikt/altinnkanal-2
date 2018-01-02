@@ -34,7 +34,7 @@ pipeline {
 		            appVersion = "${env.VERSION_MAJOR}.${env.VERSION_MINOR}.${env.BUILD_ID}-${commitHashShort}"
 		            slackMessage = "<${env.BUILD_URL}|#${env.BUILD_NUMBER}> (<${commitUrl}|${commitHashShort}>) of ${env.GIT_PROJECT}/${env.APPLICATION_NAME}@master by ${committer}"
 				}
-				slackSend color: "#7C2491", message: "[STARTED] ${slackMessage} :fastparrot:"
+				slackSend color: "#7C2491", message: "[BUILD STARTED] ${slackMessage} :fastparrot:"
 			}
 		}
 		stage('build') {
@@ -88,13 +88,15 @@ pipeline {
 		stage('deploy to nais') {
 			steps {
 				script {
+					hook = registerWebhook()
+
 			        def postBody = [
 	                    fields: [
 	                        project          : [key: "DEPLOY"],
 	                        issuetype        : [id: "14302"],
 	                        customfield_14811: [value: "${env.FASIT_ENV}"],
 	                        customfield_14812: "${env.APPLICATION_NAME}:${appVersion}",
-	                        customfield_17410: "${env.BUILD_URL}input/Deploy/",
+	                        customfield_17410: "${hook.getURL()}",
 	                        customfield_19015: [id: "22707", value: "Yes"],
 	                        customfield_19413: "${env.APPLICATION_NAMESPACE}",
 	                        customfield_19610: [value: "${env.ZONE}"],
@@ -116,11 +118,16 @@ pipeline {
 			        ])
 
 		            def jiraIssueId = readJSON([text: response.content])["key"]
-		            currentBuild.description = "Waiting for <a href=\"https://jira.adeo.no/browse/$jiraIssueId\">${jiraIssueId}</a>"
+		            currentBuild.description = "Waiting for https://jira.adeo.no/browse/$jiraIssueId"
 
-		            slackSend (color: "#1E90FF", message: "[IN PROGRESS] Waiting for deployment via Jira. See issue: <https://jira.adeo.no/browse/$jiraIssueId|${jiraIssueId}> :slowparrot:")
-		            try {
-		                input id: "deploy", message: "Waiting for remote Jenkins server to deploy the application..."
+		            slackSend (color: "#1E90FF", message: "[DEPLOY IN PROGRESS] Waiting for deployment via Jira. See issue: <https://jira.adeo.no/browse/$jiraIssueId|${jiraIssueId}> :slowparrot:")
+		            
+		            echo "Waiting for Jenkins server to deploy the application..."
+		            echo "Waiting for POST to webhook: ${hook.getURL()}"
+
+	            	try {
+		                data = waitForWebhook(hook)
+		                echo "Webhook called with data: ${data}"
 		                currentBuild.description = ""
 		            } catch (Exception exception) {
 		                currentBuild.description = "Deploy failed, see <a href=\"https://jira.adeo.no/browse/$jiraIssueId\">$jiraIssueId</a>"
@@ -150,7 +157,7 @@ pipeline {
 		failure {
 			script {
 				if (currentBuild.description != null) {
-					slackMessage = "${slackMessage}." + "${currentBuild.description}"
+					slackMessage = "${slackMessage}. " + "${currentBuild.description}"
 				}
 			}
 			slackSend color: "danger", message: "[${currentBuild.currentResult}] ${slackMessage} :feelsohwait:"
