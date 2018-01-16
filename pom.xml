@@ -14,7 +14,7 @@
         <maven.compiler.source>1.8</maven.compiler.source>
         <maven.compiler.target>1.8</maven.compiler.target>
         <cxf.version>3.2.0</cxf.version>
-        <spring.boot.version>1.5.8.RELEASE</spring.boot.version>
+        <spring.boot.version>1.5.9.RELEASE</spring.boot.version>
         <confluent.version>4.0.0</confluent.version>
         <kafka.version>1.0.0</kafka.version>
         <avro.version>1.8.2</avro.version>
@@ -174,7 +174,7 @@
         <dependency>
             <groupId>org.apache.cxf</groupId>
             <artifactId>cxf-spring-boot-starter-jaxws</artifactId>
-            <version>3.2.0</version>
+            <version>${cxf.version}</version>
         </dependency>
 
         <!-- spring boot -->
