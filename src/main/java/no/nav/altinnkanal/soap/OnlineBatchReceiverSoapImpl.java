@@ -102,6 +102,7 @@ public class OnlineBatchReceiverSoapImpl implements OnlineBatchReceiverSoap {
             }
 
             RecordMetadata metadata = kafkaService.publish(topicMapping.getTopic(), externalAttachment).get();
+            String topic = metadata.topic();
 
             double latency = requestLatency.observeDuration();
             requestSize.observe(metadata.serializedValueSize());
@@ -116,9 +117,10 @@ public class OnlineBatchReceiverSoapImpl implements OnlineBatchReceiverSoap {
                         .and(append("routing_status", "SUCCESS"))
                         .and(append("receivers_reference", receiversReference))
                         .and(append("archive_reference", archiveReference))
-                        .and(append("sequence_number", sequenceNumber)),
-                    "Successfully published ROBEA request to Kafka: SC={}, SEC={}, latency={}, size={}, recRef={}, archRef={}, seqNum={}",
-                    serviceCode, serviceEditionCode, requestLatencyString, requestSizeString, receiversReference, archiveReference, sequenceNumber);
+                        .and(append("sequence_number", sequenceNumber))
+                        .and(append("kafka_topic", topic)),
+                    "Successfully published ROBEA request to Kafka: SC={}, SEC={}, latency={}, size={}, recRef={}, archRef={}, seqNum={}, topic={}",
+                    serviceCode, serviceEditionCode, requestLatencyString, requestSizeString, receiversReference, archiveReference, sequenceNumber, topic);
             return "OK";
         } catch (Exception e) {
             requestsFailedError.inc();
