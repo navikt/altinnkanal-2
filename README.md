@@ -18,7 +18,7 @@ Generally, we recommend just checking in code to the repository for packaging an
 Nonetheless, notes on the process are available in the following sections.
 
 #### Environment variables
-Certain environment variables must be set before running:
+The environment variables do not have to be set for running tests, however they must be set before running the application locally:
 
 ```SPRING_PROFILES_ACTIVE=local```
 
@@ -28,9 +28,8 @@ And,
 
 must also be set. 
 
-Reference Fasit for the values associated to the environment you're running in. 
-
-While developing locally, we've usually used *.test.local (i.e. values for the T-environments).
+Reference Fasit for the values associated to the environment you're running in. While developing locally, we've usually used *.test.local 
+(see https://fasit.adeo.no/resources/20027).
 
 #### Build & run
 
