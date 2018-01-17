@@ -9,7 +9,7 @@ import java.security.Principal;
 @ControllerAdvice("no.nav.altinnkanal.mvc")
 public class UserLoggedInAdvice {
     @ModelAttribute
-    public void addAttributes(Principal principal, Model model) throws Exception {
+    public void addAttributes(Principal principal, Model model) {
         String username = principal == null ? null : principal.getName();
         model.addAttribute("ident", username);
     }

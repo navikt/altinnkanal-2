@@ -19,7 +19,7 @@ public class KafkaConfiguration {
     }
 
     @Bean
-    public Producer<String, Object> producer(@Qualifier("kafkaProperties") Properties kafkaProperties) throws Exception {
+    public Producer<String, Object> producer(@Qualifier("kafkaProperties") Properties kafkaProperties) {
         // Read kafka config
         return new KafkaProducer<>(kafkaProperties);
     }
