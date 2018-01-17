@@ -6,6 +6,7 @@ import no.nav.altinnkanal.entities.TopicMapping;
 import no.nav.altinnkanal.services.KafkaService;
 import no.nav.altinnkanal.services.TopicService;
 import no.nav.altinnkanal.soap.OnlineBatchReceiverSoapImpl;
+import org.apache.commons.io.IOUtils;
 import org.apache.kafka.clients.producer.RecordMetadata;
 import org.junit.Before;
 import org.junit.Test;
@@ -14,6 +15,8 @@ import org.mockito.Mock;
 import org.springframework.test.context.junit4.SpringRunner;
 
 import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileInputStream;
 import java.io.InputStreamReader;
 import java.util.concurrent.Future;
 import java.util.stream.Collectors;
@@ -42,10 +45,7 @@ public class OnlineBatchReceiverSoapTest {
     @Before
     public void setUp() throws Exception {
         soapService = new OnlineBatchReceiverSoapImpl(topicService, kafkaService);
-
-        try (BufferedReader reader = new BufferedReader(new InputStreamReader(getClass().getResourceAsStream("/data/basic_data_batch.xml")))) {
-            simpleBatch = reader.lines().collect(Collectors.joining("\n"));
-        }
+        simpleBatch = IOUtils.toString(new FileInputStream(new File("src/test/resources/data/basic_data_batch.xml")), "UTF-8");
     }
 
     @Test

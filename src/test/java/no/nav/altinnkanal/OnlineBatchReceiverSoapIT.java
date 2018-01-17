@@ -7,6 +7,7 @@ import no.altinn.webservices.OnlineBatchReceiverSoap;
 import no.nav.altinnkanal.entities.TopicMappingUpdate;
 import no.nav.altinnkanal.services.LogService;
 import no.nav.altinnkanal.services.TopicService;
+import org.apache.commons.io.IOUtils;
 import org.apache.cxf.configuration.security.AuthorizationPolicy;
 import org.apache.cxf.endpoint.Client;
 import org.apache.cxf.frontend.ClientProxy;
@@ -32,6 +33,8 @@ import org.springframework.util.SocketUtils;
 
 import javax.annotation.PreDestroy;
 import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileInputStream;
 import java.io.InputStreamReader;
 import java.time.LocalDateTime;
 import java.util.Properties;
@@ -126,25 +129,28 @@ public class OnlineBatchReceiverSoapIT {
     }
 
     private String readResource(String resourceFileName) throws Exception {
-        try (BufferedReader reader = new BufferedReader(new InputStreamReader(getClass().getResourceAsStream(resourceFileName)))) {
+        /*try (BufferedReader reader = new BufferedReader(new InputStreamReader(getClass().getResourceAsStream(resourceFileName)))) {
             return reader.lines().collect(Collectors.joining("\n"));
-        }
+        }*/
+
+        return IOUtils.toString(new FileInputStream(new File(resourceFileName)), "UTF-8");
+
     }
 
-    private void stopKafkaServers() throws Exception {
+    private void stopKafkaServers()  {
         kafkaEmbedded.getKafkaServers().forEach(KafkaServer::shutdown);
         kafkaEmbedded.getKafkaServers().forEach(KafkaServer::awaitShutdown);
     }
 
-    private void startKafkaServers() throws Exception {
+    private void startKafkaServers() {
         kafkaEmbedded.getKafkaServers().forEach(KafkaServer::startup);
     }
 
 
     @Before
     public void setUp() throws Exception {
-        simpleBatch = readResource("/data/basic_data_batch.xml");
-        simpleBatchMissingSec = readResource("/data/basic_data_batch_missing_sec.xml");
+        simpleBatch = readResource("src/test/resources/data/basic_data_batch.xml");
+        simpleBatchMissingSec = readResource("src/test/resources/data/basic_data_batch_missing_sec.xml");
 
         jdbcTemplate.execute("DELETE FROM `topic_mapping_log`;");
         jdbcTemplate.execute("DELETE FROM `topic_mappings`;");

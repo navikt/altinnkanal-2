@@ -28,7 +28,7 @@ public class ConfigurationControllerTest {
     @InjectMocks private ConfigurationController controller;
 
     @Before
-    public void setUp() throws Exception {
+    public void setUp() {
         MockitoAnnotations.initMocks(this);
 
         InternalResourceViewResolver viewResolver = new InternalResourceViewResolver();

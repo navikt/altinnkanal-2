@@ -23,7 +23,7 @@ public class HealthCheckRestControllerTest {
     private static final String APPLICATION_ALIVE = "Application is alive";
 
     @Before
-    public void setUp() throws Exception {
+    public void setUp() {
         MockitoAnnotations.initMocks(this);
         mockMvc = MockMvcBuilders.standaloneSetup(hcrController)
                 .build();
