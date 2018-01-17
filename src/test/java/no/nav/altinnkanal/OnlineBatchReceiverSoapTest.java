@@ -18,8 +18,12 @@ import java.io.InputStreamReader;
 import java.util.concurrent.Future;
 import java.util.stream.Collectors;
 
-import static org.junit.Assert.*;
-import static org.mockito.Mockito.*;
+import static org.junit.Assert.assertEquals;
+import static org.mockito.Mockito.any;
+import static org.mockito.Mockito.anyString;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
+
 
 @RunWith(SpringRunner.class)
 public class OnlineBatchReceiverSoapTest {

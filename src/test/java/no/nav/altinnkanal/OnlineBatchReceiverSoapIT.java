@@ -37,7 +37,7 @@ import java.time.LocalDateTime;
 import java.util.Properties;
 import java.util.stream.Collectors;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
 
 @RunWith(SpringRunner.class)
 @TestPropertySource({"classpath:application-test.properties"})
