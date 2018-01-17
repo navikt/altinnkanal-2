@@ -20,7 +20,10 @@ import org.springframework.stereotype.Component;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import javax.xml.soap.*;
+import javax.xml.soap.MessageFactory;
+import javax.xml.soap.SOAPBody;
+import javax.xml.soap.SOAPFault;
+import javax.xml.soap.SOAPMessage;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.PrintWriter;
@@ -33,9 +36,9 @@ public class SecurityConfiguration {
     @Order(1)
     @PropertySource("classpath:application.properties")
     public static class BasicSecurityConfiguration extends WebSecurityConfigurerAdapter {
-        @Value("${soap.auth.username}")
+        @Value("${soap.username}")
         private String username;
-        @Value("${soap.auth.password}")
+        @Value("${soap.password}")
         private String password;
 
         @Autowired

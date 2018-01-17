@@ -47,9 +47,9 @@ import static org.junit.Assert.*;
 )
 
 public class OnlineBatchReceiverSoapIT {
-    @Value("${soap.auth.username}")
+    @Value("${soap.username}")
     private String username;
-    @Value("${soap.auth.password}")
+    @Value("${soap.password}")
     private String password;
 
     @Autowired
