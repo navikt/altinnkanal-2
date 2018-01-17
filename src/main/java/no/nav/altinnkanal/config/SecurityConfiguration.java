@@ -36,9 +36,9 @@ public class SecurityConfiguration {
     @Order(1)
     @PropertySource("classpath:application.properties")
     public static class BasicSecurityConfiguration extends WebSecurityConfigurerAdapter {
-        @Value("${soap.auth.username}")
+        @Value("${soap.username}")
         private String username;
-        @Value("${soap.auth.password}")
+        @Value("${soap.password}")
         private String password;
 
         @Autowired

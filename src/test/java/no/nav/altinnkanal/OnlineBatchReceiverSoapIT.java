@@ -37,7 +37,7 @@ import java.time.LocalDateTime;
 import java.util.Properties;
 import java.util.stream.Collectors;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
 
 @RunWith(SpringRunner.class)
 @TestPropertySource({"classpath:application-test.properties"})
@@ -47,9 +47,9 @@ import static org.junit.Assert.*;
 )
 
 public class OnlineBatchReceiverSoapIT {
-    @Value("${soap.auth.username}")
+    @Value("${soap.username}")
     private String username;
-    @Value("${soap.auth.password}")
+    @Value("${soap.password}")
     private String password;
 
     @Autowired

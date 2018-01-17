@@ -22,18 +22,18 @@ import java.util.List;
 @Controller
 public class HealthCheckRestController {
 
-    @Value("${soap.auth.username}")
+    @Value("${soap.username}")
     private String username;
-    @Value("${soap.auth.password}")
+    @Value("${soap.password}")
     private String password;
 
     private List<SelfTestResult> results = new ArrayList<>();
 
     private static final String APPLICATION_ALIVE = "Application is alive";
     private static final String APPLICATION_READY = "Application is ready";
-    private static final String BASE_URL = "http://localhost:8080/";
-    private static final String WSDL_URL = BASE_URL + "webservices/OnlineBatchReceiverSoap?wsdl";
-    private static final String CONFIGURATION_URL = BASE_URL + "configuration";
+    private static final String BASE_URL = "http://localhost:8080";
+    private static final String WSDL_URL = BASE_URL + "/webservices/OnlineBatchReceiverSoap?wsdl";
+    private static final String CONFIGURATION_URL = BASE_URL + "/configuration";
 
     private final Logger logger = LoggerFactory.getLogger(HealthCheckRestController.class.getName());
 
