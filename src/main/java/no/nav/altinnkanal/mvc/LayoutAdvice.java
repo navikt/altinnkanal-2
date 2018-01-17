@@ -20,7 +20,7 @@ public class LayoutAdvice {
         String body;
 
         @Override
-        public void execute(Template.Fragment fragment, Writer writer) throws IOException {
+        public void execute(Template.Fragment fragment, Writer writer) {
             body = fragment.execute();
         }
     }

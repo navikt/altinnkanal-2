@@ -16,8 +16,7 @@ public class CustomMustacheViewResolver {
     private final MustacheViewResolver mustacheViewResolver;
 
     @Autowired
-    public CustomMustacheViewResolver(ResourceUrlProvider resourceUrlProvider,
-                                      MustacheViewResolver mustacheViewResolver) {
+    public CustomMustacheViewResolver(ResourceUrlProvider resourceUrlProvider, MustacheViewResolver mustacheViewResolver) {
         this.resourceUrlProvider = resourceUrlProvider;
         this.mustacheViewResolver = mustacheViewResolver;
     }

@@ -4,6 +4,21 @@ This is the repository for the new Altinnkanal using Spring Boot and Kafka (Conf
 
 ## Notes on local development
 
+### Maven
+Generate avro and cfx classes
+
+`mvn generate-sources`
+
+Builds with maven version:
+3.3.9
+
+### Maria DB Local
+
+Download and Maria DB (Version 10.2.10 or newer)
+
+Open heidi sql and run the querry, 
+`create database altinnkanal`
+
 ### Prometheus
 Add
 

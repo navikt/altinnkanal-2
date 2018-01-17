@@ -7,8 +7,12 @@ import java.util.List;
 
 public interface LogService {
     TopicMappingUpdate logChange(TopicMappingUpdate topicMappingUpdate) throws SQLException;
+
     List<TopicMappingUpdate> getUniqueChangelog(Boolean enabled) throws SQLException;
+
     List<TopicMappingUpdate> getChangeLogFor(String serviceCode, String serviceEditionCode) throws SQLException;
+
     TopicMappingUpdate getLastChangeFor(String serviceCode, String serviceEditionCode) throws SQLException;
+
     long getLastLogEntryId() throws SQLException;
 }
