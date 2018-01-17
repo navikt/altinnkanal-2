@@ -26,6 +26,8 @@ And,
 
 ```LDAP_URL, LDAP_USER_BASEDN, LDAP_USERNAME and LDAP_PASSWORD```
 
+see https://fasit.adeo.no/resources/20027
+
 must also be set. 
 
 Reference Fasit for the values associated to the environment you're running in. 
