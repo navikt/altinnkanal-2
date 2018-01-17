@@ -2,22 +2,71 @@
 
 This is the repository for the new Altinnkanal using Spring Boot and Kafka (Confluent Platform), aiming for deployment on NAIS.
 
+## Prerequisites
+
+* Java 1.8
+* Maven 3.3+
+
+For deployment:
+* Docker (tested on 17.03.1-ce)
+
 ## Notes on local development
 
-### Maven
-Generate avro and cfx classes
+### Build, test, run and deploy
+Generally, we recommend just checking in code to the repository for packaging and deployment as our Jenkins CI server automatically handles this.
 
-`mvn generate-sources`
+Nonetheless, notes on the process are available in the following sections.
 
-Builds with maven version:
-3.3.9
+#### Environment variables
+Certain environment variables must be set before running:
 
-### Maria DB Local
+```SPRING_PROFILES_ACTIVE=local```
 
-Download and Maria DB (Version 10.2.10 or newer)
+And,
 
-Open heidi sql and run the querry, 
-`create database altinnkanal`
+```LDAP_URL, LDAP_USER_BASEDN, LDAP_USERNAME and LDAP_PASSWORD```
+
+must also be set. 
+
+Reference Fasit for the values associated to the environment you're running in. 
+
+While developing locally, we've usually used *.test.local (i.e. values for the T-environments).
+
+#### Build & run
+
+Make sure to run to generate required code:
+
+```mvn clean generate-sources```
+
+Then, compile and run as you please.
+
+#### Test
+
+Run unit and integration tests:
+
+```mvn clean verify```
+
+#### Package
+
+Create a runnable JAR:
+
+```mvn clean package -DskipTests```
+
+Create a Docker image using the included Dockerfile (see the notes below on Docker if you're on Windows):
+
+```
+docker build -f path\to\Dockerfile -t integrasjon/altinnkanal-2:<version>
+
+docker tag integrasjon/altinnkanal-2:<version> docker.adeo.no:5000/integrasjon/altinnkanal-2:<version>
+
+docker push docker.adeo.no:5000/integrasjon/altinnkanal-2:<version>
+```
+
+#### Deploy
+
+Deployment to NAIS. See https://confluence.adeo.no/pages/viewpage.action?pageId=210440645 and its child pages.
+
+Pro-tip: use [nais-cli](https://github.com/nais/naisd). 
 
 ### Prometheus
 Add
@@ -36,11 +85,12 @@ to ```prometheus.yml``` under ```scrape_configs```.
 
 Utvikler-image (Windows) no-go due to disabled virtualization flags. Need access to Linux image.
 Repo available at docker.adeo.no:5000, browsable at https://registry-browser.adeo.no/home.
-Deployment on local machine is possible.
+Deployment on local machine is possible. Alternatively, provision a Linux server (or VDI) for 
+building the Docker images.
 
 * Build a JAR and output it in ```target``` subdirectory.
 * Build Docker image using Dockerfile.
-* Push to docker.adeo.no (?)
+* Push to docker.adeo.no
 
 ```
 docker build -f Dockerfile -t altinnkanal .
@@ -63,20 +113,21 @@ docker stop <CONTAINER_NAMES>
 ```
 
 ### Testing against Kafka test-rig
+IPs and hostnames should be available on the #kafka Slack channel. Still WIP so they'll probably change.
 
-#### SSL/auth for broker connection 
-Will likely be added in the future. Should reference https://docs.confluent.io/current/kafka/ssl.html for proper client configuration.
+#### SSL
 
-#### Connection to schema-registry might require SSL
-Causes missing certs exception in JVM.
+Broker connection requires SSL (and probably some form of auth in the future).
+Connection to schema-registry also requires SSL.
 
-Fix: https://stackoverflow.com/questions/21076179/pkix-path-building-failed-and-unable-to-find-valid-certification-path-to-requ
+This will cause missing certs exception in JVM.
 
-Basically:
-* Find the ```cacerts``` file for your JRE (e.g. ```C:\java\jdk8\jre\lib\security```)
-* Export the certificate for the host of the schema-registry (using e.g. Firefox or Chrome)
-* Import the certificate into the cacerts using keytool (default password is ```changeit```:
+To fix: Set up your own truststore (using the Java `keytool` utility) with the NAV root certificates - 
+available [here](https://confluence.adeo.no/display/ITOSS/Root-sertifikater).
+
+Add these options to the VM:
+
 ```
-keytool -import -alias <example> -keystore  <path_to_cacerts> -file <path_to_exported_cert>.cer
+-Djavax.net.ssl.trustStore=path\to\<truststore>.jks
+-Djavax.net.ssl.trustStorePassword=<truststore password>
 ```
-* Restart JVM/PC
