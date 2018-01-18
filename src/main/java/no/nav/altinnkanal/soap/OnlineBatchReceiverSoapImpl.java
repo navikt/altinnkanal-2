@@ -136,7 +136,7 @@ public class OnlineBatchReceiverSoapImpl implements OnlineBatchReceiverSoap {
         }
     }
 
-    public ExternalAttachment toAvroObject(String dataBatch) throws Exception {
+    private ExternalAttachment toAvroObject(String dataBatch) throws Exception {
         StringReader reader = new StringReader(dataBatch);
         XMLStreamReader xmlReader = xmlInputFactory.createXMLStreamReader(reader);
         String serviceCode = null;

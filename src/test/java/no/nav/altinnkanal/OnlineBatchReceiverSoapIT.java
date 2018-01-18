@@ -7,6 +7,7 @@ import no.altinn.webservices.OnlineBatchReceiverSoap;
 import no.nav.altinnkanal.entities.TopicMappingUpdate;
 import no.nav.altinnkanal.services.LogService;
 import no.nav.altinnkanal.services.TopicService;
+import org.apache.commons.io.IOUtils;
 import org.apache.cxf.configuration.security.AuthorizationPolicy;
 import org.apache.cxf.endpoint.Client;
 import org.apache.cxf.frontend.ClientProxy;
@@ -31,7 +32,6 @@ import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.util.SocketUtils;
 
 import javax.annotation.PreDestroy;
-import java.io.BufferedReader;
 import java.io.InputStreamReader;
 import java.time.LocalDateTime;
 import java.util.Properties;
@@ -126,17 +126,15 @@ public class OnlineBatchReceiverSoapIT {
     }
 
     private String readResource(String resourceFileName) throws Exception {
-        try (BufferedReader reader = new BufferedReader(new InputStreamReader(getClass().getResourceAsStream(resourceFileName)))) {
-            return reader.lines().collect(Collectors.joining("\n"));
-        }
+        return IOUtils.toString(new InputStreamReader(getClass().getResourceAsStream(resourceFileName)));
     }
 
-    private void stopKafkaServers() throws Exception {
+    private void stopKafkaServers()  {
         kafkaEmbedded.getKafkaServers().forEach(KafkaServer::shutdown);
         kafkaEmbedded.getKafkaServers().forEach(KafkaServer::awaitShutdown);
     }
 
-    private void startKafkaServers() throws Exception {
+    private void startKafkaServers() {
         kafkaEmbedded.getKafkaServers().forEach(KafkaServer::startup);
     }
 

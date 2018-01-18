@@ -2,6 +2,7 @@ package no.nav.altinnkanal.services;
 
 import no.altinn.webservices.OnlineBatchReceiverSoap;
 import no.nav.altinnkanal.entities.TopicMapping;
+import org.apache.commons.io.IOUtils;
 import org.apache.kafka.clients.producer.Producer;
 import org.apache.kafka.clients.producer.ProducerRecord;
 import org.apache.kafka.clients.producer.RecordMetadata;
@@ -17,10 +18,8 @@ import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.context.junit4.SpringRunner;
 
-import java.io.BufferedReader;
 import java.io.InputStreamReader;
 import java.util.concurrent.Future;
-import java.util.stream.Collectors;
 
 import static org.junit.Assert.assertEquals;
 import static org.mockito.Mockito.any;
@@ -55,9 +54,7 @@ public class KafkaServiceTest {
 
     @Before
     public void setUp() throws Exception {
-        try (BufferedReader reader = new BufferedReader(new InputStreamReader(getClass().getResourceAsStream("/data/basic_data_batch.xml")))) {
-            simpleBatch = reader.lines().collect(Collectors.joining("\n"));
-        }
+        simpleBatch = IOUtils.toString(new InputStreamReader(getClass().getResourceAsStream("/data/basic_data_batch.xml")));
     }
 
     @Test

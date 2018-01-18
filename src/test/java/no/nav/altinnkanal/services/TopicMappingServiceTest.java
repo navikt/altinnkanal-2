@@ -30,7 +30,7 @@ public class TopicMappingServiceTest {
     private Producer<String, Object> producer;
 
     @Before
-    public void setUp() throws Exception {
+    public void setUp() {
         jdbcTemplate.execute("DELETE FROM `topic_mapping_log`;");
         jdbcTemplate.execute("DELETE FROM `topic_mappings`;");
     }
@@ -61,8 +61,19 @@ public class TopicMappingServiceTest {
 
         TopicMapping topicMapping = topicRepository.getTopicMapping(serviceCode, serviceEditionCode);
 
-        assertNotNull(topicMapping);
         assertEquals(topic, topicMapping.getTopic());
+    }
+
+    @Test
+    public void testTopicMappingNotNull() throws Exception {
+        final String serviceCode = "testcode";
+        final String serviceEditionCode = "testeditioncode";
+        final String topic = "test.testeditioncode";
+        topicRepository.createTopicMapping(serviceCode, serviceEditionCode, topic, 0, true);
+
+        TopicMapping topicMapping = topicRepository.getTopicMapping(serviceCode, serviceEditionCode);
+
+        assertNotNull(topicMapping);
     }
 
     @Test
