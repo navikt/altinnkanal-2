@@ -26,11 +26,9 @@ And,
 
 ```LDAP_URL, LDAP_USER_BASEDN, LDAP_USERNAME and LDAP_PASSWORD```
 
-see https://fasit.adeo.no/resources/20027
-
 must also be set. 
 
-Reference Fasit for the values associated to the environment you're running in. While developing locally, we've usually used *.test.local 
+Reference Fasit for the LDAP values associated to the environment you're running in. While developing locally, we've usually used *.test.local 
 (see https://fasit.adeo.no/resources/20027).
 
 #### Build & run
