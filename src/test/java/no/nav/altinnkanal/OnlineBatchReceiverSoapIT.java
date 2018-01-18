@@ -32,9 +32,6 @@ import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.util.SocketUtils;
 
 import javax.annotation.PreDestroy;
-import java.io.BufferedReader;
-import java.io.File;
-import java.io.FileInputStream;
 import java.io.InputStreamReader;
 import java.time.LocalDateTime;
 import java.util.Properties;
@@ -129,12 +126,7 @@ public class OnlineBatchReceiverSoapIT {
     }
 
     private String readResource(String resourceFileName) throws Exception {
-        /*try (BufferedReader reader = new BufferedReader(new InputStreamReader(getClass().getResourceAsStream(resourceFileName)))) {
-            return reader.lines().collect(Collectors.joining("\n"));
-        }*/
-
-        return IOUtils.toString(new FileInputStream(new File(resourceFileName)), "UTF-8");
-
+        return IOUtils.toString(new InputStreamReader(getClass().getResourceAsStream(resourceFileName)));
     }
 
     private void stopKafkaServers()  {
@@ -149,8 +141,8 @@ public class OnlineBatchReceiverSoapIT {
 
     @Before
     public void setUp() throws Exception {
-        simpleBatch = readResource("src/test/resources/data/basic_data_batch.xml");
-        simpleBatchMissingSec = readResource("src/test/resources/data/basic_data_batch_missing_sec.xml");
+        simpleBatch = readResource("/data/basic_data_batch.xml");
+        simpleBatchMissingSec = readResource("/data/basic_data_batch_missing_sec.xml");
 
         jdbcTemplate.execute("DELETE FROM `topic_mapping_log`;");
         jdbcTemplate.execute("DELETE FROM `topic_mappings`;");

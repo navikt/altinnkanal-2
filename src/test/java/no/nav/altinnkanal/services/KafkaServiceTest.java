@@ -18,8 +18,7 @@ import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.context.junit4.SpringRunner;
 
-import java.io.File;
-import java.io.FileInputStream;
+import java.io.InputStreamReader;
 import java.util.concurrent.Future;
 
 import static org.junit.Assert.assertEquals;
@@ -55,7 +54,7 @@ public class KafkaServiceTest {
 
     @Before
     public void setUp() throws Exception {
-        simpleBatch = IOUtils.toString(new FileInputStream(new File("src/test/resources/data/basic_data_batch.xml")), "UTF-8");
+        simpleBatch = IOUtils.toString(new InputStreamReader(getClass().getResourceAsStream("/data/basic_data_batch.xml")));
     }
 
     @Test

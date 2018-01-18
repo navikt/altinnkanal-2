@@ -30,7 +30,7 @@ public class TopicMappingServiceTest {
     private Producer<String, Object> producer;
 
     @Before
-    public void setUp() throws Exception {
+    public void setUp() {
         jdbcTemplate.execute("DELETE FROM `topic_mapping_log`;");
         jdbcTemplate.execute("DELETE FROM `topic_mappings`;");
     }
