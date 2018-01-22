@@ -98,9 +98,9 @@ pipeline {
 	}
 	post {
 		always {
-			junit '**/target/surefire-reports/*.xml'
-			junit '**/target/failsafe-reports/*.xml'
-			archive '**/target/*.jar'
+			junit '*/*/target/surefire-reports/*.xml'
+			junit '*/*/target/failsafe-reports/*.xml'
+			archive '*/*/target/*.jar'
 			deleteDir()
 			dockerPruneBuilds()
 			script {
