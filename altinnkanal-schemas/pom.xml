@@ -12,9 +12,30 @@
     <artifactId>altinnkanal-schemas</artifactId>
     <version>1.0.0-SNAPSHOT</version>
 
+    <distributionManagement>
+        <repository>
+            <id>m2internal</id>
+            <name>NAV Maven Internal Repository</name>
+            <url>http://maven.adeo.no/nexus/content/repositories/m2internal</url>
+        </repository>
+        <snapshotRepository>
+            <id>m2snapshot</id>
+            <name>NAV Maven Internal Snapshot Repository</name>
+            <url>http://maven.adeo.no/nexus/content/repositories/m2snapshot</url>
+            <uniqueVersion>false</uniqueVersion>
+        </snapshotRepository>
+    </distributionManagement>
+
     <build>
         <plugins>
             <!-- generate java classes from avro schema -->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-deploy-plugin</artifactId>
+                <configuration>
+                    <skip>false</skip>
+                </configuration>
+            </plugin>
             <plugin>
                 <groupId>org.apache.avro</groupId>
                 <artifactId>avro-maven-plugin</artifactId>
