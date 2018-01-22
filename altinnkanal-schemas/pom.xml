@@ -10,7 +10,7 @@
     <modelVersion>4.0.0</modelVersion>
 
     <artifactId>altinnkanal-schemas</artifactId>
-    <version>${altinnkanal.schemas.version}</version>
+    <version>1.0.0-SNAPSHOT</version>
 
     <build>
         <plugins>

@@ -51,7 +51,9 @@ pipeline {
         stage('deploy schemas to maven repo') {
             steps {
                 script {
-                    sh 'mvn deploy'
+                    dir('altinnkanal-schemas') {
+                        sh 'mvn deploy'
+                    }
                 }
             }
         }
