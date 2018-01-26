@@ -39,6 +39,7 @@ pipeline {
 		stage('run tests (unit & intergration)') {
 			steps {
 				script {
+                    sh 'mvn verify'
 					def title = "Build Passed :rightparrot:"
 					def text = "Build passed in ${currentBuild.durationString.replace(' and counting', '')}"
 					def fallback = "Build Passed: #${env.BUILD_NUMBER} of ${env.APPLICATION_NAME} - ${env.BUILD_URL}"
@@ -98,9 +99,9 @@ pipeline {
 	}
 	post {
 		always {
-			junit 'altinnkanal/target/surefire-reports/*.xml'
-			junit 'altinnkanal/target/failsafe-reports/*.xml'
-			archive '*/target/*.jar'
+			junit '**/target/surefire-reports/*.xml'
+			junit '**/target/failsafe-reports/*.xml'
+			archive '**/target/*.jar'
 			deleteDir()
 			dockerPruneBuilds()
 			script {
