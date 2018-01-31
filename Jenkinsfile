@@ -8,6 +8,7 @@ pipeline {
 
     environment {
         APPLICATION_NAME = 'altinnkanal-2'
+		GIT_PROJECT = 'INT'
         FASIT_ENV = 't4'
         ZONE = 'fss'
         NAMESPACE = 'default'
@@ -18,7 +19,7 @@ pipeline {
 			steps {
 				script {
 					pom = readMavenPom file: 'pom.xml'
-					gitVars = gitVars(env.APPLICATION_NAME, env.APPLICATION_NAME)
+					gitVars = gitVars(env.GIT_PROJECT, env.APPLICATION_NAME)
 					applicationVersion = "${pom.version}.${env.BUILD_ID}-${gitVars.commitHashShort}"
 					applicationFullName = "${env.APPLICATION_NAME}:${applicationVersion}"
 
