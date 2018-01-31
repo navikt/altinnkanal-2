@@ -24,7 +24,7 @@ pipeline {
 
 					def title = "Build Started :partyparrot:"
 					def fallback = "Build Started: #${env.BUILD_NUMBER} of ${env.APPLICATION_NAME} - ${env.BUILD_URL}"
-					def customFieldText = "`<${gitVars.commitUrl}|${gitVars.commitHashShort}>`: ${gitVars.commitMessage} - ${gitVars.committer}"
+					def customFieldText = gitVars.changeLog
 					def customField = ["title": "Commit", "value": customFieldText.toString(), "short": false]
 					def color = "#D4DADF"
 					slackMessageAttachments(env.APPLICATION_NAME, title, "", fallback, color, customField)
