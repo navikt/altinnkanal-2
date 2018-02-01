@@ -40,6 +40,20 @@
         <spring.kafka.test.version>2.1.0.RELEASE</spring.kafka.test.version>
     </properties>
 
+    <distributionManagement>
+        <repository>
+            <id>m2internal</id>
+            <name>NAV Maven Internal Repository</name>
+            <url>http://maven.adeo.no/nexus/content/repositories/m2internal</url>
+        </repository>
+        <snapshotRepository>
+            <id>m2snapshot</id>
+            <name>NAV Maven Internal Snapshot Repository</name>
+            <url>http://maven.adeo.no/nexus/content/repositories/m2snapshot</url>
+            <uniqueVersion>false</uniqueVersion>
+        </snapshotRepository>
+    </distributionManagement>
+
     <build>
         <pluginManagement>
             <plugins>
