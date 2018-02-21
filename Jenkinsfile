@@ -19,33 +19,35 @@ pipeline {
 			steps {
 				script {
 					pom = readMavenPom file: 'pom.xml'
-					gitVars = gitVars(env.GIT_PROJECT, env.APPLICATION_NAME)
+					gitVars = utils.gitVars(env.GIT_PROJECT, env.APPLICATION_NAME)
 					applicationVersion = "${pom.version}.${env.BUILD_ID}-${gitVars.commitHashShort}"
 					applicationFullName = "${env.APPLICATION_NAME}:${applicationVersion}"
 
-					def title = "Build Started :partyparrot:"
+					def title = "Build Started :party_parrot:"
 					def fallback = "Build Started: #${env.BUILD_NUMBER} of ${env.APPLICATION_NAME} - ${env.BUILD_URL}"
 					def customFieldText = gitVars.changeLog
 					def customField = ["title": "Commit(s)", "value": customFieldText.toString(), "short": false]
 					def color = "#D4DADF"
-					slackMessageAttachments(env.APPLICATION_NAME, title, "", fallback, color, customField)
+					utils.slackMessageAttachments(env.APPLICATION_NAME, title, "", fallback, color, customField)
 				}
 			}
 		}
 		stage('build') {
 			steps {
-				mvnBuild()
+				script {
+					utils.mvnBuild()
+				}
 			}
 		}
 		stage('run tests (unit & intergration)') {
 			steps {
 				script {
                     sh 'mvn verify'
-					def title = "Build Passed :rightparrot:"
+					def title = "Build Passed :right_parrot:"
 					def text = "Build passed in ${currentBuild.durationString.replace(' and counting', '')}"
 					def fallback = "Build Passed: #${env.BUILD_NUMBER} of ${env.APPLICATION_NAME} - ${env.BUILD_URL}"
 					def color = "#FFFE89"
-					slackMessageAttachments(env.APPLICATION_NAME, title, text, fallback, color)
+					utils.slackMessageAttachments(env.APPLICATION_NAME, title, text, fallback, color)
 				}
 			}
 		}
@@ -60,28 +62,32 @@ pipeline {
 
 		stage('push docker image') {
 			steps {
-				dockerCreatePushImage(applicationFullName, gitVars.commitHashShort)
+				script {
+					utils.dockerCreatePushImage(applicationFullName, gitVars.commitHashShort)
+				}
 			}
 		}
 		stage('validate & upload nais.yaml to nexus m2internal') {
 			steps {
-				naisUploadYaml(env.APPLICATION_NAME, applicationVersion)
+				script {
+					deploy.naisUploadYaml(env.APPLICATION_NAME, applicationVersion)
+				}
 			}
 		}
 		stage('deploy to nais') {
 			steps {
 				script {
-					response = naisDeployJira(env.APPLICATION_NAME, applicationVersion, env.FASIT_ENV, env.NAMESPACE, env.ZONE)
+					response = deploy.naisDeployJira(env.APPLICATION_NAME, applicationVersion, env.FASIT_ENV, env.NAMESPACE, env.ZONE)
 					def jiraIssueId = readJSON([text: response.content])["key"]
 					currentBuild.description = "Waiting for <a href=\"https://jira.adeo.no/browse/$jiraIssueId\">$jiraIssueId</a>"
 
-					def title = "Deploying... :slowparrot:"
+					def title = "Deploying... :slow_parrot:"
 					def fallback = "Deploying...: #${env.BUILD_NUMBER} of ${env.APPLICATION_NAME} - ${env.BUILD_URL}"
 					def text = "Waiting for deployment via Jira."
 					def customFieldText = "<https://jira.adeo.no/browse/$jiraIssueId|${jiraIssueId}>"
 					def customField = ["title": "Jira Issue", "value": customFieldText.toString(), "short": false]
 					def color = "#FFFE89"
-					slackMessageAttachments(env.APPLICATION_NAME, title, text, fallback, color, customField)
+					utils.slackMessageAttachments(env.APPLICATION_NAME, title, text, fallback, color, customField)
 
 					try {
 						timeout(time: 1, unit: 'HOURS') {
@@ -102,32 +108,32 @@ pipeline {
 			junit '**/target/failsafe-reports/*.xml'
 			archive '**/target/*.jar'
 			deleteDir()
-			dockerPruneBuilds()
 			script {
+				utils.dockerPruneBuilds()
 				if (currentBuild.result == 'ABORTED') {
-					def title = "Build Aborted :confusedparrot:"
+					def title = "Build Aborted :confused_parrot:"
 					def fallback = "Build Aborted: #${env.BUILD_NUMBER} of ${env.APPLICATION_NAME} - ${env.BUILD_URL}"
 					def color = "#FF9FA1"
-					slackMessageAttachments(env.APPLICATION_NAME, title, "", fallback, color)
+					utils.slackMessageAttachments(env.APPLICATION_NAME, title, "", fallback, color)
 				}
 			}
 		}
 		success {
 			script {
-				def title = "Deploy Success :ultrafastparrot:"
+				def title = "Deploy Success :ultrafast_parrot:"
 				def text = "Successfully deployed in ${currentBuild.durationString.replace(' and counting', '')}"
 				def fallback = "Deploy Success: #${env.BUILD_NUMBER} of ${env.APPLICATION_NAME} - ${env.BUILD_URL}"
 				def color = "#BDFFC3"
-				slackMessageAttachments(env.APPLICATION_NAME, title, text, fallback, color)
+				utils.slackMessageAttachments(env.APPLICATION_NAME, title, text, fallback, color)
 			}
 		}
 		failure {
 			script {
-				def title = "Build Failed :explodyparrot:"
+				def title = "Build Failed :explody_parrot:"
 				def text = "Something went wrong."
 				def fallback = "Build Failed: #${env.BUILD_NUMBER} of ${env.APPLICATION_NAME} - ${env.BUILD_URL}"
 				def color = "#FF9FA1"
-				slackMessageAttachments(env.APPLICATION_NAME, title, text, fallback, color)
+				utils.slackMessageAttachments(env.APPLICATION_NAME, title, text, fallback, color)
 			}
 		}
 	}
