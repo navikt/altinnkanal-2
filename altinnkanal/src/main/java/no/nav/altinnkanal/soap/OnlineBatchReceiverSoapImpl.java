@@ -17,13 +17,11 @@ import javax.xml.stream.XMLInputFactory;
 import javax.xml.stream.XMLStreamReader;
 import javax.xml.stream.events.XMLEvent;
 import java.io.StringReader;
-import java.util.Base64;
 
 import static net.logstash.logback.marker.Markers.append;
 
 @Service
 public class OnlineBatchReceiverSoapImpl implements OnlineBatchReceiverSoap {
-    private final Base64.Encoder base64Encoder = Base64.getEncoder();
     private final Logger logger = LoggerFactory.getLogger(OnlineBatchReceiverSoap.class.getName());
 
     private final XMLInputFactory xmlInputFactory = XMLInputFactory.newFactory();
@@ -167,13 +165,11 @@ public class OnlineBatchReceiverSoapImpl implements OnlineBatchReceiverSoap {
 
         xmlReader.close();
 
-        String batchBase64 = base64Encoder.encodeToString(dataBatch.getBytes());
-
         ExternalAttachment externalAttachment = ExternalAttachment.newBuilder()
                 .setSc(serviceCode)
                 .setSec(serviceEditionCode)
                 .setArchRef(archiveReference)
-                .setBatch(batchBase64)
+                .setBatch(dataBatch)
                 .build();
 
         logger.debug("Got a ROBEA request", externalAttachment);

@@ -40,6 +40,6 @@ public class HealthCheckRestControllerTest {
     @Test
     public void testIsReady() throws Exception {
         mockMvc.perform(get("/isReady").accept(MediaType.TEXT_PLAIN))
-            .andExpect(status().is5xxServerError());
+            .andExpect(status().isOk());
     }
 }
