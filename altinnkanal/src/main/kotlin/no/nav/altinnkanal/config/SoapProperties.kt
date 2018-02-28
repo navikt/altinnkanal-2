@@ -5,5 +5,6 @@ import org.springframework.stereotype.Component
 
 @Component
 @ConfigurationProperties("soap")
-open class SoapProperties constructor(var username: String, var password: String) {
+open class SoapProperties constructor(var username: String?, var password: String?) {
+    constructor(): this(null, null)
 }

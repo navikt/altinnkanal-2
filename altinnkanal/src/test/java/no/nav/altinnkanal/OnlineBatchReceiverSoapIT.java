@@ -11,41 +11,32 @@ import org.apache.cxf.frontend.ClientProxy;
 import org.apache.cxf.jaxws.JaxWsProxyFactoryBean;
 import org.apache.cxf.transport.http.HTTPConduit;
 import org.eclipse.jetty.server.Server;
-import org.junit.Before;
-import org.junit.ClassRule;
-import org.junit.Test;
+import org.junit.*;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.context.embedded.LocalServerPort;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.context.annotation.Profile;
 import org.springframework.kafka.test.rule.KafkaEmbedded;
-import org.springframework.test.context.ActiveProfiles;
-import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.util.SocketUtils;
 
-import javax.annotation.PreDestroy;
 import java.util.Properties;
 import java.util.stream.Collectors;
 
 import static org.junit.Assert.assertEquals;
 
-@ActiveProfiles("kafka-test")
 @RunWith(SpringRunner.class)
-@TestPropertySource({"classpath:application-test.properties"})
 @SpringBootTest(
         classes = {BootstrapROBEA.class, OnlineBatchReceiverSoapIT.ITConfiguration.class},
         webEnvironment =  SpringBootTest.WebEnvironment.RANDOM_PORT
 )
-
 public class OnlineBatchReceiverSoapIT {
     @Autowired
     private SoapProperties soapProperties;
+    private static SchemaRegistryConfig schemaRegistryConfig;
+    private static Server server;
 
     @ClassRule
     public static KafkaEmbedded kafkaEmbedded = new KafkaEmbedded(1, true);
@@ -63,27 +54,23 @@ public class OnlineBatchReceiverSoapIT {
                 .replaceAll("\\{\\{serviceEditionCode}}", serviceEditionCode);
     }
 
-    @Profile("kafka-test")
+    @BeforeClass
+    public static void setupClass() throws Exception {
+        schemaRegistryConfig = schemaRegistryConfig();
+        server = schemaRegistryServer(schemaRegistryConfig);
+    }
+
+    @AfterClass
+    public static void tearDownClass() throws Exception {
+        stopSchemaRegistry();
+    }
+
     @Configuration
     public static class ITConfiguration {
-        @Autowired
-        @Qualifier("schemaRegistryServer")
-        private Server server;
-
-        // Configure the bare minimal for running a schema registry and make sure the port is available
-        @Bean
-        public SchemaRegistryConfig schemaRegistryConfig() throws Exception {
-            Properties properties = new Properties();
-            properties.setProperty(SchemaRegistryConfig.LISTENERS_CONFIG, "http://0.0.0.0:" + SocketUtils.findAvailableTcpPort());
-            properties.setProperty(SchemaRegistryConfig.KAFKASTORE_CONNECTION_URL_CONFIG, kafkaEmbedded.getZookeeperConnectionString());
-            properties.setProperty(SchemaRegistryConfig.DEBUG_CONFIG, "true");
-
-            return new SchemaRegistryConfig(properties);
-        }
 
         // Configure the kafka client to use the spring embedded Kafka server and our schema registry
         @Bean("kafkaProperties")
-        public Properties kafkaProperties(SchemaRegistryConfig schemaRegistryConfig) throws Exception {
+        public Properties kafkaProperties() throws Exception {
             Properties kafkaProperties = new Properties();
 
             kafkaProperties.load(getClass().getResourceAsStream("/kafka.properties"));
@@ -96,22 +83,28 @@ public class OnlineBatchReceiverSoapIT {
 
             return kafkaProperties;
         }
+    }
 
-        // Embed a instance of the schema registry
-        @Bean("schemaRegistryServer")
-        public Server schemaRegistryServer(SchemaRegistryConfig schemaRegistryConfig) throws Exception {
-            SchemaRegistryRestApplication schemaRegistryApplication = new SchemaRegistryRestApplication(schemaRegistryConfig);
-            Server server = schemaRegistryApplication.createServer();
-            server.start();
-            return server;
-        }
+    // Configure the bare minimal for running a schema registry and make sure the port is available
+    public static SchemaRegistryConfig schemaRegistryConfig() throws Exception {
+        Properties properties = new Properties();
+        properties.setProperty(SchemaRegistryConfig.LISTENERS_CONFIG, "http://0.0.0.0:" + SocketUtils.findAvailableTcpPort());
+        properties.setProperty(SchemaRegistryConfig.KAFKASTORE_CONNECTION_URL_CONFIG, kafkaEmbedded.getZookeeperConnectionString());
+        properties.setProperty(SchemaRegistryConfig.DEBUG_CONFIG, "true");
 
-        // Clean up
-        @PreDestroy
-        public void stopSchemaRegistry() throws Exception {
-            server.stop();
-            server.join();
-        }
+        return new SchemaRegistryConfig(properties);
+    }
+
+    public static Server schemaRegistryServer(SchemaRegistryConfig schemaRegistryConfig) throws Exception {
+        SchemaRegistryRestApplication schemaRegistryApplication = new SchemaRegistryRestApplication(schemaRegistryConfig);
+        Server server = schemaRegistryApplication.createServer();
+        server.start();
+        return server;
+    }
+
+    public static void stopSchemaRegistry() throws Exception {
+        server.stop();
+        server.join();
     }
 
     private void stopKafkaServers()  {
