@@ -4,10 +4,7 @@ import io.confluent.kafka.schemaregistry.rest.SchemaRegistryConfig;
 import io.confluent.kafka.schemaregistry.rest.SchemaRegistryRestApplication;
 import kafka.server.KafkaServer;
 import no.altinn.webservices.OnlineBatchReceiverSoap;
-import no.nav.altinnkanal.entities.TopicMappingUpdate;
-import no.nav.altinnkanal.services.LogService;
-import no.nav.altinnkanal.services.TopicService;
-import org.apache.commons.io.IOUtils;
+import no.nav.altinnkanal.config.SoapProperties;
 import org.apache.cxf.configuration.security.AuthorizationPolicy;
 import org.apache.cxf.endpoint.Client;
 import org.apache.cxf.frontend.ClientProxy;
@@ -25,20 +22,20 @@ import org.springframework.boot.context.embedded.LocalServerPort;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.context.annotation.Profile;
 import org.springframework.kafka.test.rule.KafkaEmbedded;
+import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.util.SocketUtils;
 
 import javax.annotation.PreDestroy;
-import java.io.InputStreamReader;
-import java.time.LocalDateTime;
 import java.util.Properties;
 import java.util.stream.Collectors;
 
 import static org.junit.Assert.assertEquals;
 
+@ActiveProfiles("kafka-test")
 @RunWith(SpringRunner.class)
 @TestPropertySource({"classpath:application-test.properties"})
 @SpringBootTest(
@@ -47,17 +44,8 @@ import static org.junit.Assert.assertEquals;
 )
 
 public class OnlineBatchReceiverSoapIT {
-    @Value("${soap.username}")
-    private String username;
-    @Value("${soap.password}")
-    private String password;
-
     @Autowired
-    private LogService logService;
-    @Autowired
-    private TopicService topicService;
-    @Autowired
-    private JdbcTemplate jdbcTemplate;
+    private SoapProperties soapProperties;
 
     @ClassRule
     public static KafkaEmbedded kafkaEmbedded = new KafkaEmbedded(1, true);
@@ -75,6 +63,7 @@ public class OnlineBatchReceiverSoapIT {
                 .replaceAll("\\{\\{serviceEditionCode}}", serviceEditionCode);
     }
 
+    @Profile("kafka-test")
     @Configuration
     public static class ITConfiguration {
         @Autowired
@@ -125,10 +114,6 @@ public class OnlineBatchReceiverSoapIT {
         }
     }
 
-    private String readResource(String resourceFileName) throws Exception {
-        return IOUtils.toString(new InputStreamReader(getClass().getResourceAsStream(resourceFileName)));
-    }
-
     private void stopKafkaServers()  {
         kafkaEmbedded.getKafkaServers().forEach(KafkaServer::shutdown);
         kafkaEmbedded.getKafkaServers().forEach(KafkaServer::awaitShutdown);
@@ -141,11 +126,8 @@ public class OnlineBatchReceiverSoapIT {
 
     @Before
     public void setUp() throws Exception {
-        simpleBatch = readResource("/data/basic_data_batch.xml");
-        simpleBatchMissingSec = readResource("/data/basic_data_batch_missing_sec.xml");
-
-        jdbcTemplate.execute("DELETE FROM `topic_mapping_log`;");
-        jdbcTemplate.execute("DELETE FROM `topic_mappings`;");
+        simpleBatch = Utils.readToString("/data/basic_data_batch.xml");
+        simpleBatchMissingSec = Utils.readToString("/data/basic_data_batch_missing_sec.xml");
 
         JaxWsProxyFactoryBean factory = new JaxWsProxyFactoryBean();
         factory.setServiceClass(OnlineBatchReceiverSoap.class);
@@ -155,27 +137,15 @@ public class OnlineBatchReceiverSoapIT {
         Client client = ClientProxy.getClient(soapEndpoint);
         HTTPConduit http = (HTTPConduit) client.getConduit();
         AuthorizationPolicy authPolicy = new AuthorizationPolicy();
-        authPolicy.setUserName(username);
-        authPolicy.setPassword(password);
+        authPolicy.setUserName(soapProperties.getUsername());
+        authPolicy.setPassword(soapProperties.getPassword());
         http.setAuthorization(authPolicy);
-    }
-
-    private void createMappingRoute(String serviceCode, String serviceEditionCode, String topic, boolean enabled) throws Exception {
-        TopicMappingUpdate topicMappingUpdate = logService.logChange(new TopicMappingUpdate(serviceCode,
-                serviceEditionCode, topic, enabled, "Test topic", LocalDateTime.now(), "t99999"));
-        topicService.createTopicMapping(serviceCode, serviceEditionCode, topic, topicMappingUpdate.getId(), enabled);
     }
 
 
     @Test
     public void testValidScSec() throws Exception {
-        final String serviceCode = "1232";
-        final String serviceEditionCode = "4";
-        final String topic = "test_topic_1232_4";
-
-        createMappingRoute(serviceCode, serviceEditionCode, topic, true);
-
-        String payload = createPayload(serviceCode, serviceEditionCode);
+        String payload = createPayload("2896", "87");
 
         String result = soapEndpoint.receiveOnlineBatchExternalAttachment(null, null,
                 null, 0, payload, new byte[0]);
@@ -184,12 +154,10 @@ public class OnlineBatchReceiverSoapIT {
     }
 
     @Test
-    public void testDisabledScSec() throws Exception {
+    public void testNonRoutedScSec() throws Exception {
         final String serviceCode = "1233";
         final String serviceEditionCode = "1";
         final String topic = "test_topic_1233_1";
-
-        createMappingRoute(serviceCode, serviceEditionCode, topic, false);
 
         String payload = createPayload(serviceCode, serviceEditionCode);
 
@@ -205,8 +173,6 @@ public class OnlineBatchReceiverSoapIT {
         final String serviceEditionCode = "2";
         final String topic = "test_topic_1233_2";
 
-        createMappingRoute(serviceCode, serviceEditionCode, topic, true);
-
         String result = soapEndpoint.receiveOnlineBatchExternalAttachment(null, null,
                 null, 0, simpleBatchMissingSec, new byte[0]);
 
@@ -215,11 +181,8 @@ public class OnlineBatchReceiverSoapIT {
 
     @Test
     public void testKafkaBrokerTemporarilyUnavailable() throws Exception {
-        final String serviceCode = "1232";
-        final String serviceEditionCode = "4";
-        final String topic = "test_topic_1232_4";
-
-        createMappingRoute(serviceCode, serviceEditionCode, topic, true);
+        final String serviceCode = "2896";
+        final String serviceEditionCode = "87";
 
         String payload = createPayload(serviceCode, serviceEditionCode);
 

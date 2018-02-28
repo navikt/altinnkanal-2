@@ -1,9 +1,10 @@
 package no.nav.altinnkanal.rest;
 
+import kotlin.text.Charsets;
+import no.nav.altinnkanal.config.SoapProperties;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.context.annotation.PropertySource;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -13,27 +14,26 @@ import org.springframework.web.bind.annotation.ResponseBody;
 
 import java.net.HttpURLConnection;
 import java.net.URL;
-import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Base64;
 import java.util.List;
 
-@PropertySource("classpath:application.properties")
 @Controller
 public class HealthCheckRestController {
+    private final SoapProperties soapProperties;
 
-    @Value("${soap.username}")
-    private String username;
-    @Value("${soap.password}")
-    private String password;
+    @Autowired
+    public HealthCheckRestController(SoapProperties soapProperties) {
+        this.soapProperties = soapProperties;
+    }
 
-    private List<SelfTestResult> results = new ArrayList<>();
+    private List<Status> results = new ArrayList<>();
 
+    private static final Base64.Encoder ENCODER = Base64.getEncoder();
     private static final String APPLICATION_ALIVE = "Application is alive";
     private static final String APPLICATION_READY = "Application is ready";
     private static final String BASE_URL = "http://localhost:8080";
     private static final String WSDL_URL = BASE_URL + "/webservices/OnlineBatchReceiverSoap?wsdl";
-    private static final String CONFIGURATION_URL = BASE_URL + "/configuration";
 
     private final Logger logger = LoggerFactory.getLogger(HealthCheckRestController.class.getName());
 
@@ -48,7 +48,6 @@ public class HealthCheckRestController {
     public ResponseEntity isReady() {
         results.clear();
         results.add(httpUrlFetchTest(WSDL_URL));
-        results.add(httpUrlFetchTest(CONFIGURATION_URL));
 
         if (hasErrors(results)) {
             return new ResponseEntity(HttpStatus.INTERNAL_SERVER_ERROR);
@@ -56,45 +55,28 @@ public class HealthCheckRestController {
         return new ResponseEntity<>(APPLICATION_READY, HttpStatus.OK);
     }
 
-    private boolean hasErrors(List<SelfTestResult> results) {
-        return results.stream().anyMatch(result -> result.getStatus() == Status.ERROR);
+    private boolean hasErrors(List<Status> results) {
+        return results.stream().anyMatch(Status.ERROR::equals);
     }
 
-    private SelfTestResult httpUrlFetchTest(String urlString) {
+    private Status httpUrlFetchTest(String urlString) {
         HttpURLConnection httpConnection = null;
         try {
+            String passwordString = soapProperties.getUsername() + ":" + soapProperties.getPassword();
+            String encodedPassword = ENCODER.encodeToString(passwordString.getBytes(Charsets.UTF_8));
             httpConnection = (HttpURLConnection) new URL(urlString).openConnection();
-            String encoded = base64EncodeToString(username + ":" + password);
-            httpConnection.setRequestProperty("Authorization", "Basic "+encoded);
-            if (httpConnection.getResponseCode() == HttpURLConnection.HTTP_OK) {
-                return new SelfTestResult(Status.OK);
-            } else {
-                return new SelfTestResult(Status.ERROR);
-            }
+            httpConnection.setRequestProperty("Authorization", "Basic " + encodedPassword);
+            return httpConnection.getResponseCode() == HttpURLConnection.HTTP_OK ? Status.OK : Status.ERROR;
         } catch (Exception e) {
             logger.error("HTTP endpoint readiness test failed", e);
-            return new SelfTestResult(Status.ERROR);
+            return Status.ERROR;
         } finally {
             if (httpConnection != null) httpConnection.disconnect();
         }
     }
 
-    private String base64EncodeToString(String stringToBeEncoded) {
-        return Base64.getEncoder().encodeToString((stringToBeEncoded).getBytes(StandardCharsets.UTF_8));
-    }
-
-    enum Status {OK, ERROR}
-
-    static class SelfTestResult {
-
-        private Status status;
-
-        SelfTestResult(Status status) {
-            this.status = status;
-        }
-
-        Status getStatus() {
-            return status;
-        }
+    enum Status {
+        OK,
+        ERROR
     }
 }

@@ -9,7 +9,7 @@ pipeline {
     environment {
         APPLICATION_NAME = 'altinnkanal-2'
 		GIT_PROJECT = 'INT'
-        FASIT_ENV = 'q4'
+        FASIT_ENV = 't4'
         ZONE = 'fss'
         NAMESPACE = 'default'
     }
@@ -19,7 +19,7 @@ pipeline {
 			steps {
 				script {
 					pom = readMavenPom file: 'pom.xml'
-					gitVars = utils.gitVars(env.GIT_PROJECT, env.APPLICATION_NAME)
+					gitVars = utils.gitVars(env.APPLICATION_NAME)
 					applicationVersion = "${pom.version}.${env.BUILD_ID}-${gitVars.commitHashShort}"
 					applicationFullName = "${env.APPLICATION_NAME}:${applicationVersion}"
 
@@ -42,7 +42,7 @@ pipeline {
 		stage('run tests (unit & intergration)') {
 			steps {
 				script {
-                    //sh 'mvn verify'
+                    sh 'mvn verify'
 					def title = "Build Passed :right_parrot:"
 					def text = "Build passed in ${currentBuild.durationString.replace(' and counting', '')}"
 					def fallback = "Build Passed: #${env.BUILD_NUMBER} of ${env.APPLICATION_NAME} - ${env.BUILD_URL}"
@@ -77,7 +77,7 @@ pipeline {
 		stage('deploy to nais') {
 			steps {
 				script {
-					withCredentials([[$class: "UsernamePasswordMultiBinding", credentialsId: 'nais-user-post', usernameVariable: "NAIS_USERNAME", passwordVariable: "NAIS_PASSWORD"]]) {
+					withCredentials([[$class: "UsernamePasswordMultiBinding", credentialsId: 'nais-user', usernameVariable: "NAIS_USERNAME", passwordVariable: "NAIS_PASSWORD"]]) {
 						def postBody = [
 								application: "${env.APPLICATION_NAME}",
 								environment: "${env.FASIT_ENV}",

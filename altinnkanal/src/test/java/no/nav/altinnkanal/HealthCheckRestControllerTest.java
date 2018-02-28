@@ -1,5 +1,6 @@
 package no.nav.altinnkanal;
 
+import no.nav.altinnkanal.config.SoapProperties;
 import no.nav.altinnkanal.rest.HealthCheckRestController;
 import org.junit.Before;
 import org.junit.Test;
@@ -19,7 +20,9 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 public class HealthCheckRestControllerTest {
 
     private MockMvc mockMvc;
-    @InjectMocks private HealthCheckRestController hcrController;
+    private final SoapProperties soapCredentials = new SoapProperties("test", "test");
+    @InjectMocks
+    private HealthCheckRestController hcrController = new HealthCheckRestController(soapCredentials);
     private static final String APPLICATION_ALIVE = "Application is alive";
 
     @Before
@@ -40,6 +43,6 @@ public class HealthCheckRestControllerTest {
     @Test
     public void testIsReady() throws Exception {
         mockMvc.perform(get("/isReady").accept(MediaType.TEXT_PLAIN))
-            .andExpect(status().isOk());
+            .andExpect(status().is5xxServerError());
     }
 }

@@ -1,12 +1,15 @@
 package no.nav.altinnkanal.services;
 
 import no.altinn.webservices.OnlineBatchReceiverSoap;
-import no.nav.altinnkanal.entities.TopicMapping;
-import org.apache.commons.io.IOUtils;
+import no.nav.altinnkanal.BootstrapROBEA;
+import no.nav.altinnkanal.OnlineBatchReceiverSoapIT;
+import no.nav.altinnkanal.Utils;
+import no.nav.altinnkanal.avro.ExternalAttachment;
 import org.apache.kafka.clients.producer.Producer;
 import org.apache.kafka.clients.producer.ProducerRecord;
 import org.apache.kafka.clients.producer.RecordMetadata;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.ArgumentCaptor;
@@ -18,7 +21,6 @@ import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.context.junit4.SpringRunner;
 
-import java.io.InputStreamReader;
 import java.util.concurrent.Future;
 
 import static org.junit.Assert.assertEquals;
@@ -29,8 +31,12 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+@Ignore
 @TestPropertySource("classpath:application-test.properties")
-@SpringBootTest
+@SpringBootTest(
+        classes = {BootstrapROBEA.class, OnlineBatchReceiverSoapIT.ITConfiguration.class},
+        webEnvironment =  SpringBootTest.WebEnvironment.RANDOM_PORT
+)
 @RunWith(SpringRunner.class)
 public class KafkaServiceTest {
     @MockBean
@@ -42,7 +48,7 @@ public class KafkaServiceTest {
     private OnlineBatchReceiverSoap onlineBatchReceiver;
 
     @Autowired
-    private KafkaService kafkaService;
+    private Producer<String, ExternalAttachment> kafkaProducer;
 
     @Mock
     private Future<RecordMetadata> future;
@@ -54,16 +60,15 @@ public class KafkaServiceTest {
 
     @Before
     public void setUp() throws Exception {
-        simpleBatch = IOUtils.toString(new InputStreamReader(getClass().getResourceAsStream("/data/basic_data_batch.xml")));
+        simpleBatch = Utils.readToString("/data/basic_data_batch.xml");
     }
 
     @Test
     public void testPublishedToKafka() throws Exception {
-        System.out.println(kafkaService);
+        System.out.println(kafkaProducer);
         String expectedTopic = "test.test";
 
-        when(topicRepository.getTopicMapping(anyString(), anyString())).thenReturn(new TopicMapping("test",
-                "test", expectedTopic, 0, true));
+        when(topicRepository.getTopic(anyString(), anyString())).thenReturn(expectedTopic);
 
         RecordMetadata recordMetadata = mock(RecordMetadata.class);
         when(recordMetadata.serializedValueSize()).thenReturn(0);

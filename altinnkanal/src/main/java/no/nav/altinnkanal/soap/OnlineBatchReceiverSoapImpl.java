@@ -4,9 +4,9 @@ import io.prometheus.client.Counter;
 import io.prometheus.client.Summary;
 import no.altinn.webservices.OnlineBatchReceiverSoap;
 import no.nav.altinnkanal.avro.ExternalAttachment;
-import no.nav.altinnkanal.entities.TopicMapping;
-import no.nav.altinnkanal.services.KafkaService;
 import no.nav.altinnkanal.services.TopicService;
+import org.apache.kafka.clients.producer.Producer;
+import org.apache.kafka.clients.producer.ProducerRecord;
 import org.apache.kafka.clients.producer.RecordMetadata;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -26,7 +26,7 @@ public class OnlineBatchReceiverSoapImpl implements OnlineBatchReceiverSoap {
 
     private final XMLInputFactory xmlInputFactory = XMLInputFactory.newFactory();
     private final TopicService topicService;
-    private final KafkaService kafkaService;
+    private final Producer<String, ExternalAttachment> kafkaProducer;
 
     private static final Counter requestsTotal = Counter.build()
             .name("altinnkanal_requests_total")
@@ -34,9 +34,6 @@ public class OnlineBatchReceiverSoapImpl implements OnlineBatchReceiverSoap {
     private static final Counter requestsSuccess = Counter.build()
             .name("altinnkanal_requests_success")
             .help("Total successful requests.").register();
-    private static final Counter requestsFailedDisabled = Counter.build()
-            .name("altinnkanal_requests_disabled")
-            .help("Total failed requests due to disabled SC/SEC codes.").register();
     private static final Counter requestsFailedMissing = Counter.build()
             .name("altinnkanal_requests_missing")
             .help("Total failed requests due to missing/unknown SC/SEC codes.").register();
@@ -51,9 +48,9 @@ public class OnlineBatchReceiverSoapImpl implements OnlineBatchReceiverSoap {
             .register();
 
     @Autowired
-    public OnlineBatchReceiverSoapImpl(TopicService topicService, KafkaService kafkaService) throws Exception { // TODO: better handling of exceptions
+    public OnlineBatchReceiverSoapImpl(TopicService topicService, Producer<String, ExternalAttachment> kafkaProducer) throws Exception { // TODO: better handling of exceptions
         this.topicService = topicService;
-        this.kafkaService = kafkaService;
+        this.kafkaProducer = kafkaProducer;
     }
 
     public String receiveOnlineBatchExternalAttachment(String username, String passwd, String receiversReference, long sequenceNumber, String dataBatch, byte[] attachments) {
@@ -71,10 +68,9 @@ public class OnlineBatchReceiverSoapImpl implements OnlineBatchReceiverSoap {
 
             requestsTotal.inc();
 
-            TopicMapping topicMapping = topicService.getTopicMapping(serviceCode, serviceEditionCode);
+            String topic = topicService.getTopic(serviceCode, serviceEditionCode);
 
-            if (topicMapping == null || !topicMapping.isEnabled()) {
-                if (topicMapping == null) {
+            if (topic == null) {
                     requestsFailedMissing.inc();
                     logger.warn(append("service_code", serviceCode)
                                 .and(append("service_edition_code", serviceEditionCode))
@@ -84,23 +80,10 @@ public class OnlineBatchReceiverSoapImpl implements OnlineBatchReceiverSoap {
                                 .and(append("sequence_number", sequenceNumber)),
                             "Denied ROBEA request due to missing/unknown codes: SC={}, SEC={}, recRef={}, archRef={}, seqNum={}",
                             serviceCode, serviceEditionCode, receiversReference, archiveReference, sequenceNumber);
-                }
-                else {
-                    requestsFailedDisabled.inc();
-                    logger.warn(append("service_code", serviceCode)
-                                .and(append("service_edition_code", serviceEditionCode))
-                                .and(append("routing_status", "FAILED_DISABLED"))
-                                .and(append("receivers_reference", receiversReference))
-                                .and(append("archive_reference", archiveReference))
-                                .and(append("sequence_number", sequenceNumber)),
-                            "Denied ROBEA request due to disabled codes: SC={}, SEC={}, recRef={}, archRef={}, seqNum={}",
-                            serviceCode, serviceEditionCode, receiversReference, archiveReference, sequenceNumber);
-                }
                 return "FAILED_DO_NOT_RETRY";
             }
 
-            RecordMetadata metadata = kafkaService.publish(topicMapping.getTopic(), externalAttachment).get();
-            String topic = metadata.topic();
+            RecordMetadata metadata = kafkaProducer.send(new ProducerRecord<>(topic, externalAttachment)).get();
 
             double latency = requestLatency.observeDuration();
             requestSize.observe(metadata.serializedValueSize());
