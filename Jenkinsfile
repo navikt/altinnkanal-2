@@ -77,37 +77,7 @@ pipeline {
 		stage('deploy to nais') {
 			steps {
 				script {
-					withCredentials([[$class: "UsernamePasswordMultiBinding", credentialsId: 'nais-user', usernameVariable: "NAIS_USERNAME", passwordVariable: "NAIS_PASSWORD"]]) {
-						def postBody = [
-								application: "${env.APPLICATION_NAME}",
-								environment: "${env.FASIT_ENV}",
-								version    : "${applicationVersion}",
-								username   : "${env.NAIS_USERNAME}",
-								password   : "${env.NAIS_PASSWORD}",
-								zone       : "${env.ZONE}",
-								namespace  : "${env.NAMESPACE}"
-						]
-						def naisdPayload = groovy.json.JsonOutput.toJson(postBody)
-
-						echo naisdPayload
-
-						def response = httpRequest([
-								url                   : "https://daemon.nais.preprod.local/deploy",
-								consoleLogResponseBody: true,
-								contentType           : "APPLICATION_JSON",
-								httpMode              : "POST",
-								requestBody           : naisdPayload,
-								ignoreSslErrors       : true
-						])
-
-						echo "$response.status: $response.content"
-
-						if (response.status != 200) {
-							currentBuild.description = "Failed - $response.content"
-							currentBuild.result = "FAILED"
-						}
-					}
-					/*response = deploy.naisDeployJira(env.APPLICATION_NAME, applicationVersion, env.FASIT_ENV, env.NAMESPACE, env.ZONE)
+					response = deploy.naisDeployJira(env.APPLICATION_NAME, applicationVersion, env.FASIT_ENV, env.NAMESPACE, env.ZONE)
 					def jiraIssueId = readJSON([text: response.content])["key"]
 					currentBuild.description = "Waiting for <a href=\"https://jira.adeo.no/browse/$jiraIssueId\">$jiraIssueId</a>"
 
@@ -127,7 +97,7 @@ pipeline {
 					} catch (Exception exception) {
 						currentBuild.description = "Deploy failed, see <a href=\"https://jira.adeo.no/browse/$jiraIssueId\">$jiraIssueId</a>"
 						throw exception
-					}*/
+					}
 				}
 			}
 		}
