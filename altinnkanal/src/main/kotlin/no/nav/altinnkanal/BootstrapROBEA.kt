@@ -5,16 +5,21 @@ import io.prometheus.client.spring.boot.EnablePrometheusEndpoint
 import io.prometheus.client.spring.boot.EnableSpringBootMetricsCollector
 import org.apache.cxf.spring.boot.autoconfigure.CxfAutoConfiguration
 import org.springframework.boot.SpringApplication
-import org.springframework.boot.actuate.autoconfigure.*
-import org.springframework.boot.autoconfigure.web.*
+import org.springframework.boot.actuate.autoconfigure.EndpointAutoConfiguration
+import org.springframework.boot.actuate.autoconfigure.EndpointWebMvcAutoConfiguration
+import org.springframework.boot.actuate.autoconfigure.ManagementServerPropertiesAutoConfiguration
+import org.springframework.boot.actuate.autoconfigure.MetricRepositoryAutoConfiguration
+import org.springframework.boot.actuate.autoconfigure.PublicMetricsAutoConfiguration
+import org.springframework.boot.autoconfigure.web.DispatcherServletAutoConfiguration
+import org.springframework.boot.autoconfigure.web.EmbeddedServletContainerAutoConfiguration
+import org.springframework.boot.autoconfigure.web.HttpMessageConvertersAutoConfiguration
+import org.springframework.boot.autoconfigure.web.ServerPropertiesAutoConfiguration
+import org.springframework.boot.autoconfigure.web.WebMvcAutoConfiguration
 import org.springframework.context.annotation.Configuration
 import org.springframework.context.annotation.Import
 import org.springframework.context.annotation.ComponentScan
 
 @Configuration
-@EnablePrometheusEndpoint
-@EnableSpringBootMetricsCollector
-@ComponentScan
 @Import(
         DispatcherServletAutoConfiguration::class,
         EmbeddedServletContainerAutoConfiguration::class,
@@ -28,6 +33,9 @@ import org.springframework.context.annotation.ComponentScan
         WebMvcAutoConfiguration::class,
         HttpMessageConvertersAutoConfiguration::class
 )
+@EnablePrometheusEndpoint
+@EnableSpringBootMetricsCollector
+@ComponentScan
 open class BootstrapROBEA
 
 fun main(args: Array<String>) {
