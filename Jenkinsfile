@@ -28,7 +28,7 @@ pipeline {
 					def customFieldText = gitVars.changeLog
 					def customField = ["title": "Commit(s)", "value": customFieldText.toString(), "short": false]
 					def color = "#D4DADF"
-					//utils.slackMessageAttachments(env.APPLICATION_NAME, title, "", fallback, color, customField)
+					utils.slackMessageAttachments(env.APPLICATION_NAME, title, "", fallback, color, customField)
 				}
 			}
 		}
@@ -47,7 +47,7 @@ pipeline {
 					def text = "Build passed in ${currentBuild.durationString.replace(' and counting', '')}"
 					def fallback = "Build Passed: #${env.BUILD_NUMBER} of ${env.APPLICATION_NAME} - ${env.BUILD_URL}"
 					def color = "#FFFE89"
-					//utils.slackMessageAttachments(env.APPLICATION_NAME, title, text, fallback, color)
+					utils.slackMessageAttachments(env.APPLICATION_NAME, title, text, fallback, color)
 				}
 			}
 		}
@@ -114,7 +114,7 @@ pipeline {
 					def title = "Build Aborted :confused_parrot:"
 					def fallback = "Build Aborted: #${env.BUILD_NUMBER} of ${env.APPLICATION_NAME} - ${env.BUILD_URL}"
 					def color = "#FF9FA1"
-					//utils.slackMessageAttachments(env.APPLICATION_NAME, title, "", fallback, color)
+					utils.slackMessageAttachments(env.APPLICATION_NAME, title, "", fallback, color)
 				}
 			}
 		}
@@ -124,7 +124,7 @@ pipeline {
 				def text = "Successfully deployed in ${currentBuild.durationString.replace(' and counting', '')}"
 				def fallback = "Deploy Success: #${env.BUILD_NUMBER} of ${env.APPLICATION_NAME} - ${env.BUILD_URL}"
 				def color = "#BDFFC3"
-				//utils.slackMessageAttachments(env.APPLICATION_NAME, title, text, fallback, color)
+				utils.slackMessageAttachments(env.APPLICATION_NAME, title, text, fallback, color)
 			}
 		}
 		failure {
@@ -133,7 +133,7 @@ pipeline {
 				def text = "Something went wrong."
 				def fallback = "Build Failed: #${env.BUILD_NUMBER} of ${env.APPLICATION_NAME} - ${env.BUILD_URL}"
 				def color = "#FF9FA1"
-				//utils.slackMessageAttachments(env.APPLICATION_NAME, title, text, fallback, color)
+				utils.slackMessageAttachments(env.APPLICATION_NAME, title, text, fallback, color)
 			}
 		}
 	}
