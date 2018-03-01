@@ -110,7 +110,7 @@ pipeline {
 	}
 	post {
 		always {
-			junit '**/target/test-results/test/*.xml'
+			junit '**/build/test-results/test/*.xml'
 			archive '**/build/libs/*'
             archive '**/build/install/*'
 			deleteDir()
