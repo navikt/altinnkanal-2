@@ -2,9 +2,6 @@
 
 pipeline {
 	agent any
-	tools {
-		maven 'default'
-	}
 
     environment {
         APPLICATION_NAME = 'altinnkanal-2'
@@ -35,14 +32,14 @@ pipeline {
 		stage('build') {
 			steps {
 				script {
-					utils.mvnBuild()
+                    sh './gradlew build -x test'
 				}
 			}
 		}
 		stage('run tests (unit & intergration)') {
 			steps {
 				script {
-                    sh 'mvn verify'
+                    sh './gradlew test'
 					def title = "Build Passed :right_parrot:"
 					def text = "Build passed in ${currentBuild.durationString.replace(' and counting', '')}"
 					def fallback = "Build Passed: #${env.BUILD_NUMBER} of ${env.APPLICATION_NAME} - ${env.BUILD_URL}"
@@ -55,7 +52,7 @@ pipeline {
         stage('deploy schemas to maven repo') {
             steps {
                 script {
-					sh 'mvn deploy -DskipTests'
+					sh './gradlew publish'
                 }
             }
         }
@@ -104,9 +101,9 @@ pipeline {
 	}
 	post {
 		always {
-			junit '**/target/surefire-reports/*.xml'
-			junit '**/target/failsafe-reports/*.xml'
-			archive '**/target/*.jar'
+			junit '**/target/test-results/test/*.xml'
+			archive '**/build/libs/*'
+            archive '**/build/install/*'
 			deleteDir()
 			script {
 				utils.dockerPruneBuilds()

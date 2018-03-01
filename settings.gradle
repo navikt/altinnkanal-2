@@ -1,0 +1,6 @@
+rootProject.name = 'altinnkanal-2-parent'
+include ':altinnkanal'
+include ':altinnkanal-schemas'
+
+project(':altinnkanal').projectDir = "$rootDir/altinnkanal" as File
+project(':altinnkanal-schemas').projectDir = "$rootDir/altinnkanal-schemas" as File

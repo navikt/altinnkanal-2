@@ -4,3 +4,8 @@ target/
 .idea/
 /*.db
 *.jks
+
+# Gradle
+out/
+build/
+.gradle/

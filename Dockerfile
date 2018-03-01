@@ -1,3 +1,4 @@
 FROM navikt/java:8
-COPY altinnkanal/target/*.jar /app/app.jar
+COPY altinnkanal/build/install/* /app
 ENV SPRING_PROFILES_ACTIVE="remote"
+ENTRYPOINT ["/app/bin/altinnkanal"]

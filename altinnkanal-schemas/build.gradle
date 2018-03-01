@@ -1,0 +1,35 @@
+buildscript {
+    ext.avro_version = '1.8.2'
+    repositories {
+        mavenCentral()
+        maven {
+            name "JCenter Gradle Plugins"
+            url  "https://dl.bintray.com/gradle/gradle-plugins"
+        }
+    }
+
+    dependencies {
+        classpath "com.commercehub.gradle.plugin:gradle-avro-plugin:0.14.0"
+    }
+}
+
+apply plugin: "com.commercehub.gradle.plugin.avro"
+apply plugin: 'maven-publish'
+
+dependencies {
+    implementation "org.apache.avro:avro:$avro_version"
+}
+
+publishing {
+    publications {
+        mavenJava(MavenPublication) {
+            from components.java
+        }
+    }
+
+    repositories {
+        maven {
+            url = 'https://repo.adeo.no/repository/maven-snapshots/'
+        }
+    }
+}

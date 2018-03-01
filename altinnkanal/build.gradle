@@ -1,0 +1,83 @@
+buildscript {
+    ext.kotlin_version = '1.2.21'
+    ext.confluent_version = '4.0.0'
+    ext.cxf_version = '3.2.0'
+    ext.kafka_version = '1.0.0'
+    ext.spring_boot_version = '1.5.10.RELEASE'
+    ext.spring_kafka_test_version = '2.1.0.RELEASE'
+    ext.jackson_version = '2.9.4'
+    ext.prometheus_version = '0.2.0'
+    ext.logstash_encoder_version = '4.10'
+
+    repositories {
+        mavenCentral()
+        maven {
+            name "JCenter Gradle Plugins"
+            url "https://dl.bintray.com/gradle/gradle-plugins"
+        }
+    }
+
+    dependencies {
+        classpath 'no.nils:wsdl2java:0.10'
+        classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version"
+    }
+}
+
+apply plugin: 'no.nils.wsdl2java'
+apply plugin: 'application'
+apply plugin: 'kotlin'
+
+mainClassName = 'no.nav.altinnkanal.BootstrapROBEAKt'
+
+wsdl2java {
+    wsdlDir = file("src/main/resources")
+    wsdlsToGenerate = [
+            ["$projectDir/src/main/resources/OnlineBatchReceiver.wsdl"]
+    ]
+}
+
+test {
+    testLogging.showStandardStreams = true
+}
+
+repositories {
+    maven {
+        name 'Confluent maven repo'
+        url 'http://packages.confluent.io/maven/'
+    }
+}
+
+dependencies {
+    implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk8:$kotlin_version"
+    implementation "org.jetbrains.kotlin:kotlin-reflect:$kotlin_version"
+    implementation project(':altinnkanal-schemas')
+    implementation("io.confluent:kafka-avro-serializer:$confluent_version") {
+        exclude(module: 'slf4j-log4j12')
+    }
+    implementation("org.apache.kafka:kafka-clients:$kafka_version") {
+        exclude(module: 'slf4j-api')
+    }
+    implementation("org.apache.kafka:kafka_2.12:$kafka_version") {
+        exclude(module: 'slf4j-api')
+        exclude(module: 'slf4j-log4j12')
+    }
+    implementation "org.apache.cxf:cxf-spring-boot-starter-jaxws:$cxf_version"
+    implementation("org.springframework.boot:spring-boot-starter-web:$spring_boot_version") {
+        exclude(module: 'spring-boot-starter-tomcat')
+    }
+    implementation "org.springframework.boot:spring-boot-starter-jetty:$spring_boot_version"
+    implementation "org.springframework.boot:spring-boot-starter-security:$spring_boot_version"
+    implementation "com.fasterxml.jackson.module:jackson-module-kotlin:$jackson_version"
+    implementation "com.fasterxml.jackson.dataformat:jackson-dataformat-yaml:$jackson_version"
+    implementation "io.prometheus:simpleclient_spring_boot:$prometheus_version"
+    implementation "io.prometheus:simpleclient_hotspot:$prometheus_version"
+    implementation "net.logstash.logback:logstash-logback-encoder:$logstash_encoder_version"
+
+    testImplementation "org.jetbrains.kotlin:kotlin-test:$kotlin_version"
+    testImplementation "org.springframework.boot:spring-boot-starter-test:$spring_boot_version"
+    testImplementation "org.springframework.boot:spring-boot-test-autoconfigure:$spring_boot_version"
+    testImplementation "org.springframework.kafka:spring-kafka-test:$spring_kafka_test_version"
+    testImplementation("io.confluent:kafka-schema-registry:$confluent_version") {
+        exclude(module: 'slf4j-log4j12')
+    }
+}
