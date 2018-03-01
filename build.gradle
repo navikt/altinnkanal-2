@@ -10,6 +10,12 @@ allprojects {
     version = '1.0.0-SNAPSHOT'
 }
 
+task printVersion() {
+    doLast {
+        println(version)
+    }
+}
+
 subprojects {
     repositories {
         mavenCentral()

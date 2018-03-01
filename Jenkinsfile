@@ -15,9 +15,9 @@ pipeline {
 		stage('initialize') {
 			steps {
 				script {
-					pom = readMavenPom file: 'pom.xml'
+					applicationVersionGradle = sh(script: './gradlew -q printVersion', returnStdout: true).trim()
 					gitVars = utils.gitVars(env.APPLICATION_NAME)
-					applicationVersion = "${pom.version}.${env.BUILD_ID}-${gitVars.commitHashShort}"
+					applicationVersion = "${applicationVersionGradle}.${env.BUILD_ID}-${gitVars.commitHashShort}"
 					applicationFullName = "${env.APPLICATION_NAME}:${applicationVersion}"
 
 					def title = "Build Started :party_parrot:"
