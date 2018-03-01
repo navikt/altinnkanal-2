@@ -15,6 +15,7 @@ pipeline {
 		stage('initialize') {
 			steps {
 				script {
+					sh './gradlew clean'
 					applicationVersionGradle = sh(script: './gradlew -q printVersion', returnStdout: true).trim()
 					gitVars = utils.gitVars(env.APPLICATION_NAME)
 					applicationVersion = "${applicationVersionGradle}.${env.BUILD_ID}-${gitVars.commitHashShort}"
