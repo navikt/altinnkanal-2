@@ -57,6 +57,14 @@ pipeline {
             }
         }
 
+		stage('extract application files') {
+			steps {
+				script {
+					sh './gradlew installDist'
+				}
+			}
+		}
+
 		stage('push docker image') {
 			steps {
 				script {
