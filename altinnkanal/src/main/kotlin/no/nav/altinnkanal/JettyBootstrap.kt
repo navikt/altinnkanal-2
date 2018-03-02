@@ -1,7 +1,6 @@
 package no.nav.altinnkanal
 
 import io.prometheus.client.exporter.MetricsServlet
-import no.altinn.webservices.OnlineBatchReceiverSoap
 import no.nav.altinnkanal.avro.ExternalAttachment
 import no.nav.altinnkanal.config.SoapProperties
 import no.nav.altinnkanal.config.topicRouting
@@ -39,7 +38,7 @@ fun main(args: Array<String>) {
     server.join()
 }
 
-fun bootstrap(server: Server, soapProperties: SoapProperties, batchReceiver: OnlineBatchReceiverSoap) {
+fun bootstrap(server: Server, soapProperties: SoapProperties, batchReceiver: OnlineBatchReceiverSoapImpl) {
     // Configure Jax WS
     val cxfServlet = CXFNonSpringServlet()
 

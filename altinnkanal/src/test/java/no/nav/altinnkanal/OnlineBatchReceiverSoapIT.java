@@ -42,13 +42,13 @@ public class OnlineBatchReceiverSoapIT {
 
     @BeforeClass
     public static void setupClass() throws Exception {
-        localServerPort = 8080;
 
         setupKafka();
         KafkaProducer<String, ExternalAttachment> producer = new KafkaProducer<>(kafkaProperties());
         TopicService topicService = new TopicService(TopicConfigurationKt.topicRouting());
         OnlineBatchReceiverSoapImpl batchReceiver = new OnlineBatchReceiverSoapImpl(topicService, producer);
-        Server server = new Server(8080);
+        Server server = new Server(8123);
+        localServerPort = 8123;
         JettyBootstrapKt.bootstrap(server, soapProperties, batchReceiver);
     }
 
