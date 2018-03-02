@@ -1,6 +1,0 @@
-#See https://github.com/kubernetes/charts/tree/master/stable/mariadb
-usePassword: false
-mariadbDatabase: altinnkanal
-persistence:
-  storageClass: rook-block
-  enabled: true
