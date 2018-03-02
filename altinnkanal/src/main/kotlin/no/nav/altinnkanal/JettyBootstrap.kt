@@ -1,5 +1,6 @@
 package no.nav.altinnkanal
 
+import io.prometheus.client.exporter.MetricsServlet
 import no.altinn.webservices.OnlineBatchReceiverSoap
 import no.nav.altinnkanal.avro.ExternalAttachment
 import no.nav.altinnkanal.config.SoapProperties
@@ -48,6 +49,7 @@ fun bootstrap(server: Server, soapProperties: SoapProperties, batchReceiver: Onl
 
     // Set up servlets
     val contextHandler = ServletContextHandler()
+    contextHandler.addServlet(ServletHolder(MetricsServlet()), "/prometheus")
     contextHandler.addServlet(ServletHolder(cxfServlet), "/webservices/*")
     contextHandler.addServlet(ServletHolder(cxfRSServlet), "/*")
 
