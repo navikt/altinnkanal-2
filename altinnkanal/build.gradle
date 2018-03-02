@@ -30,6 +30,16 @@ apply plugin: 'application'
 apply plugin: 'kotlin'
 
 mainClassName = 'no.nav.altinnkanal.BootstrapROBEAKt'
+applicationDefaultJvmArgs = ['-Djavax.net.ssl.trustStore=${NAV_TRUSTSTORE_PATH} -Djavax.net.ssl.trustStorePassword=${NAV_TRUSTSTORE_PASSWORD}']
+
+startScripts {
+    doLast {
+        unixScript.text = unixScript.text.replace('\\${NAV_TRUSTSTORE_PATH}', '${NAV_TRUSTSTORE_PATH}')
+        unixScript.text = unixScript.text.replace('\\${NAV_TRUSTSTORE_PASSWORD}', '${NAV_TRUSTSTORE_PASSWORD}')
+        windowsScript.text = windowsScript.text.replace('${NAV_TRUSTSTORE_PATH}', '%NAV_TRUSTSTORE_PATH%')
+        windowsScript.text = windowsScript.text.replace('${NAV_TRUSTSTORE_PASSWORD}', '%NAV_TRUSTSTORE_PASSWORD%')
+    }
+}
 
 wsdl2java {
     wsdlDir = file("src/main/resources")
