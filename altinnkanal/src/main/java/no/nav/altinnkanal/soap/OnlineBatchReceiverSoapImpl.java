@@ -10,8 +10,6 @@ import org.apache.kafka.clients.producer.ProducerRecord;
 import org.apache.kafka.clients.producer.RecordMetadata;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
 
 import javax.xml.stream.XMLInputFactory;
 import javax.xml.stream.XMLStreamReader;
@@ -20,7 +18,6 @@ import java.io.StringReader;
 
 import static net.logstash.logback.marker.Markers.append;
 
-@Service
 public class OnlineBatchReceiverSoapImpl implements OnlineBatchReceiverSoap {
     private final Logger logger = LoggerFactory.getLogger(OnlineBatchReceiverSoap.class.getName());
 
@@ -47,7 +44,6 @@ public class OnlineBatchReceiverSoapImpl implements OnlineBatchReceiverSoap {
             .name("altinnkanal_request_time_ms").help("Request time in milliseconds.")
             .register();
 
-    @Autowired
     public OnlineBatchReceiverSoapImpl(TopicService topicService, Producer<String, ExternalAttachment> kafkaProducer) throws Exception { // TODO: better handling of exceptions
         this.topicService = topicService;
         this.kafkaProducer = kafkaProducer;

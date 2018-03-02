@@ -1,25 +1,19 @@
 package no.nav.altinnkanal.services;
 
 import no.altinn.webservices.OnlineBatchReceiverSoap;
-import no.nav.altinnkanal.BootstrapROBEA;
-import no.nav.altinnkanal.OnlineBatchReceiverSoapIT;
 import no.nav.altinnkanal.Utils;
 import no.nav.altinnkanal.avro.ExternalAttachment;
+import no.nav.altinnkanal.soap.OnlineBatchReceiverSoapImpl;
 import org.apache.kafka.clients.producer.Producer;
 import org.apache.kafka.clients.producer.ProducerRecord;
 import org.apache.kafka.clients.producer.RecordMetadata;
 import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Test;
-import org.junit.runner.RunWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Captor;
 import org.mockito.Mock;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.boot.test.mock.mockito.MockBean;
-import org.springframework.test.context.TestPropertySource;
-import org.springframework.test.context.junit4.SpringRunner;
+import org.mockito.MockitoAnnotations;
 
 import java.util.concurrent.Future;
 
@@ -31,36 +25,28 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-@Ignore
-@TestPropertySource("classpath:application-test.properties")
-@SpringBootTest(
-        classes = {BootstrapROBEA.class, OnlineBatchReceiverSoapIT.ITConfiguration.class},
-        webEnvironment =  SpringBootTest.WebEnvironment.RANDOM_PORT
-)
-@RunWith(SpringRunner.class)
 public class KafkaServiceTest {
-    @MockBean
+    @Mock
     private TopicService topicRepository;
-    @MockBean
-    private Producer<String, Object> producer;
 
-    @Autowired
     private OnlineBatchReceiverSoap onlineBatchReceiver;
 
-    @Autowired
+    @Mock
     private Producer<String, ExternalAttachment> kafkaProducer;
 
     @Mock
     private Future<RecordMetadata> future;
 
     @Captor
-    private ArgumentCaptor<ProducerRecord<String, Object>> argumentCaptor;
+    private ArgumentCaptor<ProducerRecord<String, ExternalAttachment>> argumentCaptor;
 
     private String simpleBatch;
 
     @Before
     public void setUp() throws Exception {
+        MockitoAnnotations.initMocks(this);
         simpleBatch = Utils.readToString("/data/basic_data_batch.xml");
+        onlineBatchReceiver = new OnlineBatchReceiverSoapImpl(topicRepository, kafkaProducer);
     }
 
     @Test
@@ -75,13 +61,13 @@ public class KafkaServiceTest {
 
         when(future.get()).thenReturn(recordMetadata);
 
-        when(producer.send(argumentCaptor.capture())).thenReturn(future);
+        when(kafkaProducer.send(argumentCaptor.capture())).thenReturn(future);
 
         onlineBatchReceiver.receiveOnlineBatchExternalAttachment("", "", "", 0, simpleBatch, new byte[0]);
 
         ProducerRecord record = argumentCaptor.getValue();
 
-        verify(producer, times(1)).send(any());
+        verify(kafkaProducer, times(1)).send(any());
         assertEquals(expectedTopic, record.topic());
     }
 }

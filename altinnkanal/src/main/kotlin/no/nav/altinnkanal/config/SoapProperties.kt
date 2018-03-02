@@ -1,10 +1,15 @@
 package no.nav.altinnkanal.config
 
-import org.springframework.boot.context.properties.ConfigurationProperties
-import org.springframework.stereotype.Component
+const val SOAP_USERNAME = "soap.username"
+const val SOAP_PASSWORD = "soap.password"
 
-@Component
-@ConfigurationProperties("soap")
-open class SoapProperties constructor(var username: String?, var password: String?) {
-    constructor(): this(null, null)
-}
+fun getVal(name: String): String =
+        System.getenv(toEnvVar(name)) ?: throw RuntimeException("Missing variable: $name/${toEnvVar(name)}")
+
+fun toEnvVar(name: String): String =
+        name.replace(".", "_").toUpperCase()
+
+data class SoapProperties(
+        val username: String = getVal(SOAP_USERNAME),
+        val password: String = getVal(SOAP_PASSWORD)
+)

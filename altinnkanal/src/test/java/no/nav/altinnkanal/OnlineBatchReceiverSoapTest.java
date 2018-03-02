@@ -8,9 +8,8 @@ import org.apache.kafka.clients.producer.Producer;
 import org.apache.kafka.clients.producer.RecordMetadata;
 import org.junit.Before;
 import org.junit.Test;
-import org.junit.runner.RunWith;
 import org.mockito.Mock;
-import org.springframework.test.context.junit4.SpringRunner;
+import org.mockito.MockitoAnnotations;
 
 
 import java.util.concurrent.Future;
@@ -22,7 +21,6 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 
-@RunWith(SpringRunner.class)
 public class OnlineBatchReceiverSoapTest {
     @Mock
     private TopicService topicService;
@@ -38,6 +36,7 @@ public class OnlineBatchReceiverSoapTest {
 
     @Before
     public void setUp() throws Exception {
+        MockitoAnnotations.initMocks(this);
         soapService = new OnlineBatchReceiverSoapImpl(topicService, kafkaProducer);
         simpleBatch = Utils.readToString("/data/basic_data_batch.xml");
     }

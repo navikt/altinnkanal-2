@@ -1,23 +1,21 @@
 package no.nav.altinnkanal;
 
-import io.confluent.kafka.schemaregistry.rest.SchemaRegistryConfig;
-import io.confluent.kafka.schemaregistry.rest.SchemaRegistryRestApplication;
 import no.altinn.webservices.OnlineBatchReceiverSoap;
+import no.nav.altinnkanal.avro.ExternalAttachment;
 import no.nav.altinnkanal.config.SoapProperties;
+import no.nav.altinnkanal.config.TopicConfigurationKt;
+import no.nav.altinnkanal.services.TopicService;
+import no.nav.altinnkanal.services.TopicServiceTest;
+import no.nav.altinnkanal.soap.OnlineBatchReceiverSoapImpl;
 import no.nav.common.KafkaEnvironment;
 import org.apache.cxf.configuration.security.AuthorizationPolicy;
 import org.apache.cxf.endpoint.Client;
 import org.apache.cxf.frontend.ClientProxy;
 import org.apache.cxf.jaxws.JaxWsProxyFactoryBean;
 import org.apache.cxf.transport.http.HTTPConduit;
+import org.apache.kafka.clients.producer.KafkaProducer;
+import org.eclipse.jetty.server.Server;
 import org.junit.*;
-import org.junit.runner.RunWith;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.context.embedded.LocalServerPort;
-import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.Configuration;
-import org.springframework.test.context.junit4.SpringRunner;
 
 import java.util.Arrays;
 import java.util.Map;
@@ -25,20 +23,13 @@ import java.util.Properties;
 
 import static org.junit.Assert.assertEquals;
 
-@RunWith(SpringRunner.class)
-@SpringBootTest(
-        classes = {BootstrapROBEA.class, OnlineBatchReceiverSoapIT.ITConfiguration.class},
-        webEnvironment =  SpringBootTest.WebEnvironment.RANDOM_PORT
-)
 public class OnlineBatchReceiverSoapIT {
-    @Autowired
-    private SoapProperties soapProperties;
+    private static SoapProperties soapProperties = new SoapProperties("test", "test");
 
     static Map<String, String> kafkaValues;
 
-    @LocalServerPort
-    private int localServerPort;
-    private OnlineBatchReceiverSoap soapEndpoint;
+    private static int localServerPort;
+    private static OnlineBatchReceiverSoap soapEndpoint;
 
     private String simpleBatch;
     private String simpleBatchMissingSec;
@@ -51,7 +42,14 @@ public class OnlineBatchReceiverSoapIT {
 
     @BeforeClass
     public static void setupClass() throws Exception {
+        localServerPort = 8080;
+
         setupKafka();
+        KafkaProducer<String, ExternalAttachment> producer = new KafkaProducer<>(kafkaProperties());
+        TopicService topicService = new TopicService(TopicConfigurationKt.topicRouting());
+        OnlineBatchReceiverSoapImpl batchReceiver = new OnlineBatchReceiverSoapImpl(topicService, producer);
+        Server server = new Server(8080);
+        JettyBootstrapKt.bootstrap(server, soapProperties, batchReceiver);
     }
 
     @AfterClass
@@ -60,7 +58,6 @@ public class OnlineBatchReceiverSoapIT {
     }
 
     public static void setupKafka() throws Exception {
-
         kafkaValues = KafkaEnvironment.INSTANCE.start(1, Arrays.asList("aapen-altinn-bankkontonummerv87Mottatt-v1-preprod"));
     }
 
@@ -68,25 +65,17 @@ public class OnlineBatchReceiverSoapIT {
         KafkaEnvironment.INSTANCE.stop();
     }
 
-    @Configuration
-    public static class ITConfiguration {
+    private static Properties kafkaProperties() throws Exception {
+        Properties kafkaProperties = new Properties();
 
-        // Configure the kafka client to use the spring embedded Kafka server and our schema registry
-        @Bean("kafkaProperties")
-        public Properties kafkaProperties() throws Exception {
-            Properties kafkaProperties = new Properties();
+        kafkaProperties.load(TopicServiceTest.class.getResourceAsStream("/kafka.properties"));
 
-            kafkaProperties.load(getClass().getResourceAsStream("/kafka.properties"));
+        kafkaProperties.setProperty("bootstrap.servers", kafkaValues.get("broker"));
+        kafkaProperties.setProperty("schema.registry.url", kafkaValues.get("schema"));
+        kafkaProperties.setProperty("reconnect.backoff.max.ms", "15000");
+        kafkaProperties.remove("security.protocol");
 
-            kafkaProperties.setProperty("bootstrap.servers", kafkaValues.get("broker"));
-            kafkaProperties.setProperty("schema.registry.url", kafkaValues.get("schema"));
-            //kafkaProperties.setProperty("schema.registry.url", schemaRegistryConfig.getList(
-            //        SchemaRegistryConfig.LISTENERS_CONFIG).stream().collect(Collectors.joining(",")));
-            kafkaProperties.setProperty("reconnect.backoff.max.ms", "15000");
-            kafkaProperties.remove("security.protocol");
-
-            return kafkaProperties;
-        }
+        return kafkaProperties;
     }
 
     @Before
