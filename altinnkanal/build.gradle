@@ -30,7 +30,10 @@ apply plugin: 'application'
 apply plugin: 'kotlin'
 
 mainClassName = 'no.nav.altinnkanal.JettyBootstrapKt'
-applicationDefaultJvmArgs = ['-Djavax.net.ssl.trustStore=${NAV_TRUSTSTORE_PATH}', '-Djavax.net.ssl.trustStorePassword=${NAV_TRUSTSTORE_PASSWORD}']
+applicationDefaultJvmArgs = [
+        '-Djavax.net.ssl.trustStore=${NAV_TRUSTSTORE_PATH}',
+        '-Djavax.net.ssl.trustStorePassword=${NAV_TRUSTSTORE_PASSWORD}'
+]
 
 
 wsdl2java {
@@ -67,7 +70,7 @@ repositories {
 
 configurations {
     all*.exclude group: 'org.slf4j', module: 'slf4j-log4j12'
-    //all*.exclude group: 'log4j', module: 'log4j'
+    all*.exclude group: 'log4j', module: 'log4j'
 }
 
 dependencies {
@@ -89,7 +92,7 @@ dependencies {
     implementation "io.prometheus:simpleclient_hotspot:$prometheus_version"
 
     implementation "ch.qos.logback:logback-classic:1.2.3"
-    //implementation "org.slf4j:log4j-over-slf4j:1.7.25"
+    implementation "org.slf4j:log4j-over-slf4j:1.7.25"
     implementation "net.logstash.logback:logstash-logback-encoder:$logstash_encoder_version"
 
     testImplementation "junit:junit:$junit_version"
