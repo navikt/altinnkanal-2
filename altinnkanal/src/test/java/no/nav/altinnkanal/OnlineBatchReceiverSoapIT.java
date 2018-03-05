@@ -54,7 +54,8 @@ public class OnlineBatchReceiverSoapIT {
         KafkaProducer<String, ExternalAttachment> producer = new KafkaProducer<>(kafkaProperties());
         TopicService topicService = new TopicService(TopicConfigurationKt.topicRouting());
         OnlineBatchReceiverSoapImpl batchReceiver = new OnlineBatchReceiverSoapImpl(topicService, producer);
-        localServerPort = getRandomOpenPort();
+        //localServerPort = getRandomOpenPort();
+        localServerPort = 8123;
         Server server = new Server(localServerPort);
         JettyBootstrapKt.bootstrap(server, soapProperties, batchReceiver);
     }
