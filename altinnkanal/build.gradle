@@ -1,6 +1,6 @@
 buildscript {
     ext.jetty_version = "9.4.8.v20171121"
-    ext.kafka_test_version = '0.5.3'
+    ext.kafka_test_version = '0.6.0'
     ext.mockito_version = '2.15.0'
     ext.kotlin_version = '1.2.21'
     ext.confluent_version = '4.0.0'

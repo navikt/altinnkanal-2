@@ -41,6 +41,9 @@ fasitResources:
     resourceType: Webserviceendpoint
     path: /webservices/OnlineBatchReceiverSoap
     securityToken: none
+    wsdlGroupId: no.nav.tjenester.ekstern-altinnkanal-onlineBatchReceiver-tjenestespesifikasjon
+    wsdlArtifactId: ekstern-altinnkanal-onlineBatchReceiver-tjenestespesifikasjon
+    version: 1.0.0
 #  exposed:
 #  - alias: altinnkanal-2-admin-panel
 #    resourceType: Baseurl

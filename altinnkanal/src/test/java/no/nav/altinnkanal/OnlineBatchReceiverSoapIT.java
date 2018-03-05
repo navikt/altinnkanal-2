@@ -8,6 +8,7 @@ import no.nav.altinnkanal.services.TopicService;
 import no.nav.altinnkanal.services.TopicServiceTest;
 import no.nav.altinnkanal.soap.OnlineBatchReceiverSoapImpl;
 import no.nav.common.KafkaEnvironment;
+import no.nav.common.embeddedutils.ServerBase;
 import org.apache.cxf.configuration.security.AuthorizationPolicy;
 import org.apache.cxf.endpoint.Client;
 import org.apache.cxf.frontend.ClientProxy;
@@ -17,8 +18,9 @@ import org.apache.kafka.clients.producer.KafkaProducer;
 import org.eclipse.jetty.server.Server;
 import org.junit.*;
 
-import java.util.Arrays;
-import java.util.Map;
+import java.io.IOException;
+import java.net.ServerSocket;
+import java.util.Collections;
 import java.util.Properties;
 
 import static org.junit.Assert.assertEquals;
@@ -26,13 +28,12 @@ import static org.junit.Assert.assertEquals;
 public class OnlineBatchReceiverSoapIT {
     private static SoapProperties soapProperties = new SoapProperties("test", "test");
 
-    static Map<String, String> kafkaValues;
-
     private static int localServerPort;
     private static OnlineBatchReceiverSoap soapEndpoint;
 
     private String simpleBatch;
     private String simpleBatchMissingSec;
+    private static KafkaEnvironment kafkaEnvironment;
 
     private String createPayload(String serviceCode, String serviceEditionCode) {
         return simpleBatch
@@ -40,29 +41,27 @@ public class OnlineBatchReceiverSoapIT {
                 .replaceAll("\\{\\{serviceEditionCode}}", serviceEditionCode);
     }
 
+    public static int getRandomOpenPort() throws IOException {
+        try (ServerSocket socket = new ServerSocket(-1)) {
+            return socket.getLocalPort();
+        }
+    }
+
     @BeforeClass
     public static void setupClass() throws Exception {
-
-        setupKafka();
+        kafkaEnvironment = new KafkaEnvironment(1, Collections.singletonList("aapen-altinn-bankkontonummerv87Mottatt-v1-preprod"), true, false, false);
+        kafkaEnvironment.start();
         KafkaProducer<String, ExternalAttachment> producer = new KafkaProducer<>(kafkaProperties());
         TopicService topicService = new TopicService(TopicConfigurationKt.topicRouting());
         OnlineBatchReceiverSoapImpl batchReceiver = new OnlineBatchReceiverSoapImpl(topicService, producer);
-        Server server = new Server(8123);
-        localServerPort = 8123;
+        localServerPort = getRandomOpenPort();
+        Server server = new Server(localServerPort);
         JettyBootstrapKt.bootstrap(server, soapProperties, batchReceiver);
     }
 
     @AfterClass
     public static void tearDownClass() throws Exception {
-        stopKafkaServers();
-    }
-
-    public static void setupKafka() throws Exception {
-        kafkaValues = KafkaEnvironment.INSTANCE.start(1, Arrays.asList("aapen-altinn-bankkontonummerv87Mottatt-v1-preprod"));
-    }
-
-    private static void stopKafkaServers()  {
-        KafkaEnvironment.INSTANCE.stop();
+        kafkaEnvironment.tearDown();
     }
 
     private static Properties kafkaProperties() throws Exception {
@@ -70,8 +69,8 @@ public class OnlineBatchReceiverSoapIT {
 
         kafkaProperties.load(TopicServiceTest.class.getResourceAsStream("/kafka.properties"));
 
-        kafkaProperties.setProperty("bootstrap.servers", kafkaValues.get("broker"));
-        kafkaProperties.setProperty("schema.registry.url", kafkaValues.get("schema"));
+        kafkaProperties.setProperty("bootstrap.servers", kafkaEnvironment.getBrokersURL());
+        kafkaProperties.setProperty("schema.registry.url", kafkaEnvironment.getServerPark().getSchemaregistry().getUrl());
         kafkaProperties.setProperty("reconnect.backoff.max.ms", "15000");
         kafkaProperties.remove("security.protocol");
 
@@ -141,16 +140,16 @@ public class OnlineBatchReceiverSoapIT {
         String payload = createPayload(serviceCode, serviceEditionCode);
 
         // shutdown embedded Kafka
-        stopKafkaServers();
+        kafkaEnvironment.getServerPark().getBrokers().forEach(ServerBase::stop);
         String result = soapEndpoint.receiveOnlineBatchExternalAttachment(null, null,
                 null, 0, payload, new byte[0]);
         assertEquals("FAILED", result);
 
         System.out.println("NEXT TEST");
         // restart embedded Kafka
-        setupKafka();
-        //result = soapEndpoint.receiveOnlineBatchExternalAttachment(null, null,
-        //        null, 0, payload, new byte[0]);
-        //assertEquals("OK", result);
+        kafkaEnvironment.getServerPark().getBrokers().forEach(ServerBase::start);
+        result = soapEndpoint.receiveOnlineBatchExternalAttachment(null, null,
+                null, 0, payload, new byte[0]);
+        assertEquals("OK", result);
     }
 }
