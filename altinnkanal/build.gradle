@@ -43,6 +43,8 @@ wsdl2java {
     ]
 }
 
+compileKotlin.dependsOn wsdl2java
+
 startScripts {
     doLast {
         unixScript.text = unixScript.text.replace('\\${NAV_TRUSTSTORE_PATH}', '${NAV_TRUSTSTORE_PATH}')
