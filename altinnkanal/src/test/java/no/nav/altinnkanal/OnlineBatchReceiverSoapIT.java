@@ -72,7 +72,7 @@ public class OnlineBatchReceiverSoapIT {
 
         kafkaProperties.setProperty("bootstrap.servers", kafkaEnvironment.getBrokersURL());
         kafkaProperties.setProperty("schema.registry.url", kafkaEnvironment.getServerPark().getSchemaregistry().getUrl());
-        kafkaProperties.setProperty("reconnect.backoff.max.ms", "15000");
+        kafkaProperties.setProperty("request.timeout.ms", "1000");
         kafkaProperties.remove("security.protocol");
 
         return kafkaProperties;
