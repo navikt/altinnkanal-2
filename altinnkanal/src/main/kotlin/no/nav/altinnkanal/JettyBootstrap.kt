@@ -17,8 +17,6 @@ import org.eclipse.jetty.servlet.ServletHolder
 import java.util.*
 import javax.xml.ws.Endpoint
 
-class JettyBootstrap
-
 fun main(args: Array<String>) {
     val soapProperties = SoapProperties()
 
@@ -26,7 +24,7 @@ fun main(args: Array<String>) {
     val topicService = TopicService(topicRouting)
 
     val kafkaProperties = Properties()
-    kafkaProperties.load(JettyBootstrap::class.java.getResourceAsStream("/kafka.properties"))
+    kafkaProperties.load(OnlineBatchReceiverSoapImpl::class.java.getResourceAsStream("/kafka.properties"))
     val kafkaProducer = KafkaProducer<String, ExternalAttachment>(kafkaProperties)
 
     val batchReceiver = OnlineBatchReceiverSoapImpl(topicService, kafkaProducer)
