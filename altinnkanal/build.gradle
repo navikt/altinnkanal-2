@@ -31,6 +31,7 @@ apply plugin: 'kotlin'
 
 mainClassName = 'no.nav.altinnkanal.JettyBootstrapKt'
 applicationDefaultJvmArgs = [
+        '-Xmx256M',
         '-Djavax.net.ssl.trustStore=${NAV_TRUSTSTORE_PATH}',
         '-Djavax.net.ssl.trustStorePassword=${NAV_TRUSTSTORE_PASSWORD}'
 ]
