@@ -9,25 +9,31 @@ import no.nav.altinnkanal.services.TopicServiceTest;
 import no.nav.altinnkanal.soap.OnlineBatchReceiverSoapImpl;
 import no.nav.common.KafkaEnvironment;
 import no.nav.common.embeddedutils.ServerBase;
-import org.apache.cxf.configuration.security.AuthorizationPolicy;
 import org.apache.cxf.endpoint.Client;
 import org.apache.cxf.frontend.ClientProxy;
 import org.apache.cxf.jaxws.JaxWsProxyFactoryBean;
-import org.apache.cxf.transport.http.HTTPConduit;
+import org.apache.cxf.ws.security.wss4j.WSS4JOutInterceptor;
 import org.apache.kafka.clients.producer.KafkaProducer;
+import org.apache.wss4j.common.ext.WSPasswordCallback;
+import org.apache.wss4j.dom.WSConstants;
+import org.apache.wss4j.dom.handler.WSHandlerConstants;
 import org.eclipse.jetty.server.Server;
 import org.junit.*;
 
+import javax.security.auth.callback.Callback;
+import javax.security.auth.callback.CallbackHandler;
+import javax.security.auth.callback.UnsupportedCallbackException;
 import java.io.IOException;
 import java.net.ServerSocket;
 import java.util.Collections;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Properties;
 
 import static org.junit.Assert.assertEquals;
 
 public class OnlineBatchReceiverSoapIT {
     private static SoapProperties soapProperties = new SoapProperties("test", "test");
-
     private static int localServerPort;
     private static OnlineBatchReceiverSoap soapEndpoint;
 
@@ -44,6 +50,14 @@ public class OnlineBatchReceiverSoapIT {
     public static int getRandomOpenPort() throws IOException {
         try (ServerSocket socket = new ServerSocket(-1)) {
             return socket.getLocalPort();
+        }
+    }
+
+    public static class ClientPasswordCallback implements CallbackHandler {
+        @Override
+        public void handle(Callback[] callbacks) throws IOException, UnsupportedCallbackException {
+            WSPasswordCallback pc = (WSPasswordCallback) callbacks[0];
+            pc.setPassword(soapProperties.getPassword());
         }
     }
 
@@ -89,11 +103,13 @@ public class OnlineBatchReceiverSoapIT {
 
         soapEndpoint = (OnlineBatchReceiverSoap) factory.create();
         Client client = ClientProxy.getClient(soapEndpoint);
-        HTTPConduit http = (HTTPConduit) client.getConduit();
-        AuthorizationPolicy authPolicy = new AuthorizationPolicy();
-        authPolicy.setUserName(soapProperties.getUsername());
-        authPolicy.setPassword(soapProperties.getPassword());
-        http.setAuthorization(authPolicy);
+        Map<String, Object> outProps = new HashMap<>();
+        outProps.put(WSHandlerConstants.ACTION, WSHandlerConstants.USERNAME_TOKEN);
+        outProps.put(WSHandlerConstants.USER, soapProperties.getUsername());
+        outProps.put(WSHandlerConstants.PASSWORD_TYPE, WSConstants.PW_TEXT);
+        outProps.put(WSHandlerConstants.PW_CALLBACK_CLASS, ClientPasswordCallback.class.getName());
+        WSS4JOutInterceptor outInterceptor = new WSS4JOutInterceptor(outProps);
+        client.getOutInterceptors().add(outInterceptor);
     }
 
 

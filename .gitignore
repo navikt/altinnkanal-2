@@ -4,6 +4,7 @@ target/
 .idea/
 /*.db
 *.jks
+*.jts
 
 # Gradle
 out/

@@ -1,25 +1,25 @@
 routes:
-  - topic: aapen-altinn-bankkontonummerv87Mottatt-v87
+  - topic: aapen-altinn-bankkontonummer-Mottatt-v87
     serviceCode: 2896
     serviceEditionCode: 87
-  - topic: aapen-altinn-oppfolgingsplanv2Mottatt-v2
+  - topic: aapen-altinn-oppfolgingsplan-Mottatt-v2
     serviceCode: 2913
     serviceEditionCode: 2
-  - topic: aapen-altinn-oppfolgingsplanv3Mottatt-v3
+  - topic: aapen-altinn-oppfolgingsplan-Mottatt-v3
     serviceCode: 2913
     serviceEditionCode: 3
-  - topic: aapen-altinn-oppfolgingsplanv4Mottatt-v4
+  - topic: aapen-altinn-oppfolgingsplan-Mottatt-v4
     serviceCode: 2913
     serviceEditionCode: 4
-  - topic: aapen-altinn-maalekortv1Mottatt-v1
+  - topic: aapen-altinn-maalekort-Mottatt-v1
     serviceCode: 4711
     serviceEditionCode: 1
-  - topic: aapen-altinn-barnehagelistev1Mottatt-v1
+  - topic: aapen-altinn-barnehageliste-Mottatt-v1
     serviceCode: 4795
     serviceEditionCode: 1
-  - topic: aapen-altinn-inntektsskjemav1Mottatt-v1
+  - topic: aapen-altinn-inntektsskjema-Mottatt-v1
     serviceCode: 4936
     serviceEditionCode: 1
-  - topic: aapen-altinn-testskjemav22Mottatt-v21
+  - topic: aapen-altinn-testskjema-Mottatt-v21
     serviceCode: 9001
     serviceEditionCode: 21
