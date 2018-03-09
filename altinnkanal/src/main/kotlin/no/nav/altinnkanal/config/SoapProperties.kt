@@ -1,13 +1,10 @@
 package no.nav.altinnkanal.config
 
-const val SOAP_USERNAME = "soap.username"
-const val SOAP_PASSWORD = "soap.password"
+const val SOAP_USERNAME = "SOAP_USERNAME"
+const val SOAP_PASSWORD = "SOAP_PASSWORD"
 
 fun getVal(name: String): String =
-        System.getenv(toEnvVar(name)) ?: throw RuntimeException("Missing variable: $name/${toEnvVar(name)}")
-
-fun toEnvVar(name: String): String =
-        name.replace(".", "_").toUpperCase()
+        System.getenv(name) ?: throw RuntimeException("Missing variable: $name")
 
 data class SoapProperties(
         val username: String = getVal(SOAP_USERNAME),
