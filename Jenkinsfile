@@ -21,7 +21,7 @@ pipeline {
                     applicationVersion = "${applicationVersionGradle}.${env.BUILD_ID}-${gitVars.commitHashShort}"
                     applicationFullName = "${env.APPLICATION_NAME}:${applicationVersion}"
                     utils.slackBuildStarted(env.APPLICATION_NAME, gitVars.changeLog.toString())
-                    utils.githubCommitStatus(env.APPLICATION_NAME, gitVars.commitHashShort, "pending", "Build started")
+                    utils.githubCommitStatus(env.APPLICATION_NAME, gitVars.commitHash, "pending", "Build started")
                 }
             }
         }
@@ -60,7 +60,7 @@ pipeline {
         stage('push docker image') {
             steps {
                 script {
-                    utils.dockerCreatePushImage(applicationFullName, gitVars.commitHashShort)
+                    utils.dockerCreatePushImage(applicationFullName, gitVars.commitHash)
                 }
             }
         }
@@ -108,13 +108,13 @@ pipeline {
         success {
             script {
                 utils.slackBuildSuccess(env.APPLICATION_NAME)
-                utils.githubCommitStatus(env.APPLICATION_NAME, gitVars.commitHashShort, "success", "Build success")
+                utils.githubCommitStatus(env.APPLICATION_NAME, gitVars.commitHash, "success", "Build success")
             }
         }
         failure {
             script {
                 utils.slackBuildFailed(env.APPLICATION_NAME)
-                utils.githubCommitStatus(env.APPLICATION_NAME, gitVars.commitHashShort, "failure", "Build failed")
+                utils.githubCommitStatus(env.APPLICATION_NAME, gitVars.commitHash, "failure", "Build failed")
             }
         }
     }
