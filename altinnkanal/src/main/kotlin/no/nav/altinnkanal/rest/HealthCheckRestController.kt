@@ -19,7 +19,7 @@ class HealthCheckRestController {
 
     @Path("/isAlive")
     @GET
-    @Produces(javax.ws.rs.core.MediaType.TEXT_PLAIN)
+    @Produces(MediaType.TEXT_PLAIN)
     fun getIsAlive(): String = APPLICATION_ALIVE
 
     @Path("/isReady")

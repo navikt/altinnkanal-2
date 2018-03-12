@@ -21,6 +21,7 @@ pipeline {
                     applicationVersion = "${applicationVersionGradle}.${env.BUILD_ID}-${gitVars.commitHashShort}"
                     applicationFullName = "${env.APPLICATION_NAME}:${applicationVersion}"
                     utils.slackBuildStarted(env.APPLICATION_NAME, gitVars.changeLog.toString())
+                    utils.githubCommitStatus(env.APPLICATION_NAME, gitVars.commitHashShort, "pending", "Build started")
                 }
             }
         }
@@ -107,11 +108,13 @@ pipeline {
         success {
             script {
                 utils.slackBuildSuccess(env.APPLICATION_NAME)
+                utils.githubCommitStatus(env.APPLICATION_NAME, gitVars.commitHashShort, "success", "Build success")
             }
         }
         failure {
             script {
                 utils.slackBuildFailed(env.APPLICATION_NAME)
+                utils.githubCommitStatus(env.APPLICATION_NAME, gitVars.commitHashShort, "failure", "Build failed")
             }
         }
     }
