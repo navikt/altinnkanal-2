@@ -5,10 +5,10 @@ Repository for Altinnkanal 2. Application written in Kotlin to handle routing of
 
 ## Technologies & Tools
 
-* Kotlin 1.2.21
-* Kafka 1.0.0
-* CXF 3.2.0
-* Jetty 9.4.8
+* Kotlin
+* Kafka
+* CXF
+* Jetty
 * Gradle
 
 For deployment:

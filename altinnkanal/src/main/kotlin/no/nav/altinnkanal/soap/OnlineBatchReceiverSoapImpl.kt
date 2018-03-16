@@ -15,6 +15,7 @@ import javax.xml.stream.events.XMLEvent
 import java.io.StringReader
 
 import net.logstash.logback.marker.Markers.append
+import org.apache.commons.lang.StringEscapeUtils
 
 class OnlineBatchReceiverSoapImpl (
         private val topicService: TopicService,
@@ -87,7 +88,7 @@ class OnlineBatchReceiverSoapImpl (
     }
 
     private fun toAvroObject(dataBatch: String): ExternalAttachment {
-        val reader = StringReader(dataBatch)
+        val reader = StringReader(StringEscapeUtils.unescapeXml(dataBatch))
         val xmlReader = xmlInputFactory.createXMLStreamReader(reader)
         var serviceCode: String? = null
         var serviceEditionCode: String? = null

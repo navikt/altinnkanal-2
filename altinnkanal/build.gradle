@@ -4,7 +4,7 @@ buildscript {
     ext.mockito_version = '2.15.0'
     ext.kotlin_version = '1.2.30'
     ext.confluent_version = '4.0.0'
-    ext.cxf_version = '3.2.0'
+    ext.cxf_version = '3.2.2'
     ext.kafka_version = '1.0.0'
     ext.jackson_version = '2.9.4'
     ext.prometheus_version = '0.3.0'
