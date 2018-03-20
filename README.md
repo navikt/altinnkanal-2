@@ -100,3 +100,11 @@ docker stop <CONTAINER_NAMES>
 
 ### Testing against Kafka test-rig
 IPs and hostnames should be available on the #kafka Slack channel. Still WIP so they'll probably change.
+
+### Contact us
+#### Code/project related questions can be sent to 
+* Kevin Sillerud, `kevin.sillerud@nav.no`
+* Trong Huu Nguyen, `trong.huu.nguyen@nav.no`
+
+#### For NAV employees
+We are also available on the slack channel #integrasjon for internal communication
