@@ -36,6 +36,8 @@ fasitResources:
     propertyMap:
       username: SOAP_USERNAME
       password: SOAP_PASSWORD
+  - alias: srvaltinnkanal
+    resourceType: credential
   exposed:
   - alias: altinnkanal-2-ws-endpoint
     resourceType: Webserviceendpoint
@@ -44,6 +46,3 @@ fasitResources:
     wsdlGroupId: no.nav.tjenester
     wsdlArtifactId: ekstern-altinnkanal-onlineBatchReceiver-tjenestespesifikasjon
     wsdlVersion: 1.0.0
-#  exposed:
-#  - alias: altinnkanal-2-admin-panel
-#    resourceType: Baseurl

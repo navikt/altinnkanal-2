@@ -4,7 +4,7 @@ pipeline {
     agent any
 
     environment {
-        APPLICATION_NAME = 'altinnkanal-2'
+        APPLICATION_NAME = 'altinnkanal'
         GIT_PROJECT = 'INT'
         FASIT_ENV = 't4'
         ZONE = 'fss'

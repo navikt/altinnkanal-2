@@ -31,6 +31,9 @@ fun main(args: Array<String>) {
 
     val kafkaProperties = Properties().apply {
         load(OnlineBatchReceiverSoapImpl::class.java.getResourceAsStream("/kafka.properties"))
+        setProperty("sasl.jaas.config", "org.apache.kafka.common.security.plain.PlainLoginModule required username=\""
+                + System.getenv("SRVALTINNKANAL_USERNAME") + "\" password=\""
+                + System.getenv("SRVALTINNKANAL_PASSWORD") + "\";")
     }
     val kafkaProducer = KafkaProducer<String, ExternalAttachment>(kafkaProperties)
 
@@ -58,9 +61,8 @@ fun bootstrap(server: Server, soapProperties: SoapProperties, batchReceiver: Onl
         addServlet(ServletHolder(cxfRSServlet), "/*")
     }
 
-    server.handler = contextHandler.apply {
-        start()
-    }
+    server.handler = contextHandler
+    server.start()
 
     BusFactory.setDefaultBus(cxfServlet.bus)
 
