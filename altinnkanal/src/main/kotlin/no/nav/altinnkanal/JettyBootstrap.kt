@@ -67,7 +67,7 @@ fun bootstrap(server: Server, soapProperties: SoapProperties, batchReceiver: Onl
     BusFactory.setDefaultBus(cxfServlet.bus)
 
     val inProps = java.util.HashMap<String, Any>().apply {
-        put(WSHandlerConstants.ACTION, WSHandlerConstants.USER)
+        put(WSHandlerConstants.ACTION, WSHandlerConstants.USERNAME_TOKEN)
         put(WSHandlerConstants.PASSWORD_TYPE, WSConstants.PW_TEXT)
         put(WSHandlerConstants.PW_CALLBACK_REF, UntPasswordCallback(soapProperties))
     }

@@ -55,11 +55,12 @@ class OnlineBatchReceiverSoapIT {
         simpleBatch = Utils.readToString("/data/basic_data_batch.xml")
         simpleBatchMissingSec = Utils.readToString("/data/basic_data_batch_missing_sec.xml")
 
-        soapEndpoint = JaxWsProxyFactoryBean().apply {
+        val factory = JaxWsProxyFactoryBean().apply {
             serviceClass = OnlineBatchReceiverSoap::class.java
             address = "http://localhost:$localServerPort/webservices/OnlineBatchReceiverSoap"
-            create()
-        } as OnlineBatchReceiverSoap
+        }
+
+        soapEndpoint = factory.create() as OnlineBatchReceiverSoap
 
         val outProps = HashMap<String, Any>().apply {
             put(WSHandlerConstants.ACTION, WSHandlerConstants.USERNAME_TOKEN)
