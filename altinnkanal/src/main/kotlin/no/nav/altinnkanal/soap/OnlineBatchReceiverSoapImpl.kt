@@ -29,11 +29,11 @@ class OnlineBatchReceiverSoapImpl (
         val requestLatency = requestTime.startTimer()
 
         try {
-            val externalAttachment = toAvroObject(dataBatch)
-
-            serviceCode = externalAttachment.getSc()
-            serviceEditionCode = externalAttachment.getSec()
-            archiveReference = externalAttachment.getArchRef()
+            val externalAttachment = toAvroObject(dataBatch).also {
+                serviceCode = it.getSc()
+                serviceEditionCode = it.getSec()
+                archiveReference = it.getArchRef()
+            }
 
             requestsTotal.inc()
 
@@ -52,7 +52,9 @@ class OnlineBatchReceiverSoapImpl (
                 return "FAILED_DO_NOT_RETRY"
             }
 
-            val metadata = kafkaProducer.send(ProducerRecord(topic, externalAttachment)).get()
+            val metadata = kafkaProducer
+                    .send(ProducerRecord(topic, externalAttachment))
+                    .get()
 
             val latency = requestLatency.observeDuration()
             requestSize.observe(metadata.serializedValueSize().toDouble())

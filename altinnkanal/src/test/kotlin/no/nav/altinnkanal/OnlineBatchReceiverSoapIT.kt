@@ -55,21 +55,22 @@ class OnlineBatchReceiverSoapIT {
         simpleBatch = Utils.readToString("/data/basic_data_batch.xml")
         simpleBatchMissingSec = Utils.readToString("/data/basic_data_batch_missing_sec.xml")
 
-        val factory = JaxWsProxyFactoryBean()
-        factory.serviceClass = OnlineBatchReceiverSoap::class.java
-        factory.address = "http://localhost:$localServerPort/webservices/OnlineBatchReceiverSoap"
+        soapEndpoint = JaxWsProxyFactoryBean().apply {
+            serviceClass = OnlineBatchReceiverSoap::class.java
+            address = "http://localhost:$localServerPort/webservices/OnlineBatchReceiverSoap"
+            create()
+        } as OnlineBatchReceiverSoap
 
-        soapEndpoint = factory.create() as OnlineBatchReceiverSoap
-        val client = ClientProxy.getClient(soapEndpoint)
-        val outProps = HashMap<String, Any>()
-        outProps[WSHandlerConstants.ACTION] = WSHandlerConstants.USERNAME_TOKEN
-        outProps[WSHandlerConstants.USER] = soapProperties.username
-        outProps[WSHandlerConstants.PASSWORD_TYPE] = WSConstants.PW_TEXT
-        outProps[WSHandlerConstants.PW_CALLBACK_CLASS] = ClientPasswordCallback::class.java.name
-        val outInterceptor = WSS4JOutInterceptor(outProps)
-        client.outInterceptors.add(outInterceptor)
+        val outProps = HashMap<String, Any>().apply {
+            put(WSHandlerConstants.ACTION, WSHandlerConstants.USERNAME_TOKEN)
+            put(WSHandlerConstants.USER, soapProperties.username)
+            put(WSHandlerConstants.PASSWORD_TYPE, WSConstants.PW_TEXT)
+            put(WSHandlerConstants.PW_CALLBACK_CLASS, ClientPasswordCallback::class.java.name)
+        }
+        ClientProxy.getClient(soapEndpoint).run {
+            outInterceptors.add(WSS4JOutInterceptor(outProps))
+        }
     }
-
 
     @Test
     @Throws(Exception::class)
@@ -88,7 +89,6 @@ class OnlineBatchReceiverSoapIT {
         val payload = createPayload(serviceCode, serviceEditionCode)
         val result = soapEndpoint.receiveOnlineBatchExternalAttachment(null, null, null,
                 0, payload, ByteArray(0))
-
         assertEquals("FAILED_DO_NOT_RETRY", result)
     }
 
@@ -137,7 +137,9 @@ class OnlineBatchReceiverSoapIT {
         fun setupClass() {
             kafkaEnvironment = KafkaEnvironment(1, listOf("aapen-altinn-bankkontonummerv87Mottatt-v1-preprod"),
                     true, false, false)
-            kafkaEnvironment.start()
+                    .apply {
+                        start()
+                    }
             val producer = KafkaProducer<String, ExternalAttachment>(kafkaProperties())
             val topicService = TopicService(topicRouting())
             val batchReceiver = OnlineBatchReceiverSoapImpl(topicService, producer)
@@ -157,16 +159,13 @@ class OnlineBatchReceiverSoapIT {
         @JvmStatic
         @Throws(Exception::class)
         private fun kafkaProperties(): Properties {
-            val kafkaProperties = Properties()
-
-            kafkaProperties.load(TopicServiceTest::class.java.getResourceAsStream("/kafka.properties"))
-
-            kafkaProperties.setProperty("bootstrap.servers", kafkaEnvironment.brokersURL)
-            kafkaProperties.setProperty("schema.registry.url", kafkaEnvironment.serverPark.schemaregistry.url)
-            kafkaProperties.setProperty("request.timeout.ms", "1000")
-            kafkaProperties.remove("security.protocol")
-
-            return kafkaProperties
+            return Properties().apply {
+                load(TopicServiceTest::class.java.getResourceAsStream("/kafka.properties"))
+                setProperty("bootstrap.servers", kafkaEnvironment.brokersURL)
+                setProperty("schema.registry.url", kafkaEnvironment.serverPark.schemaregistry.url)
+                setProperty("request.timeout.ms", "1000")
+                remove("security.protocol")
+            }
         }
     }
 }

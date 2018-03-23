@@ -20,7 +20,7 @@ import org.apache.wss4j.dom.handler.WSHandlerConstants
 import org.eclipse.jetty.server.Server
 import org.eclipse.jetty.servlet.ServletContextHandler
 import org.eclipse.jetty.servlet.ServletHolder
-import java.util.*
+import java.util.Properties
 import javax.xml.ws.Endpoint
 
 fun main(args: Array<String>) {
@@ -29,8 +29,9 @@ fun main(args: Array<String>) {
     val topicRouting = topicRouting()
     val topicService = TopicService(topicRouting)
 
-    val kafkaProperties = Properties()
-    kafkaProperties.load(OnlineBatchReceiverSoapImpl::class.java.getResourceAsStream("/kafka.properties"))
+    val kafkaProperties = Properties().apply {
+        load(OnlineBatchReceiverSoapImpl::class.java.getResourceAsStream("/kafka.properties"))
+    }
     val kafkaProducer = KafkaProducer<String, ExternalAttachment>(kafkaProperties)
 
     val batchReceiver = OnlineBatchReceiverSoapImpl(topicService, kafkaProducer)
@@ -51,23 +52,27 @@ fun bootstrap(server: Server, soapProperties: SoapProperties, batchReceiver: Onl
     val cxfRSServlet = CXFNonSpringJaxrsServlet(jaxRSSingletons)
 
     // Set up servlets
-    val contextHandler = ServletContextHandler()
-    contextHandler.addServlet(ServletHolder(MetricsServlet()), "/prometheus")
-    contextHandler.addServlet(ServletHolder(cxfServlet), "/webservices/*")
-    contextHandler.addServlet(ServletHolder(cxfRSServlet), "/*")
+    val contextHandler = ServletContextHandler().apply {
+        addServlet(ServletHolder(MetricsServlet()), "/prometheus")
+        addServlet(ServletHolder(cxfServlet), "/webservices/*")
+        addServlet(ServletHolder(cxfRSServlet), "/*")
+    }
 
-    server.handler = contextHandler
-    server.start()
+    server.handler = contextHandler.apply {
+        start()
+    }
 
     BusFactory.setDefaultBus(cxfServlet.bus)
+
+    val inProps = java.util.HashMap<String, Any>().apply {
+        put(WSHandlerConstants.ACTION, WSHandlerConstants.USER)
+        put(WSHandlerConstants.PASSWORD_TYPE, WSConstants.PW_TEXT)
+        put(WSHandlerConstants.PW_CALLBACK_REF, UntPasswordCallback(soapProperties))
+    }
+
     val endpointImpl = Endpoint.publish("/OnlineBatchReceiverSoap", batchReceiver) as EndpointImpl
-    val endpoint = endpointImpl.server.endpoint
-
-    val inProps = java.util.HashMap<String, Any>()
-    inProps[WSHandlerConstants.ACTION] = WSHandlerConstants.USERNAME_TOKEN
-    inProps[WSHandlerConstants.PASSWORD_TYPE] = WSConstants.PW_TEXT
-    inProps[WSHandlerConstants.PW_CALLBACK_REF] = UntPasswordCallback(soapProperties)
-
     val wssIn = WSS4JInInterceptor(inProps as Map<String, Any>?)
-    endpoint.inInterceptors.add(wssIn)
+    endpointImpl.server.endpoint.apply {
+        inInterceptors.add(wssIn)
+    }
 }
