@@ -1,18 +1,20 @@
 buildscript {
     ext.jetty_version = "9.4.8.v20171121"
     ext.kafka_test_version = '0.6.0'
-    ext.mockito_version = '2.15.0'
-    ext.kotlin_version = '1.2.30'
+    ext.kotlin_version = '1.2.31'
     ext.confluent_version = '4.0.0'
     ext.cxf_version = '3.2.2'
     ext.kafka_version = '1.0.0'
     ext.jackson_version = '2.9.4'
     ext.prometheus_version = '0.3.0'
     ext.logstash_encoder_version = '4.10'
-    ext.junit_version = '4.12'
+    ext.mockito_kotlin_version = '1.5.0'
+    ext.kluent_version = '1.35'
+    ext.spek_version = '1.1.5'
 
     repositories {
         mavenCentral()
+        jcenter()
         maven {
             name "JCenter Gradle Plugins"
             url "https://dl.bintray.com/gradle/gradle-plugins"
@@ -22,12 +24,14 @@ buildscript {
     dependencies {
         classpath 'no.nils:wsdl2java:0.10'
         classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version"
+        classpath 'org.junit.platform:junit-platform-gradle-plugin:1.0.0'
     }
 }
 
 apply plugin: 'no.nils.wsdl2java'
 apply plugin: 'application'
 apply plugin: 'kotlin'
+apply plugin: 'org.junit.platform.gradle.plugin'
 
 mainClassName = 'no.nav.altinnkanal.JettyBootstrapKt'
 applicationDefaultJvmArgs = [
@@ -42,6 +46,14 @@ wsdl2java {
     wsdlsToGenerate = [
             ["$projectDir/src/main/resources/OnlineBatchReceiver.wsdl"]
     ]
+}
+
+junitPlatform {
+    filters {
+        engines {
+            include 'spek'
+        }
+    }
 }
 
 compileKotlin.dependsOn wsdl2java
@@ -69,6 +81,7 @@ repositories {
         name 'iApp Nexus 3 server - releases'
         url 'https://repo.adeo.no/repository/maven-releases/'
     }
+    jcenter()
 }
 
 configurations {
@@ -99,9 +112,9 @@ dependencies {
     implementation "org.slf4j:log4j-over-slf4j:1.7.25"
     implementation "net.logstash.logback:logstash-logback-encoder:$logstash_encoder_version"
 
-    testImplementation "junit:junit:$junit_version"
-    testImplementation "org.jetbrains.kotlin:kotlin-test:$kotlin_version"
-    testImplementation "org.mockito:mockito-core:$mockito_version"
-
+    testCompile "com.nhaarman:mockito-kotlin:$mockito_kotlin_version"
+    testCompile "org.jetbrains.spek:spek-api:$spek_version"
+    testRuntime "org.jetbrains.spek:spek-junit-platform-engine:$spek_version"
+    testImplementation "org.amshove.kluent:kluent:$kluent_version"
     testImplementation "no.nav.common:embedded.kafka:$kafka_test_version"
 }

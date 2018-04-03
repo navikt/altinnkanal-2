@@ -11,4 +11,10 @@ object Utils {
     fun readToString(resource: String): String {
         return String(Files.readAllBytes(Paths.get(Utils::class.java.getResource(resource).toURI())), Charset.forName("UTF-8"))
     }
+
+    fun createPayload(simpleBatch: String, serviceCode: String, serviceEditionCode: String): String {
+        return simpleBatch
+                .replace("\\{\\{serviceCode}}".toRegex(), serviceCode)
+                .replace("\\{\\{serviceEditionCode}}".toRegex(), serviceEditionCode)
+    }
 }
