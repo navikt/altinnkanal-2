@@ -31,18 +31,17 @@ fun main(args: Array<String>) {
 
     val kafkaProperties = Properties().apply {
         load(OnlineBatchReceiverSoapImpl::class.java.getResourceAsStream("/kafka.properties"))
-        setProperty("sasl.jaas.config", "org.apache.kafka.common.security.plain.PlainLoginModule required username=\""
-                + System.getenv("SRVALTINNKANAL_USERNAME") + "\" password=\""
-                + System.getenv("SRVALTINNKANAL_PASSWORD") + "\";")
+        val username = System.getenv("SRVALTINNKANAL_USERNAME")
+        val password = System.getenv("SRVALTINNKANAL_PASSWORD")
+        setProperty("sasl.jaas.config", "org.apache.kafka.common.security.plain.PlainLoginModule required " +
+                "username=\"$username\" password=\"$password\";")
     }
     val kafkaProducer = KafkaProducer<String, ExternalAttachment>(kafkaProperties)
 
     val batchReceiver = OnlineBatchReceiverSoapImpl(topicService, kafkaProducer)
 
     val server = Server(8080)
-
     bootstrap(server, soapProperties, batchReceiver)
-
     server.join()
 }
 
@@ -61,8 +60,10 @@ fun bootstrap(server: Server, soapProperties: SoapProperties, batchReceiver: Onl
         addServlet(ServletHolder(cxfRSServlet), "/*")
     }
 
-    server.handler = contextHandler
-    server.start()
+    server.run {
+        handler = contextHandler
+        start()
+    }
 
     BusFactory.setDefaultBus(cxfServlet.bus)
 
@@ -73,8 +74,6 @@ fun bootstrap(server: Server, soapProperties: SoapProperties, batchReceiver: Onl
     }
 
     val endpointImpl = Endpoint.publish("/OnlineBatchReceiverSoap", batchReceiver) as EndpointImpl
-    val wssIn = WSS4JInInterceptor(inProps as Map<String, Any>?)
-    endpointImpl.server.endpoint.apply {
-        inInterceptors.add(wssIn)
-    }
+    endpointImpl.server.endpoint.inInterceptors
+            .add(WSS4JInInterceptor(inProps as Map<String, Any>?))
 }
