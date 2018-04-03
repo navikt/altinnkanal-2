@@ -11,6 +11,9 @@ routes:
   - topic: aapen-altinn-oppfolgingsplan-Mottatt
     serviceCode: 2913
     serviceEditionCode: 4
+  - topic: aapen-altinn-oppfolgingsplan-Mottatt
+    serviceCode: NavOppfPlan
+    serviceEditionCode: rapportering-sykmeldte
   - topic: aapen-altinn-maalekort-Mottatt
     serviceCode: 4711
     serviceEditionCode: 1
