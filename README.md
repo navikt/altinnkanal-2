@@ -30,15 +30,23 @@ with startup scripts under:
 `./altinnkanal/build/install/altinnkanal/bin/`
 
 
-### Running locally on your favorite IDE
+### Running locally
 
 The application assumes you've set certain environment variables:
 
-- `SOAP_USERNAME` and `SOAP_PASSWORD` - used for WS-Security validation. Not important
-in non-deployment settings and can thus be arbitrarily set.
+* The following are used for WS-Security validation. The webservice will validate
+  UsernameTokens in the SOAP headers against LDAP. 
+    * `LDAP_URL`
+    * `LDAP_USERNAME` - username for initial lookup (should not be the same as the one in the SOAP request).
+    * `LDAP_PASSWORD`
+    * `LDAP_SERVICEUSER_BASEDN` - the base distinguished name for lookup.
+    * `LDAP_AD_GROUP` - the group that user should be a member of.
 
-- `SRVALTINNKANAL_USERNAME` and `SRVALTINNKANAL_PASSWORD` - required for the JAAS
+* `SRVALTINNKANAL_USERNAME` and `SRVALTINNKANAL_PASSWORD` - required for the JAAS
 configuration used when connecting to Kafka.
+
+A Webservice (as defined by the WSDL in `src/main/resources/OnlineBatchReceiver.wsdl`) should be available 
+at: http://localhost:8080/webservices/OnlineBatchReceiverSoap
 
 ### Contact us
 #### Code/project related questions can be sent to 

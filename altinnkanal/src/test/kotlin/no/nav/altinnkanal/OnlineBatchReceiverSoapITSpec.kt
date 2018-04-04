@@ -2,11 +2,9 @@ package no.nav.altinnkanal
 
 import java.util.HashMap
 import java.util.Properties
-import javax.security.auth.callback.CallbackHandler
 import no.altinn.webservices.OnlineBatchReceiverSoap
 import no.nav.altinnkanal.Utils.createPayload
 import no.nav.altinnkanal.avro.ExternalAttachment
-import no.nav.altinnkanal.config.SoapProperties
 import no.nav.altinnkanal.config.topicRouting
 import no.nav.altinnkanal.services.TopicService
 import no.nav.altinnkanal.services.TopicServiceSpec
@@ -18,7 +16,6 @@ import org.apache.cxf.frontend.ClientProxy
 import org.apache.cxf.jaxws.JaxWsProxyFactoryBean
 import org.apache.cxf.ws.security.wss4j.WSS4JOutInterceptor
 import org.apache.kafka.clients.producer.KafkaProducer
-import org.apache.wss4j.common.ext.WSPasswordCallback
 import org.apache.wss4j.dom.WSConstants
 import org.apache.wss4j.dom.handler.WSHandlerConstants
 import org.eclipse.jetty.server.Server
@@ -29,7 +26,6 @@ import org.jetbrains.spek.api.dsl.on
 
 class OnlineBatchReceiverSoapITSpec: Spek({
     val simpleBatch = Utils.readToString("/data/basic_data_batch.xml")
-    val soapProperties = SoapProperties("test", "test")
     val kafkaEnvironment = KafkaEnvironment(1, listOf("aapen-altinn-bankkontonummerv87Mottatt-v1-preprod"),
         true, false, false)
         .apply {
@@ -56,23 +52,7 @@ class OnlineBatchReceiverSoapITSpec: Spek({
         address = "http://localhost:$localServerPort/webservices/OnlineBatchReceiverSoap"
         create() as OnlineBatchReceiverSoap
     }
-
-    // set up WS-Security for SOAP endpoint and client
-    val callback = CallbackHandler { callbacks ->
-        val pc = callbacks[0] as WSPasswordCallback
-        pc.password = soapProperties.password
-    }
-    val outProps = HashMap<String, Any>().apply {
-        put(WSHandlerConstants.ACTION, WSHandlerConstants.USERNAME_TOKEN)
-        put(WSHandlerConstants.USER, soapProperties.username)
-        put(WSHandlerConstants.PASSWORD_TYPE, WSConstants.PW_TEXT)
-        put(WSHandlerConstants.PW_CALLBACK_REF, callback)
-    }
-    ClientProxy.getClient(soapEndpoint).run {
-        outInterceptors.add(WSS4JOutInterceptor(outProps))
-    }
-
-    bootstrap(server, soapProperties, batchReceiver)
+    bootstrap(server, batchReceiver)
 
     given("a payload with valid combination of SC and SEC") {
         val payload = createPayload(simpleBatch, "2896", "87")

@@ -3,16 +3,16 @@ package no.nav.altinnkanal
 import io.prometheus.client.exporter.MetricsServlet
 import no.altinn.webservices.OnlineBatchReceiverSoap
 import no.nav.altinnkanal.avro.ExternalAttachment
-import no.nav.altinnkanal.config.SoapProperties
 import no.nav.altinnkanal.config.topicRouting
 import no.nav.altinnkanal.rest.HealthCheckRestController
 import no.nav.altinnkanal.services.TopicService
+import no.nav.altinnkanal.soap.LdapUntValidator
 import no.nav.altinnkanal.soap.OnlineBatchReceiverSoapImpl
-import no.nav.altinnkanal.soap.UntPasswordCallback
 import org.apache.cxf.BusFactory
 import org.apache.cxf.jaxrs.servlet.CXFNonSpringJaxrsServlet
 import org.apache.cxf.jaxws.EndpointImpl
 import org.apache.cxf.transport.servlet.CXFNonSpringServlet
+import org.apache.cxf.ws.security.SecurityConstants
 import org.apache.cxf.ws.security.wss4j.WSS4JInInterceptor
 import org.apache.kafka.clients.producer.KafkaProducer
 import org.apache.wss4j.dom.WSConstants
@@ -22,9 +22,9 @@ import org.eclipse.jetty.servlet.ServletContextHandler
 import org.eclipse.jetty.servlet.ServletHolder
 import java.util.Properties
 import javax.xml.ws.Endpoint
+import kotlin.reflect.jvm.jvmName
 
 fun main(args: Array<String>) {
-    val soapProperties = SoapProperties()
 
     val topicRouting = topicRouting()
     val topicService = TopicService(topicRouting)
@@ -41,11 +41,23 @@ fun main(args: Array<String>) {
     val batchReceiver = OnlineBatchReceiverSoapImpl(topicService, kafkaProducer)
 
     val server = Server(8080)
-    bootstrap(server, soapProperties, batchReceiver)
+
+    val inProps = java.util.HashMap<String, Any>().apply {
+        put(WSHandlerConstants.ACTION, WSHandlerConstants.USERNAME_TOKEN)
+        put(WSHandlerConstants.PASSWORD_TYPE, WSConstants.PW_TEXT)
+    }
+
+    val jaxWsProps = HashMap<String, Any>().apply {
+        put(SecurityConstants.USERNAME_TOKEN_VALIDATOR, LdapUntValidator::class.jvmName)
+    }
+
+    bootstrap(server, batchReceiver, inProps, jaxWsProps)
     server.join()
 }
 
-fun bootstrap(server: Server, soapProperties: SoapProperties, batchReceiver: OnlineBatchReceiverSoap) {
+fun bootstrap(server: Server, batchReceiver: OnlineBatchReceiverSoap,
+              interceptorProps: HashMap<String, Any> = HashMap(),
+              jaxWsProps: HashMap<String, Any> = HashMap()) {
     // Configure Jax WS
     val cxfServlet = CXFNonSpringServlet()
 
@@ -59,21 +71,13 @@ fun bootstrap(server: Server, soapProperties: SoapProperties, batchReceiver: Onl
         addServlet(ServletHolder(cxfServlet), "/webservices/*")
         addServlet(ServletHolder(cxfRSServlet), "/*")
     }
-
     server.run {
         handler = contextHandler
         start()
     }
-
     BusFactory.setDefaultBus(cxfServlet.bus)
 
-    val inProps = java.util.HashMap<String, Any>().apply {
-        put(WSHandlerConstants.ACTION, WSHandlerConstants.USERNAME_TOKEN)
-        put(WSHandlerConstants.PASSWORD_TYPE, WSConstants.PW_TEXT)
-        put(WSHandlerConstants.PW_CALLBACK_REF, UntPasswordCallback(soapProperties))
-    }
-
-    val endpointImpl = Endpoint.publish("/OnlineBatchReceiverSoap", batchReceiver) as EndpointImpl
-    endpointImpl.server.endpoint.inInterceptors
-            .add(WSS4JInInterceptor(inProps as Map<String, Any>?))
+    val endpoint = Endpoint.publish("/OnlineBatchReceiverSoap", batchReceiver) as EndpointImpl
+    if (interceptorProps.isNotEmpty()) endpoint.server.endpoint.inInterceptors.add(WSS4JInInterceptor(interceptorProps as Map<String, Any>?))
+    endpoint.properties = jaxWsProps
 }

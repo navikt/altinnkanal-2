@@ -31,11 +31,8 @@ resources:
     memory: 128Mi
 fasitResources:
   used:
-  - alias: altinnkanalWS
-    resourceType: credential
-    propertyMap:
-      username: SOAP_USERNAME
-      password: SOAP_PASSWORD
+  - alias: altinnkanalProps
+    resourceType: applicationproperties
   - alias: srvaltinnkanal
     resourceType: credential
   exposed:
