@@ -35,6 +35,8 @@ fasitResources:
     resourceType: applicationproperties
   - alias: srvaltinnkanal
     resourceType: credential
+  - alias: ldap
+    resourceType: ldap
   exposed:
   - alias: altinnkanal-2-ws-endpoint
     resourceType: Webserviceendpoint
