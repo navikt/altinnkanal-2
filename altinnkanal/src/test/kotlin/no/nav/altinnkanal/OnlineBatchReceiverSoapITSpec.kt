@@ -1,6 +1,5 @@
 package no.nav.altinnkanal
 
-import java.util.HashMap
 import java.util.Properties
 import no.altinn.webservices.OnlineBatchReceiverSoap
 import no.nav.altinnkanal.Utils.createPayload
@@ -12,12 +11,8 @@ import no.nav.altinnkanal.soap.OnlineBatchReceiverSoapImpl
 import no.nav.common.KafkaEnvironment
 import no.nav.common.embeddedutils.ServerBase
 import org.amshove.kluent.`should equal`
-import org.apache.cxf.frontend.ClientProxy
 import org.apache.cxf.jaxws.JaxWsProxyFactoryBean
-import org.apache.cxf.ws.security.wss4j.WSS4JOutInterceptor
 import org.apache.kafka.clients.producer.KafkaProducer
-import org.apache.wss4j.dom.WSConstants
-import org.apache.wss4j.dom.handler.WSHandlerConstants
 import org.eclipse.jetty.server.Server
 import org.jetbrains.spek.api.Spek
 import org.jetbrains.spek.api.dsl.given
@@ -113,7 +108,7 @@ class OnlineBatchReceiverSoapITSpec: Spek({
 
     afterGroup {
         kafkaEnvironment.tearDown()
-        producer.apply {
+        producer.run {
             flush()
             close()
         }

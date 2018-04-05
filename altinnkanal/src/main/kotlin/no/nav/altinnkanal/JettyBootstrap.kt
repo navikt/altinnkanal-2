@@ -42,7 +42,7 @@ fun main(args: Array<String>) {
 
     val server = Server(8080)
 
-    val inProps = java.util.HashMap<String, Any>().apply {
+    val inProps = HashMap<String, Any>().apply {
         put(WSHandlerConstants.ACTION, WSHandlerConstants.USERNAME_TOKEN)
         put(WSHandlerConstants.PASSWORD_TYPE, WSConstants.PW_TEXT)
     }
@@ -55,7 +55,8 @@ fun main(args: Array<String>) {
     server.join()
 }
 
-fun bootstrap(server: Server, batchReceiver: OnlineBatchReceiverSoap,
+fun bootstrap(server: Server,
+              batchReceiver: OnlineBatchReceiverSoap,
               interceptorProps: HashMap<String, Any> = HashMap(),
               jaxWsProps: HashMap<String, Any> = HashMap()) {
     // Configure Jax WS

@@ -17,10 +17,11 @@ import kotlin.reflect.jvm.jvmName
  * Class for validating the WS-Security headers in incoming SOAP requests.
  * Basic flow:
  * 1. Attempt to find the username in AD under ServiceAccounts.
- * 2. Attempt to bind/login/authenticate to AD using the credentials from the UsernameToken.
+ * 2. Attempt to verify the group membership for the user
+ * 3. Attempt to bind/login/authenticate to AD using the credentials from the UsernameToken.
  * Immediately throw a WSSecurityException if any of the checks above fail, otherwise return the credential (== valid).
  */
-class LdapUntValidator : Validator {
+class LdapUntValidator: Validator {
     companion object {
         private val log = LoggerFactory.getLogger(LdapUntValidator::class.jvmName)
         private val ldapAdGroup = System.getenv("LDAP_AD_GROUP")
@@ -33,32 +34,34 @@ class LdapUntValidator : Validator {
             returningAttributes = arrayOf("memberOf", "givenName")
             timeLimit = 30000
         }
-        private val initProps = Properties().apply {
+    }
+
+    override fun validate(credential: Credential, data: RequestData): Credential {
+        val username = credential.usernametoken.name
+        val password = credential.usernametoken.password
+        val initProps = Properties().apply {
             put(Context.INITIAL_CONTEXT_FACTORY, "com.sun.jndi.ldap.LdapCtxFactory")
             put(Context.PROVIDER_URL, ldapUrl)
             put(Context.SECURITY_PRINCIPAL, ldapUsername)
             put(Context.SECURITY_CREDENTIALS, ldapPassword)
         }
-    }
-
-    override fun validate(credential: Credential, data: RequestData): Credential? {
-        val username = credential.usernametoken.name
-        val password = credential.usernametoken.password
-
+        lateinit var initCtx: InitialDirContext
         try {
+            initCtx = InitialDirContext(initProps)
+
             // Attempt to find the username in AD
-            if (!findUsernameInAd(username)) throw WSSecurityException(WSSecurityException.ErrorCode.FAILED_AUTHENTICATION)
+            if (!findUsernameInAd(username, initCtx))
+                wsSecAuthFail("User was not found in AD: ($username)")
+
+            // Attempt to verify the group membership for the user
+            if (!checkGroupMembershipInAd(username, initCtx))
+                wsSecAuthFail("AD group membership not found (user: $username, group: $ldapAdGroup)")
 
             // Attempt to bind the credentials for authentication
-            val props = Properties().apply {
-                put(Context.INITIAL_CONTEXT_FACTORY, "com.sun.jndi.ldap.LdapCtxFactory")
-                put(Context.PROVIDER_URL, ldapUrl)
+            InitialDirContext(initProps.apply {
                 put(Context.SECURITY_PRINCIPAL, username)
                 put(Context.SECURITY_CREDENTIALS, password)
-            }
-            InitialDirContext(props).close()
-            // Attempt to verify the group membership for the user
-            if (!checkGroupMembershipInAd(username)) throw WSSecurityException(WSSecurityException.ErrorCode.FAILED_AUTHENTICATION)
+            }).close()
         } catch (e: AuthenticationException) {
             log.error("User does not have valid credentials: ($username)")
             throw WSSecurityException(WSSecurityException.ErrorCode.FAILED_AUTHENTICATION)
@@ -69,36 +72,27 @@ class LdapUntValidator : Validator {
         return credential
     }
 
-    private fun findUsernameInAd(username: String) : Boolean {
-        val namingEnum = InitialDirContext(initProps)
-            .search(ldapBaseDn, "(cn=$username)", searchControls)
+    private fun findUsernameInAd(username: String, initCtx: InitialDirContext): Boolean {
         // There should be exactly one match
-        val result = if (!namingEnum.hasMoreElements()) {
-            log.warn("User was not found in AD: ($username)")
-            false
-        } else {
-            true
-        }
-        namingEnum.close()
-        return result
+        return initCtx.search(ldapBaseDn, "(cn=$username)", searchControls).hasMoreElements()
     }
 
-    private fun checkGroupMembershipInAd(username: String) : Boolean {
-        val namingEnum = InitialDirContext(initProps)
-                .search(System.getenv("LDAP_SERVICEUSER_BASEDN"), "(cn=$username)", searchControls)
-        val groups = namingEnum.nextElement()
-        val memberOf = groups.attributes.get("memberOf").all
-        var result = false
-        while (memberOf.hasMoreElements()) {
-            val group = memberOf.nextElement().toString().substringAfter("=").substringBefore(",")
-            if (group.equals(ldapAdGroup, true)) {
-                log.debug("AD group membership found (user: $username, group: $group)")
-                result = true
+    private fun checkGroupMembershipInAd(username: String, initCtx: InitialDirContext): Boolean {
+        initCtx
+            .search(ldapBaseDn, "(cn=$username)", searchControls).nextElement()
+            .attributes.get("memberOf").all
+            .iterator().forEach {
+                val group = it.toString().substringAfter("=").substringBefore(",")
+                if (group.equals(ldapAdGroup, true)) {
+                    log.debug("AD group membership found (user: $username, group: $group)")
+                    return true
+                }
             }
-        }
-        memberOf.close()
-        namingEnum.close()
-        if (!result) log.warn("AD group membership not found (user: $username, group: $ldapAdGroup)")
-        return result
+            return false
+    }
+
+    private fun wsSecAuthFail(message: String): Nothing {
+        log.error(message)
+        throw WSSecurityException(WSSecurityException.ErrorCode.FAILED_AUTHENTICATION)
     }
 }
