@@ -71,7 +71,15 @@ class LdapUntValidator: Validator {
 
     private fun findUsernameInAd(username: String, initCtx: InitialDirContext): Boolean {
         // There should be exactly one match
-        return initCtx.search(ldapBaseDn, "(cn=$username)", searchControls).hasMoreElements()
+        return initCtx.search(ldapBaseDn, "(cn=$username)", searchControls).run {
+            when (hasMoreElements()){
+                true -> {
+                    nextElement()
+                    !hasMoreElements()
+                }
+                else -> false
+            }
+        }
     }
 
     private fun checkGroupMembershipInAd(username: String, initCtx: InitialDirContext): Boolean {
