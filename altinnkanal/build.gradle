@@ -1,6 +1,6 @@
 buildscript {
     ext.jetty_version = "9.4.8.v20171121"
-    ext.kafka_test_version = '0.6.0'
+    ext.kafka_test_version = '0.6.2'
     ext.kotlin_version = '1.2.31'
     ext.confluent_version = '4.0.0'
     ext.cxf_version = '3.2.2'
@@ -35,7 +35,8 @@ apply plugin: 'org.junit.platform.gradle.plugin'
 
 mainClassName = 'no.nav.altinnkanal.JettyBootstrapKt'
 applicationDefaultJvmArgs = [
-        '-Xmx256M',
+        '-Xms128M',
+        '-Xmx512M',
         '-Djavax.net.ssl.trustStore=${NAV_TRUSTSTORE_PATH}',
         '-Djavax.net.ssl.trustStorePassword=${NAV_TRUSTSTORE_PASSWORD}'
 ]

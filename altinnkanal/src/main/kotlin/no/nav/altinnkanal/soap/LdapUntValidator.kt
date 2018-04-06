@@ -45,26 +45,23 @@ class LdapUntValidator: Validator {
             put(Context.SECURITY_PRINCIPAL, ldapUsername)
             put(Context.SECURITY_CREDENTIALS, ldapPassword)
         }
-        lateinit var initCtx: InitialDirContext
         try {
-            initCtx = InitialDirContext(initProps)
-
-            // Attempt to find the username in AD
-            if (!findUsernameInAd(username, initCtx))
-                wsSecAuthFail("User was not found in AD: ($username)")
-
-            // Attempt to verify the group membership for the user
-            if (!checkGroupMembershipInAd(username, initCtx))
-                wsSecAuthFail("AD group membership not found (user: $username, group: $ldapAdGroup)")
-
+            InitialDirContext(initProps).let {
+                when {
+                    !findUsernameInAd(username, it) ->
+                        wsSecAuthFail("User was not found in AD: ($username)")
+                    !checkGroupMembershipInAd(username, it) ->
+                        wsSecAuthFail("AD group membership not found (user: $username, group: $ldapAdGroup)")
+                    else -> { }
+                }
+            }
             // Attempt to bind the credentials for authentication
             InitialDirContext(initProps.apply {
                 put(Context.SECURITY_PRINCIPAL, username)
                 put(Context.SECURITY_CREDENTIALS, password)
             }).close()
         } catch (e: AuthenticationException) {
-            log.error("User does not have valid credentials: ($username)")
-            throw WSSecurityException(WSSecurityException.ErrorCode.FAILED_AUTHENTICATION)
+            wsSecAuthFail("User does not have valid credentials: ($username)")
         } catch (e: NamingException) {
             log.error("Connection to LDAP failed")
             throw RuntimeException("Could not initialize LDAP connection")
