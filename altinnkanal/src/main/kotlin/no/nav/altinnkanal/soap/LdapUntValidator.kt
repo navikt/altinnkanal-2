@@ -1,11 +1,14 @@
 package no.nav.altinnkanal.soap
 
+import com.github.benmanes.caffeine.cache.Cache
+import com.github.benmanes.caffeine.cache.Caffeine
 import org.apache.wss4j.common.ext.WSSecurityException
 import org.apache.wss4j.dom.handler.RequestData
 import org.apache.wss4j.dom.validate.Credential
-import org.apache.wss4j.dom.validate.Validator
+import org.apache.wss4j.dom.validate.UsernameTokenValidator
 import org.slf4j.LoggerFactory
 import java.util.Properties
+import java.util.concurrent.TimeUnit
 import javax.naming.AuthenticationException
 import javax.naming.Context
 import javax.naming.NamingException
@@ -14,14 +17,14 @@ import javax.naming.directory.SearchControls
 import kotlin.reflect.jvm.jvmName
 
 /**
- * Class for validating the WS-Security headers in incoming SOAP requests.
+ * Class for validating UsernameTokens in incoming SOAP requests.
  * Basic flow:
  * 1. Attempt to find the username in AD under ServiceAccounts.
  * 2. Attempt to verify the group membership for the user
  * 3. Attempt to bind/login/authenticate to AD using the credentials from the UsernameToken.
  * Immediately throw a WSSecurityException if any of the checks above fail, otherwise return the credential (== valid).
  */
-class LdapUntValidator: Validator {
+class LdapUntValidator: UsernameTokenValidator() {
     companion object {
         private val log = LoggerFactory.getLogger(LdapUntValidator::class.jvmName)
         private val ldapAdGroup = System.getenv("LDAP_AD_GROUP")
@@ -34,7 +37,13 @@ class LdapUntValidator: Validator {
             returningAttributes = arrayOf("memberOf", "givenName")
             timeLimit = 30000
         }
+        private val boundedCache: Cache<String, Bounded> = Caffeine.newBuilder()
+            .expireAfterWrite(10, TimeUnit.MINUTES)
+            .maximumSize(10)
+            .build()
     }
+
+    private data class Bounded(val username: String, val password: String)
 
     override fun validate(credential: Credential, data: RequestData): Credential {
         val username = credential.usernametoken.name
@@ -44,6 +53,10 @@ class LdapUntValidator: Validator {
             put(Context.PROVIDER_URL, ldapUrl)
             put(Context.SECURITY_PRINCIPAL, ldapUsername)
             put(Context.SECURITY_CREDENTIALS, ldapPassword)
+        }
+        // Lookup provided user in cache to avoid unnecessary LDAP lookups
+        boundedCache.getIfPresent(username)?.run {
+            if (password == this.password) return credential
         }
         try {
             InitialDirContext(initProps).let {
@@ -60,6 +73,8 @@ class LdapUntValidator: Validator {
                 put(Context.SECURITY_PRINCIPAL, username)
                 put(Context.SECURITY_CREDENTIALS, password)
             }).close()
+            // Cache the successful bind
+            boundedCache.put(username, Bounded(username, password))
         } catch (e: AuthenticationException) {
             wsSecAuthFail("User does not have valid credentials: ($username)")
         } catch (e: NamingException) {
