@@ -39,6 +39,8 @@ class OnlineBatchReceiverSoapImpl (
 
             val topic = topicService.getTopic(serviceCode!!, serviceEditionCode!!)
 
+            val robeaDetails = "SC=$serviceCode, SEC=$serviceEditionCode, recRef=$receiversReference, archRef=$archiveReference, seqNum=$sequenceNumber"
+
             if (topic == null) {
                 requestsFailedMissing.inc()
                 log.warn(append("service_code", serviceCode)
@@ -47,14 +49,17 @@ class OnlineBatchReceiverSoapImpl (
                         .and<LogstashMarker>(append("receivers_reference", receiversReference))
                         .and<LogstashMarker>(append("archive_reference", archiveReference))
                         .and<LogstashMarker>(append("sequence_number", sequenceNumber)),
-                        "Denied ROBEA request due to missing/unknown codes: SC={}, SEC={}, recRef={}, archRef={}, seqNum={}",
-                        serviceCode, serviceEditionCode, receiversReference, archiveReference, sequenceNumber)
+                        "Denied ROBEA request due to missing/unknown codes: $robeaDetails")
                 return "FAILED_DO_NOT_RETRY"
             }
 
             val metadata = kafkaProducer
                     .send(ProducerRecord(topic, externalAttachment))
                     .get()
+
+            val publishedTopic = metadata.topic()
+            val partition = metadata.partition()
+            val offset = metadata.offset()
 
             val latency = requestLatency.observeDuration()
             requestSize.observe(metadata.serializedValueSize().toDouble())
@@ -63,16 +68,19 @@ class OnlineBatchReceiverSoapImpl (
             val requestLatencyString = String.format("%.0f", latency * 1000) + " ms"
             val requestSizeString = String.format("%.2f", metadata.serializedValueSize() / 1024f) + " MB"
 
-            log.info(append("service_code", serviceCode).and<LogstashMarker>(append("service_edition_code", serviceEditionCode))
+            log.info(append("service_code", serviceCode)
+                    .and<LogstashMarker>(append("service_edition_code", serviceEditionCode))
                     .and<LogstashMarker>(append("latency", requestLatencyString))
                     .and<LogstashMarker>(append("size", requestSizeString))
                     .and<LogstashMarker>(append("routing_status", "SUCCESS"))
                     .and<LogstashMarker>(append("receivers_reference", receiversReference))
                     .and<LogstashMarker>(append("archive_reference", archiveReference))
                     .and<LogstashMarker>(append("sequence_number", sequenceNumber))
-                    .and<LogstashMarker>(append("kafka_topic", topic)),
-                    "Successfully published ROBEA request to Kafka: SC={}, SEC={}, latency={}, size={}, recRef={}, archRef={}, seqNum={}, topic={}",
-                    serviceCode, serviceEditionCode, requestLatencyString, requestSizeString, receiversReference, archiveReference, sequenceNumber, topic)
+                    .and<LogstashMarker>(append("kafka_topic", publishedTopic))
+                    .and<LogstashMarker>(append("kafka_partition", partition))
+                    .and<LogstashMarker>(append("kafka_offset", offset)),
+                    "Successfully published ROBEA request to Kafka: $robeaDetails, latency={}, size={}, topic={}, partition={}, offset={}",
+                    requestLatencyString, requestSizeString, publishedTopic, partition, offset)
             return "OK"
         } catch (e: Exception) {
             requestsFailedError.inc()
