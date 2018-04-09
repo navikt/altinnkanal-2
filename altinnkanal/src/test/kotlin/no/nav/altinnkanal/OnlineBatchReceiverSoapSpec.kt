@@ -7,7 +7,7 @@ import java.util.concurrent.Future
 import no.nav.altinnkanal.avro.ExternalAttachment
 import no.nav.altinnkanal.services.TopicService
 import no.nav.altinnkanal.soap.OnlineBatchReceiverSoapImpl
-import org.amshove.kluent.`should be`
+import org.amshove.kluent.shouldBe
 import org.apache.kafka.clients.producer.Producer
 import org.apache.kafka.clients.producer.RecordMetadata
 import org.jetbrains.spek.api.Spek
@@ -31,7 +31,7 @@ class OnlineBatchReceiverSoapSpec: Spek({
             val result = soapService.receiveOnlineBatchExternalAttachment("username", "password",
                     "123uhjoas", 0, simpleBatch, ByteArray(0))
             it("should return FAILED_DO_NOT_RETRY") {
-                result `should be` "FAILED_DO_NOT_RETRY"
+                result shouldBe "FAILED_DO_NOT_RETRY"
             }
         }
     }
@@ -42,7 +42,7 @@ class OnlineBatchReceiverSoapSpec: Spek({
             val result = soapService.receiveOnlineBatchExternalAttachment("username", "password",
                         "123uhjoas", 0, simpleBatch, ByteArray(0))
             it("should return OK") {
-                result `should be` "OK"
+                result shouldBe "OK"
             }
         }
     }

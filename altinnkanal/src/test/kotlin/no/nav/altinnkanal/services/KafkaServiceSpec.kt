@@ -10,7 +10,7 @@ import java.util.concurrent.Future
 import no.nav.altinnkanal.Utils
 import no.nav.altinnkanal.avro.ExternalAttachment
 import no.nav.altinnkanal.soap.OnlineBatchReceiverSoapImpl
-import org.amshove.kluent.`should be`
+import org.amshove.kluent.shouldBe
 import org.apache.kafka.clients.producer.Producer
 import org.apache.kafka.clients.producer.ProducerRecord
 import org.apache.kafka.clients.producer.RecordMetadata
@@ -44,7 +44,7 @@ class KafkaServiceSpec: Spek({
                 verify(kafkaProducer, times(1)).send(any())
             }
             it("it should send the message to the correct topic") {
-                record.topic() `should be` expectedTopic
+                record.topic() shouldBe expectedTopic
             }
         }
     }

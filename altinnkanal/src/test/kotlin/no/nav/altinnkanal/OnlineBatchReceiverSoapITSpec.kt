@@ -10,7 +10,7 @@ import no.nav.altinnkanal.services.TopicServiceSpec
 import no.nav.altinnkanal.soap.OnlineBatchReceiverSoapImpl
 import no.nav.common.KafkaEnvironment
 import no.nav.common.embeddedutils.ServerBase
-import org.amshove.kluent.`should equal`
+import org.amshove.kluent.shouldEqual
 import org.apache.cxf.jaxws.JaxWsProxyFactoryBean
 import org.apache.kafka.clients.producer.KafkaProducer
 import org.eclipse.jetty.server.Server
@@ -55,7 +55,7 @@ class OnlineBatchReceiverSoapITSpec: Spek({
             val result = soapEndpoint.receiveOnlineBatchExternalAttachment(
                     null, null, null, 0, payload, ByteArray(0))
             it("should return a result equal to OK") {
-                result `should equal` "OK"
+                result shouldEqual "OK"
             }
         }
     }
@@ -68,7 +68,7 @@ class OnlineBatchReceiverSoapITSpec: Spek({
             val result = soapEndpoint.receiveOnlineBatchExternalAttachment(null, null,
                     null, 0, payload, ByteArray(0))
             it("should return a result equal to FAILED_DO_NOT_RETRY") {
-                result `should equal` "FAILED_DO_NOT_RETRY"
+                result shouldEqual "FAILED_DO_NOT_RETRY"
             }
         }
     }
@@ -79,7 +79,7 @@ class OnlineBatchReceiverSoapITSpec: Spek({
             val result = soapEndpoint.receiveOnlineBatchExternalAttachment(null, null,
                     null, 0, simpleBatchMissingSec, ByteArray(0))
             it("should return a result equal to FAILED") {
-                result `should equal` "FAILED"
+                result shouldEqual "FAILED"
             }
         }
     }
@@ -93,7 +93,7 @@ class OnlineBatchReceiverSoapITSpec: Spek({
             val result = soapEndpoint.receiveOnlineBatchExternalAttachment(null, null,
                     null, 0, payload, ByteArray(0))
             it("should return a result equal to FAILED") {
-                result `should equal` "FAILED"
+                result shouldEqual "FAILED"
             }
         }
         on("receiveOnlineBatchExternalAttachment and Kafka back up again") {
@@ -101,7 +101,7 @@ class OnlineBatchReceiverSoapITSpec: Spek({
             val result = soapEndpoint.receiveOnlineBatchExternalAttachment(null, null,
                     null, 0, payload, ByteArray(0))
             it("return a result equal to OK") {
-                result `should equal` "OK"
+                result shouldEqual "OK"
             }
         }
     }

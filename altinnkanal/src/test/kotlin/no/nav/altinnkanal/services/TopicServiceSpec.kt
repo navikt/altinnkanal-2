@@ -1,8 +1,8 @@
 package no.nav.altinnkanal.services
 
 import no.nav.altinnkanal.config.TopicRouting
-import org.amshove.kluent.`should be`
-import org.amshove.kluent.`should not be`
+import org.amshove.kluent.shouldBe
+import org.amshove.kluent.shouldNotBe
 import org.jetbrains.spek.api.Spek
 import org.jetbrains.spek.api.dsl.given
 import org.jetbrains.spek.api.dsl.it
@@ -21,10 +21,10 @@ class TopicServiceSpec: Spek({
         on("getTopic") {
             val topic = topicService.getTopic(serviceCode, serviceEditionCode)
             it("should return null") {
-                topic `should be` null
+                topic shouldBe null
             }
             it("should not return $EXPECTED_TOPIC") {
-                topic `should not be` EXPECTED_TOPIC
+                topic shouldNotBe EXPECTED_TOPIC
             }
         }
     }
@@ -33,10 +33,10 @@ class TopicServiceSpec: Spek({
         on("getTopic") {
             val topic = topicService.getTopic(SERVICE_CODE, SERVICE_EDITION_CODE)
             it("should not return null") {
-                topic `should not be` null
+                topic shouldNotBe null
             }
             it ("should return $EXPECTED_TOPIC") {
-                topic `should be` EXPECTED_TOPIC
+                topic shouldBe EXPECTED_TOPIC
             }
         }
     }
