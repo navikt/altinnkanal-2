@@ -98,17 +98,12 @@ class LdapUntValidator: UsernameTokenValidator() {
     }
 
     private fun checkGroupMembershipInAd(username: String, initCtx: InitialDirContext): Boolean {
-        initCtx
+        return initCtx
             .search(ldapBaseDn, "(cn=$username)", searchControls).nextElement()
-            .attributes.get("memberOf").all
-            .iterator().forEach {
-                val group = it.toString().substringAfter("=").substringBefore(",")
-                if (group.equals(ldapAdGroup, true)) {
-                    log.debug("AD group membership found (user: $username, group: $group)")
-                    return true
-                }
+            .attributes.get("memberOf").all.asSequence()
+            .any { it.toString().substringAfter("=").substringBefore(",")
+                .equals(ldapAdGroup, true)
             }
-            return false
     }
 
     private fun wsSecAuthFail(message: String): Nothing {

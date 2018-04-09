@@ -66,19 +66,22 @@ fun bootstrap(server: Server,
     val jaxRSSingletons = setOf<Any>(HealthCheckRestController())
     val cxfRSServlet = CXFNonSpringJaxrsServlet(jaxRSSingletons)
 
-    // Set up servlets
-    val contextHandler = ServletContextHandler().apply {
-        addServlet(ServletHolder(MetricsServlet()), "/prometheus")
-        addServlet(ServletHolder(cxfServlet), "/webservices/*")
-        addServlet(ServletHolder(cxfRSServlet), "/*")
-    }
     server.run {
-        handler = contextHandler
+        handler = ServletContextHandler().apply {
+            addServlet(ServletHolder(MetricsServlet()), "/prometheus")
+            addServlet(ServletHolder(cxfServlet), "/webservices/*")
+            addServlet(ServletHolder(cxfRSServlet), "/*")
+        }
         start()
     }
+
     BusFactory.setDefaultBus(cxfServlet.bus)
 
-    val endpoint = Endpoint.publish("/OnlineBatchReceiverSoap", batchReceiver) as EndpointImpl
-    if (interceptorProps.isNotEmpty()) endpoint.server.endpoint.inInterceptors.add(WSS4JInInterceptor(interceptorProps as Map<String, Any>?))
-    endpoint.properties = jaxWsProps
+    Endpoint.publish("/OnlineBatchReceiverSoap", batchReceiver).let {
+        it as EndpointImpl
+        if (interceptorProps.isNotEmpty())
+            it.server.endpoint.inInterceptors
+                .add(WSS4JInInterceptor(interceptorProps as Map<String, Any>?))
+        it.properties = jaxWsProps
+    }
 }
