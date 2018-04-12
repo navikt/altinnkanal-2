@@ -3,6 +3,7 @@ package no.nav.altinnkanal
 import io.prometheus.client.exporter.MetricsServlet
 import no.altinn.webservices.OnlineBatchReceiverSoap
 import no.nav.altinnkanal.avro.ExternalAttachment
+import no.nav.altinnkanal.config.LdapConfiguration
 import no.nav.altinnkanal.config.topicRouting
 import no.nav.altinnkanal.rest.HealthCheckRestController
 import no.nav.altinnkanal.services.TopicService
@@ -42,23 +43,12 @@ fun main(args: Array<String>) {
 
     val server = Server(8080)
 
-    val inProps = HashMap<String, Any>().apply {
-        put(WSHandlerConstants.ACTION, WSHandlerConstants.USERNAME_TOKEN)
-        put(WSHandlerConstants.PASSWORD_TYPE, WSConstants.PW_TEXT)
-    }
-
-    val jaxWsProps = HashMap<String, Any>().apply {
-        put(SecurityConstants.USERNAME_TOKEN_VALIDATOR, LdapUntValidator::class.jvmName)
-    }
-
-    bootstrap(server, batchReceiver, inProps, jaxWsProps)
+    LdapConfiguration.loadDefaultConfig()
+    bootstrap(server, batchReceiver)
     server.join()
 }
 
-fun bootstrap(server: Server,
-              batchReceiver: OnlineBatchReceiverSoap,
-              interceptorProps: HashMap<String, Any> = HashMap(),
-              jaxWsProps: HashMap<String, Any> = HashMap()) {
+fun bootstrap(server: Server, batchReceiver: OnlineBatchReceiverSoap) {
     // Configure Jax WS
     val cxfServlet = CXFNonSpringServlet()
 
@@ -76,6 +66,14 @@ fun bootstrap(server: Server,
     }
 
     BusFactory.setDefaultBus(cxfServlet.bus)
+
+    val interceptorProps = HashMap<String, Any>().apply {
+        put(WSHandlerConstants.ACTION, WSHandlerConstants.USERNAME_TOKEN)
+        put(WSHandlerConstants.PASSWORD_TYPE, WSConstants.PW_TEXT)
+    }
+    val jaxWsProps = HashMap<String, Any>().apply {
+        put(SecurityConstants.USERNAME_TOKEN_VALIDATOR, LdapUntValidator::class.jvmName)
+    }
 
     Endpoint.publish("/OnlineBatchReceiverSoap", batchReceiver).let {
         it as EndpointImpl

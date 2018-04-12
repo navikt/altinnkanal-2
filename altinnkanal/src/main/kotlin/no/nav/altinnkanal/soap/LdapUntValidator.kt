@@ -2,6 +2,7 @@ package no.nav.altinnkanal.soap
 
 import com.github.benmanes.caffeine.cache.Cache
 import com.github.benmanes.caffeine.cache.Caffeine
+import no.nav.altinnkanal.config.LdapConfiguration
 import org.apache.wss4j.common.ext.WSSecurityException
 import org.apache.wss4j.dom.handler.RequestData
 import org.apache.wss4j.dom.validate.Credential
@@ -27,11 +28,6 @@ import kotlin.reflect.jvm.jvmName
 class LdapUntValidator: UsernameTokenValidator() {
     companion object {
         private val log = LoggerFactory.getLogger(LdapUntValidator::class.jvmName)
-        private val ldapAdGroup = System.getenv("LDAP_AD_GROUP")
-        private val ldapUrl = System.getenv("LDAP_URL")
-        private val ldapUsername = System.getenv("LDAP_USERNAME")
-        private val ldapPassword = System.getenv("LDAP_PASSWORD")
-        private val ldapBaseDn = System.getenv("LDAP_SERVICEUSER_BASEDN")
         private val searchControls = SearchControls().apply {
             searchScope = SearchControls.SUBTREE_SCOPE
             returningAttributes = arrayOf("memberOf", "givenName")
@@ -41,18 +37,20 @@ class LdapUntValidator: UsernameTokenValidator() {
             .expireAfterWrite(10, TimeUnit.MINUTES)
             .maximumSize(10)
             .build()
+        private val config = LdapConfiguration.config
     }
 
     private data class Bounded(val username: String, val password: String)
 
     override fun validate(credential: Credential, data: RequestData): Credential {
+        val config = LdapConfiguration.config
         val username = credential.usernametoken.name
         val password = credential.usernametoken.password
         val initProps = Properties().apply {
             put(Context.INITIAL_CONTEXT_FACTORY, "com.sun.jndi.ldap.LdapCtxFactory")
-            put(Context.PROVIDER_URL, ldapUrl)
-            put(Context.SECURITY_PRINCIPAL, ldapUsername)
-            put(Context.SECURITY_CREDENTIALS, ldapPassword)
+            put(Context.PROVIDER_URL, config.url)
+            put(Context.SECURITY_PRINCIPAL, config.username)
+            put(Context.SECURITY_CREDENTIALS, config.password)
         }
         // Lookup provided user in cache to avoid unnecessary LDAP lookups
         boundedCache.getIfPresent(username)?.run {
@@ -64,13 +62,13 @@ class LdapUntValidator: UsernameTokenValidator() {
                     !findUsernameInAd(username, it) ->
                         wsSecAuthFail("User was not found in AD: ($username)")
                     !checkGroupMembershipInAd(username, it) ->
-                        wsSecAuthFail("AD group membership not found (user: $username, group: $ldapAdGroup)")
+                        wsSecAuthFail("AD group membership not found (user: $username, group: ${config.adGroup})")
                     else -> { }
                 }
             }
             // Attempt to bind the credentials for authentication
             InitialDirContext(initProps.apply {
-                put(Context.SECURITY_PRINCIPAL, username)
+                put(Context.SECURITY_PRINCIPAL, "cn=$username,${config.baseDn}")
                 put(Context.SECURITY_CREDENTIALS, password)
             }).close()
             // Cache the successful bind
@@ -86,7 +84,7 @@ class LdapUntValidator: UsernameTokenValidator() {
 
     private fun findUsernameInAd(username: String, initCtx: InitialDirContext): Boolean {
         // There should be exactly one match
-        return initCtx.search(ldapBaseDn, "(cn=$username)", searchControls).run {
+        return initCtx.search(config.baseDn, "(cn=$username)", searchControls).run {
             when (hasMoreElements()){
                 true -> {
                     nextElement()
@@ -99,10 +97,10 @@ class LdapUntValidator: UsernameTokenValidator() {
 
     private fun checkGroupMembershipInAd(username: String, initCtx: InitialDirContext): Boolean {
         return initCtx
-            .search(ldapBaseDn, "(cn=$username)", searchControls).nextElement()
+            .search(config.baseDn, "(cn=$username)", searchControls).nextElement()
             .attributes.get("memberOf").all.asSequence()
             .any { it.toString().substringAfter("=").substringBefore(",")
-                .equals(ldapAdGroup, true)
+                .equals(config.adGroup, true)
             }
     }
 
