@@ -77,9 +77,7 @@ fun bootstrap(server: Server, batchReceiver: OnlineBatchReceiverSoap) {
 
     Endpoint.publish("/OnlineBatchReceiverSoap", batchReceiver).let {
         it as EndpointImpl
-        if (interceptorProps.isNotEmpty())
-            it.server.endpoint.inInterceptors
-                .add(WSS4JInInterceptor(interceptorProps as Map<String, Any>?))
+        it.server.endpoint.inInterceptors.add(WSS4JInInterceptor(interceptorProps as Map<String, Any>?))
         it.properties = jaxWsProps
     }
 }

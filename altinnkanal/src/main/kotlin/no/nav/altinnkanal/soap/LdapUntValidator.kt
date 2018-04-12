@@ -43,7 +43,6 @@ class LdapUntValidator: UsernameTokenValidator() {
     private data class Bounded(val username: String, val password: String)
 
     override fun validate(credential: Credential, data: RequestData): Credential {
-        val config = LdapConfiguration.config
         val username = credential.usernametoken.name
         val password = credential.usernametoken.password
         val initProps = Properties().apply {
