@@ -50,26 +50,32 @@ class OnlineBatchReceiverSoapITSpec: Spek({
         val payload = createPayload(simpleBatch, "2896", "87")
         given("usernametoken with invalid password") {
             val soapEndpoint = Utils.createSoapEndpoint(localServerPort, "srvaltinnkanal", "wrongpassword")
-            it("should throw a SOAPFaultException") {
+            on("receiveOnlineBatchExternalAttachment") {
                 val result = { soapEndpoint.receiveOnlineBatchExternalAttachment(
                         null, null, null, 0, payload, ByteArray(0)) }
-                result shouldThrow SOAPFaultException::class
+                it("should throw a SOAPFaultException") {
+                    result shouldThrow SOAPFaultException::class
+                }
             }
         }
         given("usernametoken with valid credentials but missing AD-group membership") {
             val soapEndpoint = Utils.createSoapEndpoint(localServerPort, "srvnotalinnkanal", "notpassword")
-            it("should throw a SOAPFaultException") {
+            on("receiveOnlineBatchExternalAttachment") {
                 val result = { soapEndpoint.receiveOnlineBatchExternalAttachment(
-                        null, null, null, 0, payload, ByteArray(0)) }
-                result shouldThrow SOAPFaultException::class
+                            null, null, null, 0, payload, ByteArray(0)) }
+                it("should throw a SOAPFaultException") {
+                    result shouldThrow SOAPFaultException::class
+                }
             }
         }
         given("usernametoken with non-existent username") {
             val soapEndpoint = Utils.createSoapEndpoint(localServerPort, "altinnkanal", "password")
-            it("should throw a SOAPFaultException") {
+            on("receiveOnlineBatchExternalAttachment") {
                 val result = { soapEndpoint.receiveOnlineBatchExternalAttachment(
-                        null, null, null, 0, payload, ByteArray(0)) }
-                result shouldThrow SOAPFaultException::class
+                            null, null, null, 0, payload, ByteArray(0)) }
+                it("should throw a SOAPFaultException") {
+                    result shouldThrow SOAPFaultException::class
+                }
             }
         }
     }
