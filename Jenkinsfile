@@ -12,6 +12,7 @@ pipeline {
     }
 
     stages {
+        stage('prepare') { steps { ciSkip action: 'check' } }
         stage('initialize') {
             steps {
                 script {
@@ -94,10 +95,7 @@ pipeline {
     }
     post {
         always {
-            junit '**/build/test-results/junit-platform/*.xml'
-            archive '**/build/libs/*'
-            archive '**/build/install/*'
-            deleteDir()
+            ciSkip action: 'postProcess'
             script {
                 utils.dockerPruneBuilds()
                 if (currentBuild.result == 'ABORTED') {
@@ -106,6 +104,10 @@ pipeline {
             }
         }
         success {
+            junit '**/build/test-results/junit-platform/*.xml'
+            archive '**/build/libs/*'
+            archive '**/build/install/*'
+            deleteDir()
             script {
                 utils.slackBuildSuccess(env.APPLICATION_NAME)
                 utils.githubCommitStatus(env.APPLICATION_NAME, gitVars.commitHash, "success", "Build success")
@@ -116,6 +118,7 @@ pipeline {
                 utils.slackBuildFailed(env.APPLICATION_NAME)
                 utils.githubCommitStatus(env.APPLICATION_NAME, gitVars.commitHash, "failure", "Build failed")
             }
+            deleteDir()
         }
     }
 }
