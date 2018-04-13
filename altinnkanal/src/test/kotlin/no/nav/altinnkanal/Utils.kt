@@ -51,7 +51,6 @@ object Utils {
             startListening()
         }
         val port = server.listenPort
-        println(port)
 
         LdapConfiguration.loadOverrideConfig(adGroup=adGroup, url="ldap://127.0.0.1:$port",
                 username="cn=$username,$baseDn", password=password, baseDn=baseDn)
