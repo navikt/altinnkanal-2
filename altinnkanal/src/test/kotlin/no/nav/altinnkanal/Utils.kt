@@ -50,9 +50,8 @@ object Utils {
             importFromLDIF(true, LDIFReader(Utils::class.java.getResourceAsStream("/ldap/UsersAndGroups.ldif")))
             startListening()
         }
-        val port = server.listenPort
 
-        LdapConfiguration.loadOverrideConfig(adGroup=adGroup, url="ldap://127.0.0.1:$port",
+        LdapConfiguration.loadOverrideConfig(adGroup=adGroup, url="ldap://127.0.0.1:${server.listenPort}",
                 username="cn=$username,$baseDn", password=password, baseDn=baseDn)
     }
 
@@ -60,7 +59,7 @@ object Utils {
         server.shutDown(true)
     }
 
-    fun createSoapEndpoint(port: Int, username: String, password: String): OnlineBatchReceiverSoap {
+    fun createSoapClient(port: Int, username: String, password: String): OnlineBatchReceiverSoap {
         val callback = CallbackHandler {callbacks ->
             val pc = callbacks[0] as WSPasswordCallback
             pc.password = password
