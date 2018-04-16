@@ -42,7 +42,7 @@ class OnlineBatchReceiverSoapITSpec: Spek({
     //val localServerPort = ServerSocket(-1).run { this.localPort }
     val server = Server(localServerPort)
 
-    Utils.createLdapServer()
+    val ldapServer = Utils.createLdapServer()
 
     bootstrap(server, batchReceiver)
 
@@ -59,7 +59,7 @@ class OnlineBatchReceiverSoapITSpec: Spek({
             }
         }
         given("usernametoken with valid credentials but missing AD-group membership") {
-            val soapClient = Utils.createSoapClient(localServerPort, "srvnotalinnkanal", "notpassword")
+            val soapClient = Utils.createSoapClient(localServerPort, "srvnotaltinnkanal", "notpassword")
             on("receiveOnlineBatchExternalAttachment") {
                 val result = { soapClient.receiveOnlineBatchExternalAttachment(
                             null, null, null, 0, payload, ByteArray(0)) }
@@ -144,7 +144,7 @@ class OnlineBatchReceiverSoapITSpec: Spek({
             flush()
             close()
         }
-        Utils.shutdownLdapServer()
+        ldapServer.shutDown(true)
         server.stop()
     }
 })

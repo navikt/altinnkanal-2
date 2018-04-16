@@ -19,6 +19,12 @@ objectClass: groupOfUniqueNames
 cn: Operator-Altinnkanal
 uniqueMember: cn=srvaltinnkanal,ou=ServiceAccounts,dc=testing,dc=local
 
+dn: cn=Operator-NotAltinnkanal,ou=AdGroups,dc=testing,dc=local
+objectClass: top
+objectClass: groupOfUniqueNames
+cn: Operator-NotAltinnkanal
+uniqueMember: cn=srvnotaltinnkanal,ou=ServiceAccounts,dc=testing,dc=local
+
 dn: cn=srvadmin,ou=ServiceAccounts,dc=testing,dc=local
 objectClass: top
 objectClass: inetOrgPerson
@@ -49,3 +55,4 @@ cn: srvnotaltinnkanal
 uid: srvnotaltinnkanal
 sn: not_altinnkanal
 userPassword: notpassword
+memberOf: cn=Operator-NotAltinnkanal,ou=AdGroups,dc=testing,dc=local

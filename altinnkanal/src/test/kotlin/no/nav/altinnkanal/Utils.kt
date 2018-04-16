@@ -20,7 +20,6 @@ import java.nio.file.Paths
 import javax.security.auth.callback.CallbackHandler
 
 object Utils {
-    lateinit var server: InMemoryDirectoryServer
 
     @Throws(IOException::class, URISyntaxException::class)
     fun readToString(resource: String): String {
@@ -33,7 +32,7 @@ object Utils {
                 .replace("\\{\\{serviceEditionCode}}".toRegex(), serviceEditionCode)
     }
 
-    fun createLdapServer() {
+    fun createLdapServer(): InMemoryDirectoryServer {
         val username = "srvadmin"
         val password = "password"
         val baseDn = "ou=ServiceAccounts,dc=testing,dc=local"
@@ -45,39 +44,30 @@ object Utils {
                     Schema.getSchema(Utils::class.java.getResourceAsStream("/ldap/person.ldif")))
             setAuthenticationRequiredOperationTypes(OperationType.COMPARE)
         }
-
-        server = InMemoryDirectoryServer(config).apply {
-            importFromLDIF(true, LDIFReader(Utils::class.java.getResourceAsStream("/ldap/UsersAndGroups.ldif")))
-            startListening()
-        }
-
-        LdapConfiguration.loadOverrideConfig(adGroup=adGroup, url="ldap://127.0.0.1:${server.listenPort}",
-                username="cn=$username,$baseDn", password=password, baseDn=baseDn)
-    }
-
-    fun shutdownLdapServer() {
-        server.shutDown(true)
+        return InMemoryDirectoryServer(config)
+            .apply {
+                importFromLDIF(true, LDIFReader(Utils::class.java.getResourceAsStream("/ldap/UsersAndGroups.ldif")))
+                startListening()
+                LdapConfiguration.loadOverrideConfig(adGroup=adGroup, url="ldap://127.0.0.1:$listenPort",
+                        username="cn=$username,$baseDn", password=password, baseDn=baseDn)
+            }
     }
 
     fun createSoapClient(port: Int, username: String, password: String): OnlineBatchReceiverSoap {
-        val callback = CallbackHandler {callbacks ->
-            val pc = callbacks[0] as WSPasswordCallback
-            pc.password = password
-        }
-
-        val outProps = HashMap<String, Any>().apply {
+        val outInterceptorProps = HashMap<String, Any>().apply {
             put(WSHandlerConstants.ACTION, WSHandlerConstants.USERNAME_TOKEN)
             put(WSHandlerConstants.USER, username)
             put(WSHandlerConstants.PASSWORD_TYPE, WSConstants.PW_TEXT)
-            put(WSHandlerConstants.PW_CALLBACK_REF, callback)
+            put(WSHandlerConstants.PW_CALLBACK_REF, CallbackHandler { callbacks ->
+                val pc = callbacks[0] as WSPasswordCallback
+                pc.password = password
+            })
         }
-
         return JaxWsProxyFactoryBean().run {
             serviceClass = OnlineBatchReceiverSoap::class.java
             address = "http://localhost:$port/webservices/OnlineBatchReceiverSoap"
-            outInterceptors.add(WSS4JOutInterceptor(outProps))
+            outInterceptors.add(WSS4JOutInterceptor(outInterceptorProps))
             create() as OnlineBatchReceiverSoap
         }
     }
-
 }

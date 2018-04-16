@@ -73,17 +73,14 @@ fun bootstrap(server: Server, batchReceiver: OnlineBatchReceiverSoap) {
 
     BusFactory.setDefaultBus(cxfServlet.bus)
 
-    val interceptorProps = HashMap<String, Any>().apply {
-        put(WSHandlerConstants.ACTION, WSHandlerConstants.USERNAME_TOKEN)
-        put(WSHandlerConstants.PASSWORD_TYPE, WSConstants.PW_TEXT)
-    }
-    val jaxWsProps = HashMap<String, Any>().apply {
-        put(SecurityConstants.USERNAME_TOKEN_VALIDATOR, LdapUntValidator::class.jvmName)
-    }
-
     Endpoint.publish("/OnlineBatchReceiverSoap", batchReceiver).let {
         it as EndpointImpl
-        it.server.endpoint.inInterceptors.add(WSS4JInInterceptor(interceptorProps as Map<String, Any>?))
-        it.properties = jaxWsProps
+        it.server.endpoint.inInterceptors.add(WSS4JInInterceptor(HashMap<String, Any>().apply {
+            put(WSHandlerConstants.ACTION, WSHandlerConstants.USERNAME_TOKEN)
+            put(WSHandlerConstants.PASSWORD_TYPE, WSConstants.PW_TEXT)
+        }))
+        it.properties = HashMap<String, Any>().apply {
+            put(SecurityConstants.USERNAME_TOKEN_VALIDATOR, LdapUntValidator::class.jvmName)
+        }
     }
 }
