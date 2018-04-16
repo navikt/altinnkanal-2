@@ -29,7 +29,7 @@ publishing {
 
     repositories {
         maven {
-            url = 'https://repo.adeo.no/repository/maven-snapshots/'
+            url = "https://repo.adeo.no/repository/maven-${project.version.endsWith('-SNAPSHOT') ? 'snapshots' : 'releases'}/"
         }
     }
 }
