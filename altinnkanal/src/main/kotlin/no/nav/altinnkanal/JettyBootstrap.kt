@@ -36,6 +36,12 @@ fun main(args: Array<String>) {
         val password = System.getenv("SRVALTINNKANAL_PASSWORD")
         setProperty("sasl.jaas.config", "org.apache.kafka.common.security.plain.PlainLoginModule required " +
                 "username=\"$username\" password=\"$password\";")
+        System.getenv("KAFKA_BOOTSTRAP_SERVERS")?.let {
+            setProperty("bootstrap.servers", it)
+        }
+        System.getenv("KAFKA_SCHEMA_REGISTRY_URL")?.let {
+            setProperty("schema.registry.url", it)
+        }
     }
     val kafkaProducer = KafkaProducer<String, ExternalAttachment>(kafkaProperties)
 
