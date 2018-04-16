@@ -58,11 +58,15 @@ class LdapUntValidator: UsernameTokenValidator() {
         try {
             InitialDirContext(initProps).let {
                 when {
-                    !findUsernameInAd(username, it) ->
+                    !findUsernameInAd(username, it) -> {
+                        it.close()
                         wsSecAuthFail("User was not found in AD: ($username)")
-                    !checkGroupMembershipInAd(username, it) ->
+                    }
+                    !checkGroupMembershipInAd(username, it) -> {
+                        it.close()
                         wsSecAuthFail("AD group membership not found (user: $username, group: ${config.adGroup})")
-                    else -> { }
+                    }
+                    else -> { it.close() }
                 }
             }
             // Attempt to bind the credentials for authentication
@@ -84,22 +88,24 @@ class LdapUntValidator: UsernameTokenValidator() {
     private fun findUsernameInAd(username: String, initCtx: InitialDirContext): Boolean {
         // There should be exactly one match
         return initCtx.search(config.baseDn, "(cn=$username)", searchControls).run {
-            when (hasMoreElements()){
+            when (hasMoreElements()) {
                 true -> {
                     nextElement()
                     !hasMoreElements()
+                    .also { close() }
                 }
-                else -> false
+                else -> false // NamingEnumeration auto-closes if !hasMoreElements
             }
         }
     }
 
     private fun checkGroupMembershipInAd(username: String, initCtx: InitialDirContext): Boolean {
         return initCtx
-            .search(config.baseDn, "(cn=$username)", searchControls).nextElement()
-            .attributes.get("memberOf").all.asSequence()
-            .any { it.toString().substringAfter("=").substringBefore(",")
-                .equals(config.adGroup, true)
+            .search(config.baseDn, "(cn=$username)", searchControls).run {
+                nextElement().attributes.get("memberOf").all.asSequence()
+                .any { it.toString().substringAfter("=").substringBefore(",")
+                        .equals(config.adGroup, true) }
+                .also { close() }
             }
     }
 
