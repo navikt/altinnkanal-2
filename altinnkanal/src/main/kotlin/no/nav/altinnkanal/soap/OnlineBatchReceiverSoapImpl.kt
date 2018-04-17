@@ -2,7 +2,6 @@ package no.nav.altinnkanal.soap
 
 import io.prometheus.client.Counter
 import io.prometheus.client.Summary
-import net.logstash.logback.argument.StructuredArguments.entries
 import no.altinn.webservices.OnlineBatchReceiverSoap
 import no.nav.altinnkanal.avro.ExternalAttachment
 import no.nav.altinnkanal.services.TopicService
@@ -27,9 +26,6 @@ class OnlineBatchReceiverSoapImpl (
         var serviceEditionCode: String? = null
         var archiveReference: String? = null
         val requestLatency = requestTime.startTimer()
-
-        // Logging
-        //val robeaDetails = HashMap<String, Any>()
         var logDetails = mutableListOf(kv("SC", serviceCode), kv("SEC", serviceEditionCode),
                 kv("recRef", receiversReference), kv("archRef", archiveReference), kv("seqNum", sequenceNumber))
 

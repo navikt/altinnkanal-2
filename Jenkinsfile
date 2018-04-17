@@ -19,7 +19,8 @@ pipeline {
                     sh './gradlew clean'
                     applicationVersionGradle = sh(script: './gradlew -q printVersion', returnStdout: true).trim()
                     gitVars = utils.gitVars(env.APPLICATION_NAME)
-                    applicationVersion = "${applicationVersionGradle}.${env.BUILD_ID}-${gitVars.commitHashShort}"
+                    applicationVersion = "${applicationVersionGradle}"
+                    //applicationVersion = "${applicationVersionGradle}.${env.BUILD_ID}-${gitVars.commitHashShort}"
                     applicationFullName = "${env.APPLICATION_NAME}:${applicationVersion}"
                     utils.slackBuildStarted(env.APPLICATION_NAME, gitVars.changeLog.toString())
                     utils.githubCommitStatus(env.APPLICATION_NAME, gitVars.commitHash, "pending", "Build started")
