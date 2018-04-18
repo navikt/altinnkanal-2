@@ -1,13 +1,13 @@
 buildscript {
     ext.jetty_version = "9.4.9.v20180320"
-    ext.kafka_test_version = '0.6.3'
+    ext.kafka_test_version = '0.6.0'
     ext.kotlin_version = '1.2.31'
     ext.confluent_version = '4.0.0'
     ext.cxf_version = '3.2.4'
     ext.kafka_version = '1.0.0'
-    ext.jackson_version = '2.9.4'
+    ext.jackson_version = '2.9.5'
     ext.prometheus_version = '0.3.0'
-    ext.logstash_encoder_version = '4.10'
+    ext.logstash_encoder_version = '5.0'
     ext.mockito_kotlin_version = '1.5.0'
     ext.kluent_version = '1.35'
     ext.spek_version = '1.1.5'
