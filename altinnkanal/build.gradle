@@ -90,6 +90,7 @@ repositories {
 configurations {
     all*.exclude group: 'org.slf4j', module: 'slf4j-log4j12'
     all*.exclude group: 'log4j', module: 'log4j'
+    all { resolutionStrategy { force 'org.apache.commons:commons-compress:1.16.1' } }
 }
 
 dependencies {
