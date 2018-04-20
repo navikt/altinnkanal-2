@@ -20,6 +20,10 @@ dependencies {
     implementation "org.apache.avro:avro:$avro_version"
 }
 
+configurations {
+    all { resolutionStrategy { force 'org.apache.commons:commons-compress:1.16.1' } }
+}
+
 publishing {
     publications {
         mavenJava(MavenPublication) {
