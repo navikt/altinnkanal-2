@@ -5,7 +5,6 @@ pipeline {
 
     environment {
         APPLICATION_NAME = 'altinnkanal-2'
-        GIT_PROJECT = 'INT'
         FASIT_ENV = 'q1'
         ZONE = 'fss'
         NAMESPACE = 'default'
