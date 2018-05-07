@@ -15,7 +15,7 @@ import org.jetbrains.spek.api.dsl.given
 import org.jetbrains.spek.api.dsl.it
 import org.jetbrains.spek.api.dsl.on
 
-class OnlineBatchReceiverSoapSpec: Spek({
+class OnlineBatchReceiverSoapSpec : Spek({
     val topicService = mock<TopicService>()
     val kafkaProducer = mock<Producer<String, ExternalAttachment>>()
     val metadataFuture = mock<Future<RecordMetadata>>()

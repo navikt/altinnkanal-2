@@ -25,7 +25,7 @@ import kotlin.reflect.jvm.jvmName
  * 3. Attempt to bind/login/authenticate to AD using the credentials from the UsernameToken.
  * Immediately throw a WSSecurityException if any of the checks above fail, otherwise return the credential (== valid).
  */
-class LdapUntValidator: UsernameTokenValidator() {
+class LdapUntValidator : UsernameTokenValidator() {
     companion object {
         private val log = LoggerFactory.getLogger(LdapUntValidator::class.jvmName)
         private val searchControls = SearchControls().apply {

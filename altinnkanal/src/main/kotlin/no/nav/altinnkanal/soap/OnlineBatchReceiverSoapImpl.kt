@@ -17,8 +17,8 @@ import net.logstash.logback.argument.StructuredArguments.kv
 import net.logstash.logback.encoder.org.apache.commons.lang.StringEscapeUtils
 
 class OnlineBatchReceiverSoapImpl (
-        private val topicService: TopicService,
-        private val kafkaProducer: Producer<String, ExternalAttachment>
+    private val topicService: TopicService,
+    private val kafkaProducer: Producer<String, ExternalAttachment>
 ) : OnlineBatchReceiverSoap {
 
     override fun receiveOnlineBatchExternalAttachment(username: String?, passwd: String?, receiversReference: String?, sequenceNumber: Long, dataBatch: String, attachments: ByteArray?): String {
@@ -74,7 +74,6 @@ class OnlineBatchReceiverSoapImpl (
             log.error("Failed to send a ROBEA request to Kafka: ${"{} ".repeat(logDetails.size)}", *logDetails.toTypedArray(), e)
             return "FAILED"
         }
-
     }
 
     private fun toAvroObject(dataBatch: String): ExternalAttachment {

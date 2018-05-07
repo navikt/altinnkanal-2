@@ -8,7 +8,7 @@ import org.jetbrains.spek.api.dsl.given
 import org.jetbrains.spek.api.dsl.it
 import org.jetbrains.spek.api.dsl.on
 
-class TopicServiceSpec: Spek({
+class TopicServiceSpec : Spek({
     val SERVICE_CODE = "testcode"
     val SERVICE_EDITION_CODE = "testeditioncode"
     val EXPECTED_TOPIC = "test.testeditioncode"

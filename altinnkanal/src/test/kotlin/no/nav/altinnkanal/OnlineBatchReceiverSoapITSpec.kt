@@ -19,7 +19,7 @@ import org.jetbrains.spek.api.dsl.it
 import org.jetbrains.spek.api.dsl.on
 import javax.xml.ws.soap.SOAPFaultException
 
-class OnlineBatchReceiverSoapITSpec: Spek({
+class OnlineBatchReceiverSoapITSpec : Spek({
     val simpleBatch = Utils.readToString("/data/basic_data_batch.xml")
     val kafkaEnvironment = KafkaEnvironment(1, listOf("aapen-altinn-bankkontonummerv87Mottatt-v1-preprod"),
         true, false, false)
@@ -39,7 +39,7 @@ class OnlineBatchReceiverSoapITSpec: Spek({
     val batchReceiver = OnlineBatchReceiverSoapImpl(topicService, producer)
 
     val localServerPort = 8123
-    //val localServerPort = ServerSocket(-1).run { this.localPort }
+    // val localServerPort = ServerSocket(-1).run { this.localPort }
     val server = Server(localServerPort)
 
     val ldapServer = Utils.createLdapServer()
