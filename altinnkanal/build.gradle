@@ -75,6 +75,7 @@ repositories {
 configurations {
     all*.exclude group: 'org.slf4j', module: 'slf4j-log4j12'
     all*.exclude group: 'log4j', module: 'log4j'
+    all*.exclude group: 'org.opensaml'
     all { resolutionStrategy { force 'org.apache.commons:commons-compress:1.16.1' } }
     all { resolutionStrategy { force 'org.mockito:mockito-core:2.18.3' } }
 }

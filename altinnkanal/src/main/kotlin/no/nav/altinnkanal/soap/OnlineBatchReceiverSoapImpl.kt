@@ -14,7 +14,7 @@ import javax.xml.stream.events.XMLEvent
 import java.io.StringReader
 
 import net.logstash.logback.argument.StructuredArguments.kv
-import org.apache.commons.lang.StringEscapeUtils
+import net.logstash.logback.encoder.org.apache.commons.lang.StringEscapeUtils
 
 class OnlineBatchReceiverSoapImpl (
         private val topicService: TopicService,
