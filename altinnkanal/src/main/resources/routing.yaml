@@ -23,3 +23,6 @@ routes:
   - topic: aapen-altinn-inntektsskjema-Mottatt
     serviceCode: 4936
     serviceEditionCode: 1
+  - topic: aapen-altinn-inntektsskjema-Mottatt
+    serviceCode: 4936
+    serviceEditionCode: 2
