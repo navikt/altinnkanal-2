@@ -49,7 +49,12 @@ fun main(args: Array<String>) {
 
     val server = Server(8080)
 
-    LdapConfiguration.loadDefaultConfig()
+    LdapConfiguration.init(LdapConfiguration.Config(adGroup = System.getenv("LDAP_AD_GROUP"),
+        url = System.getenv("LDAP_URL"),
+        username = System.getenv("LDAP_USERNAME"),
+        password = System.getenv("LDAP_PASSWORD"),
+        baseDn = System.getenv("LDAP_SERVICEUSER_BASEDN"))
+    )
     bootstrap(server, batchReceiver)
     server.join()
 }

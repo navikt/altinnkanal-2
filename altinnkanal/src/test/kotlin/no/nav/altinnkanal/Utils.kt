@@ -48,8 +48,9 @@ object Utils {
             .apply {
                 importFromLDIF(true, LDIFReader(Utils::class.java.getResourceAsStream("/ldap/UsersAndGroups.ldif")))
                 startListening()
-                LdapConfiguration.loadOverrideConfig(adGroup=adGroup, url="ldap://127.0.0.1:$listenPort",
-                        username="cn=$username,$baseDn", password=password, baseDn=baseDn)
+                LdapConfiguration.init(LdapConfiguration.Config(adGroup = adGroup, url = "ldap://127.0.0.1:$listenPort",
+                    username = "cn=$username,$baseDn", password = password, baseDn = baseDn)
+                )
             }
     }
 
