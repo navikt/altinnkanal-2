@@ -11,18 +11,25 @@ pipeline {
     }
 
     stages {
-        stage('prepare') { steps { ciSkip action: 'check' } }
+        stage('prepare') {
+            steps {
+                ciSkip action: 'check'
+            }
+        }
         stage('initialize') {
             steps {
                 script {
                     sh './gradlew clean'
                     applicationVersionGradle = sh(script: './gradlew -q printVersion', returnStdout: true).trim()
                     gitVars = utils.gitVars(env.APPLICATION_NAME)
-                    applicationVersion = "${applicationVersionGradle}"
-                    //applicationVersion = "${applicationVersionGradle}.${env.BUILD_ID}-${gitVars.commitHashShort}"
-                    applicationFullName = "${env.APPLICATION_NAME}:${applicationVersion}"
-                    utils.slackBuildStarted(env.APPLICATION_NAME, gitVars.changeLog.toString())
-                    utils.githubCommitStatus(env.APPLICATION_NAME, gitVars.commitHash, "pending", "Build started")
+                    env.APPLICATION_VERSION = "${applicationVersionGradle}"
+                    env.COMMIT = gitVars.commitHashShort
+                    env.COMMIT_FULL = gitVars.commitHash
+                    if (applicationVersionGradle.endsWith('-SNAPSHOT')) {
+                        env.APPLICATION_VERSION = "${applicationVersionGradle}.${env.BUILD_ID}-${gitVars.commitHashShort}"
+                    }
+                    githubStatus status: 'pending'
+                    slackStatus status: 'started', changeLog: "${gitVars.changeLog}"
                 }
             }
         }
@@ -37,11 +44,10 @@ pipeline {
             steps {
                 script {
                     sh './gradlew test'
-                    utils.slackBuildPassed(env.APPLICATION_NAME)
                 }
+                slackStatus status: 'passed'
             }
         }
-
         stage('deploy schemas to maven repo') {
             steps {
                 script {
@@ -49,7 +55,6 @@ pipeline {
                 }
             }
         }
-
         stage('extract application files') {
             steps {
                 script {
@@ -57,34 +62,27 @@ pipeline {
                 }
             }
         }
-
         stage('push docker image') {
             steps {
-                script {
-                    utils.dockerCreatePushImage(applicationFullName, gitVars.commitHash)
-                }
+                dockerUtils action: 'createPushImage'
             }
         }
         stage('validate & upload nais.yaml to nexus m2internal') {
             steps {
-                script {
-                    deploy.naisUploadYaml(env.APPLICATION_NAME, applicationVersion)
-                }
+                nais action: 'validate'
+                nais action: 'upload'
             }
         }
         stage('deploy to nais') {
             steps {
                 script {
-                    response = deploy.naisDeployJira(env.APPLICATION_NAME, applicationVersion, env.FASIT_ENV, env.NAMESPACE, env.ZONE)
-                    def jiraIssueId = readJSON([text: response.content])["key"].toString()
-                    currentBuild.description = "Waiting for <a href=\"https://jira.adeo.no/browse/$jiraIssueId\">$jiraIssueId</a>"
-                    utils.slackBuildDeploying(env.APPLICATION_NAME, jiraIssueId)
-
+                    def jiraIssueId = nais action: 'jiraDeploy'
+                    currentBuild.description = "<a href=\"https://jira.adeo.no/browse/$jiraIssueId\">$jiraIssueId</a>"
+                    slackStatus status: 'deploying', jiraIssueId: "${jiraIssueId}"
                     try {
                         timeout(time: 1, unit: 'HOURS') {
                             input id: "deploy", message: "Waiting for remote Jenkins server to deploy the application..."
                         }
-                        currentBuild.description = ""
                     } catch (Exception exception) {
                         currentBuild.description = "Deploy failed, see <a href=\"https://jira.adeo.no/browse/$jiraIssueId\">$jiraIssueId</a>"
                         throw exception
@@ -96,10 +94,10 @@ pipeline {
     post {
         always {
             ciSkip action: 'postProcess'
+            dockerUtils action: 'pruneBuilds'
             script {
-                utils.dockerPruneBuilds()
                 if (currentBuild.result == 'ABORTED') {
-                    utils.slackBuildAborted(env.APPLICATION_NAME)
+                    slackStatus status: 'aborted'
                 }
             }
         }
@@ -108,16 +106,12 @@ pipeline {
             archive '**/build/libs/*'
             archive '**/build/install/*'
             deleteDir()
-            script {
-                utils.slackBuildSuccess(env.APPLICATION_NAME)
-                utils.githubCommitStatus(env.APPLICATION_NAME, gitVars.commitHash, "success", "Build success")
-            }
+            githubStatus status: 'success'
+            slackStatus status: 'success'
         }
         failure {
-            script {
-                utils.slackBuildFailed(env.APPLICATION_NAME)
-                utils.githubCommitStatus(env.APPLICATION_NAME, gitVars.commitHash, "failure", "Build failed")
-            }
+            githubStatus status: 'failure'
+            slackStatus status: 'failure'
             deleteDir()
         }
     }
