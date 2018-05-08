@@ -23,12 +23,10 @@ pipeline {
                     applicationVersionGradle = sh(script: './gradlew -q printVersion', returnStdout: true).trim()
                     gitVars = utils.gitVars(env.APPLICATION_NAME)
                     env.APPLICATION_VERSION = "${applicationVersionGradle}"
-                    env.COMMIT = gitVars.commitHashShort
-                    env.COMMIT_FULL = gitVars.commitHash
                     if (applicationVersionGradle.endsWith('-SNAPSHOT')) {
                         env.APPLICATION_VERSION = "${applicationVersionGradle}.${env.BUILD_ID}-${gitVars.commitHashShort}"
                     }
-                    githubStatus status: 'pending'
+                    githubStatus status: 'pending', commit: "${gitVars.commitHash}"
                     slackStatus status: 'started', changeLog: "${gitVars.changeLog}"
                 }
             }
@@ -64,7 +62,7 @@ pipeline {
         }
         stage('push docker image') {
             steps {
-                dockerUtils action: 'createPushImage'
+                dockerUtils action: 'createPushImage', commit: "${gitVars.commitHashShort}"
             }
         }
         stage('validate & upload nais.yaml to nexus m2internal') {
@@ -106,11 +104,11 @@ pipeline {
             archive '**/build/libs/*'
             archive '**/build/install/*'
             deleteDir()
-            githubStatus status: 'success'
+            githubStatus status: 'success', commit: "${gitVars.commitHash}"
             slackStatus status: 'success'
         }
         failure {
-            githubStatus status: 'failure'
+            githubStatus status: 'failure', commit: "${gitVars.commitHash}"
             slackStatus status: 'failure'
             deleteDir()
         }
