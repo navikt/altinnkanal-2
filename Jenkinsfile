@@ -13,7 +13,7 @@ pipeline {
     stages {
         stage('prepare') {
             steps {
-                ciSkip action: 'check'
+                ciSkip 'check'
             }
         }
         stage('initialize') {
@@ -21,13 +21,15 @@ pipeline {
                 script {
                     sh './gradlew clean'
                     applicationVersionGradle = sh(script: './gradlew -q printVersion', returnStdout: true).trim()
-                    gitVars = utils.gitVars(env.APPLICATION_NAME)
+                    env.COMMIT_HASH = gitVars 'commitHash'
+                    env.COMMIT_HASH_SHORT = gitVars 'commitHashShort'
                     env.APPLICATION_VERSION = "${applicationVersionGradle}"
                     if (applicationVersionGradle.endsWith('-SNAPSHOT')) {
-                        env.APPLICATION_VERSION = "${applicationVersionGradle}.${env.BUILD_ID}-${gitVars.commitHashShort}"
+                        env.APPLICATION_VERSION = "${applicationVersionGradle}.${env.BUILD_ID}-${env.COMMIT_HASH_SHORT}"
                     }
-                    githubStatus status: 'pending', commit: "${gitVars.commitHash}"
-                    slackStatus status: 'started', changeLog: "${gitVars.changeLog}"
+                    changeLog = gitVars 'changeLog'
+                    githubStatus 'pending'
+                    slackStatus status: 'started', changeLog: "${changeLog}"
                 }
             }
         }
@@ -62,27 +64,26 @@ pipeline {
         }
         stage('push docker image') {
             steps {
-                dockerUtils action: 'createPushImage', commit: "${gitVars.commitHashShort}"
+                dockerUtils 'createPushImage'
             }
         }
         stage('validate & upload nais.yaml to nexus m2internal') {
             steps {
-                nais action: 'validate'
-                nais action: 'upload'
+                nais 'validate'
+                nais 'upload'
             }
         }
         stage('deploy to nais') {
             steps {
                 script {
-                    def jiraIssueId = nais action: 'jiraDeploy'
-                    currentBuild.description = "<a href=\"https://jira.adeo.no/browse/$jiraIssueId\">$jiraIssueId</a>"
+                    def jiraIssueId = nais 'jiraDeploy'
                     slackStatus status: 'deploying', jiraIssueId: "${jiraIssueId}"
                     try {
                         timeout(time: 1, unit: 'HOURS') {
                             input id: "deploy", message: "Waiting for remote Jenkins server to deploy the application..."
                         }
                     } catch (Exception exception) {
-                        currentBuild.description = "Deploy failed, see <a href=\"https://jira.adeo.no/browse/$jiraIssueId\">$jiraIssueId</a>"
+                        currentBuild.description = "Deploy failed, see " + currentBuild.description
                         throw exception
                     }
                 }
@@ -91,8 +92,8 @@ pipeline {
     }
     post {
         always {
-            ciSkip action: 'postProcess'
-            dockerUtils action: 'pruneBuilds'
+            ciSkip 'postProcess'
+            dockerUtils 'pruneBuilds'
             script {
                 if (currentBuild.result == 'ABORTED') {
                     slackStatus status: 'aborted'
@@ -104,11 +105,11 @@ pipeline {
             archive '**/build/libs/*'
             archive '**/build/install/*'
             deleteDir()
-            githubStatus status: 'success', commit: "${gitVars.commitHash}"
+            githubStatus 'success'
             slackStatus status: 'success'
         }
         failure {
-            githubStatus status: 'failure', commit: "${gitVars.commitHash}"
+            githubStatus 'failure'
             slackStatus status: 'failure'
             deleteDir()
         }
