@@ -29,7 +29,7 @@ pipeline {
                     }
                     changeLog = gitVars 'changeLog'
                     githubStatus 'pending'
-                    slackStatus status: 'started', changeLog: "${changeLog}"
+                    slackStatus status: 'started', changeLog: "${changeLog.toString()}"
                 }
             }
         }
