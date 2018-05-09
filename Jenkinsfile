@@ -27,7 +27,7 @@ pipeline {
                     if (applicationVersionGradle.endsWith('-SNAPSHOT')) {
                         env.APPLICATION_VERSION = "${applicationVersionGradle}.${env.BUILD_ID}-${env.COMMIT_HASH_SHORT}"
                     }
-                    changeLog = gitVars 'changeLog'
+                    changeLog = utils.gitVars(env.APPLICATION_NAME).changeLog
                     githubStatus 'pending'
                     slackStatus status: 'started', changeLog: "${changeLog.toString()}"
                 }
