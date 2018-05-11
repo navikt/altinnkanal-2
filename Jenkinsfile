@@ -89,6 +89,26 @@ pipeline {
                 }
             }
         }
+        stage('deploy to production') {
+            when { buildingTag() }
+            environment {
+                FASIT_ENV = 'p'
+            }
+            steps {
+                script {
+                    def jiraIssueId = nais 'jiraDeploy'
+                    slackStatus status: 'deploying', jiraIssueId: "${jiraIssueId}"
+                    try {
+                        timeout(time: 1, unit: 'HOURS') {
+                            input id: "deploy", message: "Waiting for remote Jenkins server to deploy the application..."
+                        }
+                    } catch (Exception exception) {
+                        currentBuild.description = "Deploy failed, see " + currentBuild.description
+                        throw exception
+                    }
+                }
+            }
+        }
     }
     post {
         always {
