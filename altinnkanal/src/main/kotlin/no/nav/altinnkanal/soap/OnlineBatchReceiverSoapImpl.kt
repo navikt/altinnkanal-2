@@ -59,7 +59,7 @@ class OnlineBatchReceiverSoapImpl (
 
             logDetails.apply {
                 add(kv("latency", String.format("%.0f", latency * 1000) + " ms"))
-                add(kv("size", String.format("%.2f", metadata.serializedValueSize() / 1024f) + " MB"))
+                add(kv("size", String.format("%.2f", metadata.serializedValueSize() / (1024f * 1024f)) + " MB"))
                 add(kv("topic", metadata.topic()))
                 add(kv("partition", metadata.partition()))
                 add(kv("offset", metadata.offset()))
