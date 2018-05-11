@@ -26,6 +26,8 @@ pipeline {
                     env.APPLICATION_VERSION = "${applicationVersionGradle}"
                     if (applicationVersionGradle.endsWith('-SNAPSHOT')) {
                         env.APPLICATION_VERSION = "${applicationVersionGradle}.${env.BUILD_ID}-${env.COMMIT_HASH_SHORT}"
+                    } else {
+                        env.DEPLOY_TO = 'production'
                     }
                     changeLog = utils.gitVars(env.APPLICATION_NAME).changeLog
                     githubStatus 'pending'
@@ -74,37 +76,39 @@ pipeline {
             }
         }
         stage('deploy to nais') {
-            steps {
-                script {
-                    def jiraIssueId = nais 'jiraDeploy'
-                    slackStatus status: 'deploying', jiraIssueId: "${jiraIssueId}"
-                    try {
-                        timeout(time: 1, unit: 'HOURS') {
-                            input id: "deploy", message: "Waiting for remote Jenkins server to deploy the application..."
+            parallel {
+                stage('deploy to preprod') {
+                    steps {
+                        script {
+                            def jiraIssueId = nais 'jiraDeploy'
+                            slackStatus status: 'deploying', jiraIssueId: "${jiraIssueId}"
+                            try {
+                                timeout(time: 1, unit: 'HOURS') {
+                                    input id: "deploy", message: "Waiting for remote Jenkins server to deploy the application..."
+                                }
+                            } catch (Exception exception) {
+                                currentBuild.description = "Deploy failed, see " + currentBuild.description
+                                throw exception
+                            }
                         }
-                    } catch (Exception exception) {
-                        currentBuild.description = "Deploy failed, see " + currentBuild.description
-                        throw exception
                     }
                 }
-            }
-        }
-        stage('deploy to production') {
-            when { buildingTag() }
-            environment {
-                FASIT_ENV = 'p'
-            }
-            steps {
-                script {
-                    def jiraIssueId = nais 'jiraDeploy'
-                    slackStatus status: 'deploying', jiraIssueId: "${jiraIssueId}"
-                    try {
-                        timeout(time: 1, unit: 'HOURS') {
-                            input id: "deploy", message: "Waiting for remote Jenkins server to deploy the application..."
+                stage('deploy to production') {
+                    when { environment name: 'DEPLOY_TO', value: 'production' }
+                    environment { FASIT_ENV = 'p' }
+                    steps {
+                        script {
+                            def jiraIssueId = nais 'jiraDeploy'
+                            slackStatus status: 'deploying', jiraIssueId: "${jiraIssueId}"
+                            try {
+                                timeout(time: 1, unit: 'HOURS') {
+                                    input id: "deploy", message: "Waiting for remote Jenkins server to deploy the application..."
+                                }
+                            } catch (Exception exception) {
+                                currentBuild.description = "Deploy failed, see " + currentBuild.description
+                                throw exception
+                            }
                         }
-                    } catch (Exception exception) {
-                        currentBuild.description = "Deploy failed, see " + currentBuild.description
-                        throw exception
                     }
                 }
             }
