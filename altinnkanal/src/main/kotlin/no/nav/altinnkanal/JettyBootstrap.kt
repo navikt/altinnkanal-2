@@ -27,8 +27,7 @@ import kotlin.reflect.jvm.jvmName
 
 fun main(args: Array<String>) {
 
-    val topicRouting = topicRouting()
-    val topicService = TopicService(topicRouting)
+    val topicService = TopicService(topicRouting())
 
     val kafkaProperties = Properties().apply {
         load(OnlineBatchReceiverSoapImpl::class.java.getResourceAsStream("/kafka.properties"))
@@ -49,7 +48,8 @@ fun main(args: Array<String>) {
 
     val server = Server(8080)
 
-    LdapConfiguration.init(LdapConfiguration.Config(adGroup = System.getenv("LDAP_AD_GROUP"),
+    LdapConfiguration.init(LdapConfiguration.Config(
+        adGroup = System.getenv("LDAP_AD_GROUP") ?: "0000-GA-altinnkanal-Operator",
         url = System.getenv("LDAP_URL"),
         username = System.getenv("LDAP_USERNAME"),
         password = System.getenv("LDAP_PASSWORD"),
