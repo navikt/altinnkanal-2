@@ -7,15 +7,18 @@ import java.util.concurrent.Future
 import no.nav.altinnkanal.avro.ExternalAttachment
 import no.nav.altinnkanal.services.TopicService
 import no.nav.altinnkanal.soap.OnlineBatchReceiverSoapImpl
+import no.nav.altinnkanal.soap.SoapResponse.FAILED_DO_NOT_RETRY
+import no.nav.altinnkanal.soap.SoapResponse.OK
 import org.amshove.kluent.shouldBe
 import org.apache.kafka.clients.producer.Producer
 import org.apache.kafka.clients.producer.RecordMetadata
 import org.jetbrains.spek.api.Spek
-import org.jetbrains.spek.api.dsl.given
+import org.jetbrains.spek.api.dsl.describe
 import org.jetbrains.spek.api.dsl.it
-import org.jetbrains.spek.api.dsl.on
+import org.jetbrains.spek.data_driven.data
+import org.jetbrains.spek.data_driven.on
 
-class OnlineBatchReceiverSoapSpec : Spek({
+object OnlineBatchReceiverSoapSpec : Spek({
     val topicService = mock<TopicService>()
     val kafkaProducer = mock<Producer<String, ExternalAttachment>>()
     val metadataFuture = mock<Future<RecordMetadata>>()
@@ -25,24 +28,17 @@ class OnlineBatchReceiverSoapSpec : Spek({
     whenever(metadataFuture.get()).thenReturn(mock())
     whenever(kafkaProducer.send(any())).thenReturn(metadataFuture)
 
-    given("missing topic routing") {
-        on("receiveOnlineBatchExternalAttachment") {
-            whenever(topicService.getTopic(any(), any())).thenReturn(null)
+    describe("receiveOnlineBatchExternalAttachment") {
+        on("%s",
+            data<String, String?, String>("valid topic routing", "test", expected = OK),
+            data<String, String?, String>("missing topic routing", null, expected = FAILED_DO_NOT_RETRY)
+        ) { _, mockValue: String?, expected: String ->
+            println(mockValue)
+            whenever(topicService.getTopic(any(), any())).thenReturn(mockValue)
             val result = soapService.receiveOnlineBatchExternalAttachment("username", "password",
                     "123uhjoas", 0, simpleBatch, ByteArray(0))
-            it("should return FAILED_DO_NOT_RETRY") {
-                result shouldBe "FAILED_DO_NOT_RETRY"
-            }
-        }
-    }
-
-    given("valid topic routing") {
-        on("receiveOnlineBatchExternalAttachment") {
-            whenever(topicService.getTopic(any(), any())).thenReturn("test")
-            val result = soapService.receiveOnlineBatchExternalAttachment("username", "password",
-                        "123uhjoas", 0, simpleBatch, ByteArray(0))
-            it("should return OK") {
-                result shouldBe "OK"
+            it("should return $expected") {
+                result shouldBe expected
             }
         }
     }

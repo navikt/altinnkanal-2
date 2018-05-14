@@ -8,35 +8,35 @@ import org.jetbrains.spek.api.dsl.given
 import org.jetbrains.spek.api.dsl.it
 import org.jetbrains.spek.api.dsl.on
 
-class TopicServiceSpec : Spek({
-    val SERVICE_CODE = "testcode"
-    val SERVICE_EDITION_CODE = "testeditioncode"
-    val EXPECTED_TOPIC = "test.testeditioncode"
-    val topicConfig = TopicRouting(listOf(TopicRouting.TopicRoute(SERVICE_CODE, SERVICE_EDITION_CODE, EXPECTED_TOPIC)))
+object TopicServiceSpec : Spek({
+    val serviceCode = "testcode"
+    val serviceEditionCode = "testeditioncode"
+    val expectedTopic = "test.testeditioncode"
+    val topicConfig = TopicRouting(listOf(TopicRouting.TopicRoute(serviceCode, serviceEditionCode, expectedTopic)))
     val topicService = TopicService(topicConfig)
 
     given("non-routed combinations of SC and SEC") {
-        val serviceCode = "missing"
-        val serviceEditionCode = "missing"
+        val invalidServiceCode = "missing"
+        val invalidServiceEditionCode = "missing"
         on("getTopic") {
-            val topic = topicService.getTopic(serviceCode, serviceEditionCode)
+            val topic = topicService.getTopic(invalidServiceCode, invalidServiceEditionCode)
             it("should return null") {
                 topic shouldBe null
             }
-            it("should not return $EXPECTED_TOPIC") {
-                topic shouldNotBe EXPECTED_TOPIC
+            it("should not return $expectedTopic") {
+                topic shouldNotBe expectedTopic
             }
         }
     }
 
     given("valid combinations of SC and SEC") {
         on("getTopic") {
-            val topic = topicService.getTopic(SERVICE_CODE, SERVICE_EDITION_CODE)
+            val topic = topicService.getTopic(serviceCode, serviceEditionCode)
             it("should not return null") {
                 topic shouldNotBe null
             }
-            it ("should return $EXPECTED_TOPIC") {
-                topic shouldBe EXPECTED_TOPIC
+            it ("should return $expectedTopic") {
+                topic shouldBe expectedTopic
             }
         }
     }

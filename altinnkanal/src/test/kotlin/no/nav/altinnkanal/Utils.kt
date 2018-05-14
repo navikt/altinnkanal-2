@@ -17,6 +17,7 @@ import java.net.URISyntaxException
 import java.nio.charset.Charset
 import java.nio.file.Files
 import java.nio.file.Paths
+import java.util.HashMap
 import javax.security.auth.callback.CallbackHandler
 
 object Utils {

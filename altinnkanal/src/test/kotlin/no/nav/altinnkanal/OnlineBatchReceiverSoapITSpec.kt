@@ -20,9 +20,11 @@ import org.jetbrains.spek.api.Spek
 import org.jetbrains.spek.api.dsl.given
 import org.jetbrains.spek.api.dsl.it
 import org.jetbrains.spek.api.dsl.on
+import org.jetbrains.spek.data_driven.data
+import org.jetbrains.spek.data_driven.on
 import javax.xml.ws.soap.SOAPFaultException
 
-class OnlineBatchReceiverSoapITSpec : Spek({
+object OnlineBatchReceiverSoapITSpec : Spek({
     val simpleBatch = Utils.readToString("/data/basic_data_batch.xml")
     val kafkaEnvironment = KafkaEnvironment(1, listOf("aapen-altinn-bankkontonummerv87Mottatt-v1-preprod"),
         true, false, false)
@@ -49,93 +51,54 @@ class OnlineBatchReceiverSoapITSpec : Spek({
 
     bootstrap(server, batchReceiver)
 
-    given("invalid usernametokens") {
+    given("invalid username tokens") {
         val payload = createPayload(simpleBatch, "2896", "87")
-        given("usernametoken with invalid password") {
-            val soapClient = Utils.createSoapClient(localServerPort, "srvaltinnkanal", "wrongpassword")
-            on("receiveOnlineBatchExternalAttachment") {
-                val result = { soapClient.receiveOnlineBatchExternalAttachment(
-                        null, null, null, 0, payload, ByteArray(0)) }
-                it("should throw a SOAPFaultException") {
-                    result shouldThrow SOAPFaultException::class
-                }
-            }
-        }
-        given("usernametoken with valid credentials but missing AD-group membership") {
-            val soapClient = Utils.createSoapClient(localServerPort, "srvnotaltinnkanal", "notpassword")
-            on("receiveOnlineBatchExternalAttachment") {
-                val result = { soapClient.receiveOnlineBatchExternalAttachment(
-                            null, null, null, 0, payload, ByteArray(0)) }
-                it("should throw a SOAPFaultException") {
-                    result shouldThrow SOAPFaultException::class
-                }
-            }
-        }
-        given("usernametoken with non-existent username") {
-            val soapClient = Utils.createSoapClient(localServerPort, "altinnkanal", "password")
-            on("receiveOnlineBatchExternalAttachment") {
-                val result = { soapClient.receiveOnlineBatchExternalAttachment(
-                            null, null, null, 0, payload, ByteArray(0)) }
-                it("should throw a SOAPFaultException") {
-                    result shouldThrow SOAPFaultException::class
-                }
+        on("usernametoken with %s",
+            data("invalid password", "srvaltinnkanal", "wrongpassword", expected = SOAPFaultException::class),
+            data("valid credentials but missing AD-group membership", "srvnotaltinnkanal", "notpassword",
+                    expected = SOAPFaultException::class),
+            data("non-existent username", "altinnkanal", "password", expected = SOAPFaultException::class)
+        ) { _, username, password, expected ->
+            val client = Utils.createSoapClient(localServerPort, username, password)
+            val result = { client.receiveOnlineBatchExternalAttachment(null, null,
+                    null, 0, payload, ByteArray(0)) }
+            it("should throw a SOAPFaultException") {
+                result shouldThrow expected
             }
         }
     }
 
-    given("valid usernametokens") {
-        val soapClient = Utils.createSoapClient(localServerPort,
-                "srvaltinnkanal", "supersecurepassword")
-        given("a payload with valid combination of SC and SEC") {
+    given("valid usernametoken") {
+        val soapClient = Utils.createSoapClient(localServerPort, "srvaltinnkanal",
+                "supersecurepassword")
+        on("a payload with %s",
+            data("valid combination of SC and SEC",
+                    createPayload(simpleBatch, "2896", "87"),
+                    expected = OK),
+            data("non-routed combination of SC and SEC",
+                    createPayload(simpleBatch, "1233", "1"),
+                    expected = FAILED_DO_NOT_RETRY),
+            data("missing SC and/or SEC",
+                    Utils.readToString("/data/basic_data_batch_missing_sec.xml"),
+                    expected = FAILED)
+        ) { _, payload, expected ->
+            val result = soapClient.receiveOnlineBatchExternalAttachment(
+                    null, null, null, 0, payload, ByteArray(0))
+            it("should return a result equal to $expected") {
+                result shouldEqual expected
+            }
+        }
+        on("a payload with valid combination of SC and SEC") {
             val payload = createPayload(simpleBatch, "2896", "87")
-            on("receiveOnlineBatchExternalAttachment") {
-                val result = soapClient.receiveOnlineBatchExternalAttachment(
-                        null, null, null, 0, payload, ByteArray(0))
-                it("should return a result equal to OK") {
-                    result shouldEqual "OK"
-                }
-            }
-        }
-        given("a payload with non-routed combination of SC and SEC") {
-            val serviceCode = "1233"
-            val serviceEditionCode = "1"
-            val payload = createPayload(simpleBatch, serviceCode, serviceEditionCode)
-            on("receiveOnlineBatchExternalAttachment") {
+            on("%s",
+                data("Kafka temporarily down", ServerBase::stop, expected = FAILED),
+                data("Kafka back up again", ServerBase::start, expected = OK)
+            ) { _, operation, expected ->
+                kafkaEnvironment.serverPark.brokers.forEach(operation)
                 val result = soapClient.receiveOnlineBatchExternalAttachment(null, null,
                         null, 0, payload, ByteArray(0))
-                it("should return a result equal to FAILED_DO_NOT_RETRY") {
-                    result shouldEqual "FAILED_DO_NOT_RETRY"
-                }
-            }
-        }
-        given("a payload with missing SC and/or SEC") {
-            val simpleBatchMissingSec = Utils.readToString("/data/basic_data_batch_missing_sec.xml")
-            on("receiveOnlineBatchExternalAttachment") {
-                val result = soapClient.receiveOnlineBatchExternalAttachment(null, null,
-                        null, 0, simpleBatchMissingSec, ByteArray(0))
-                it("should return a result equal to FAILED") {
-                    result shouldEqual "FAILED"
-                }
-            }
-        }
-        given("a valid payload") {
-            val serviceCode = "2896"
-            val serviceEditionCode = "87"
-            val payload = createPayload(simpleBatch, serviceCode, serviceEditionCode)
-            on("receiveOnlineBatchExternalAttachment and Kafka temporarily down") {
-                kafkaEnvironment.serverPark.brokers.forEach(ServerBase::stop)
-                val result = soapClient.receiveOnlineBatchExternalAttachment(null, null,
-                        null, 0, payload, ByteArray(0))
-                it("should return a result equal to FAILED") {
-                    result shouldEqual "FAILED"
-                }
-            }
-            on("receiveOnlineBatchExternalAttachment and Kafka back up again") {
-                kafkaEnvironment.serverPark.brokers.forEach(ServerBase::start)
-                val result = soapClient.receiveOnlineBatchExternalAttachment(null, null,
-                        null, 0, payload, ByteArray(0))
-                it("return a result equal to OK") {
-                    result shouldEqual "OK"
+                it("should return a result equal to $expected") {
+                    result shouldEqual expected
                 }
             }
         }

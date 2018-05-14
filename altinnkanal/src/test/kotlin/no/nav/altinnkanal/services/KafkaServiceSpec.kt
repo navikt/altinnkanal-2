@@ -19,7 +19,7 @@ import org.jetbrains.spek.api.dsl.given
 import org.jetbrains.spek.api.dsl.it
 import org.jetbrains.spek.api.dsl.on
 
-class KafkaServiceSpec : Spek({
+object KafkaServiceSpec : Spek({
     val topicRepository = mock<TopicService>()
     val kafkaProducer = mock<Producer<String, ExternalAttachment>>()
     val future = mock<Future<RecordMetadata>>()
