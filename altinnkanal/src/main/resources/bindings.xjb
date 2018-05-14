@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<jaxws:bindings
+    xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/"
+    xmlns:jaxws="http://java.sun.com/xml/ns/jaxws"
+    xmlns:jaxb="http://java.sun.com/xml/ns/jaxb"
+    version="2.1"
+    xmlns:xs="http://www.w3.org/2001/XMLSchema"
+    wsdlLocation="OnlineBatchReceiver.wsdl">
+
+    <jaxws:bindings node="wsdl:definitions/wsdl:types/xs:schema/xs:element[@name='ReceiveOnlineBatchExternalAttachment']/xs:complexType/xs:sequence/xs:element[@name='username']">
+        <jaxb:property name="username1" />
+    </jaxws:bindings>
+    <jaxws:bindings node="wsdl:definitions/wsdl:types/xs:schema/xs:element[@name='ReceiveOnlineBatchExternalAttachment']/xs:complexType/xs:sequence/xs:element[@name='batch']">
+        <jaxb:property name="batch1"/>
+    </jaxws:bindings>
+
+</jaxws:bindings>

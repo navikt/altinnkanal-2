@@ -33,10 +33,9 @@ object OnlineBatchReceiverSoapSpec : Spek({
             data<String, String?, String>("valid topic routing", "test", expected = OK),
             data<String, String?, String>("missing topic routing", null, expected = FAILED_DO_NOT_RETRY)
         ) { _, mockValue: String?, expected: String ->
-            println(mockValue)
             whenever(topicService.getTopic(any(), any())).thenReturn(mockValue)
             val result = soapService.receiveOnlineBatchExternalAttachment("username", "password",
-                    "123uhjoas", 0, simpleBatch, ByteArray(0))
+                    "", "", "123uhjoas", 0, simpleBatch, null, ByteArray(0))
             it("should return $expected") {
                 result shouldBe expected
             }

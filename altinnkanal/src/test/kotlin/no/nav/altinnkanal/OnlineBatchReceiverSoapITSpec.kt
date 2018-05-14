@@ -61,7 +61,7 @@ object OnlineBatchReceiverSoapITSpec : Spek({
         ) { _, username, password, expected ->
             val client = Utils.createSoapClient(localServerPort, username, password)
             val result = { client.receiveOnlineBatchExternalAttachment(null, null,
-                    null, 0, payload, ByteArray(0)) }
+                    null, null, null, 0, payload, payload, ByteArray(0)) }
             it("should throw a SOAPFaultException") {
                 result shouldThrow expected
             }
@@ -82,8 +82,9 @@ object OnlineBatchReceiverSoapITSpec : Spek({
                     Utils.readToString("/data/basic_data_batch_missing_sec.xml"),
                     expected = FAILED)
         ) { _, payload, expected ->
-            val result = soapClient.receiveOnlineBatchExternalAttachment(
-                    null, null, null, 0, payload, ByteArray(0))
+            println(payload)
+            val result = soapClient.receiveOnlineBatchExternalAttachment(null, null,
+                    null, null, null, 0, payload, payload, ByteArray(0))
             it("should return a result equal to $expected") {
                 result shouldEqual expected
             }
@@ -96,7 +97,7 @@ object OnlineBatchReceiverSoapITSpec : Spek({
             ) { _, operation, expected ->
                 kafkaEnvironment.serverPark.brokers.forEach(operation)
                 val result = soapClient.receiveOnlineBatchExternalAttachment(null, null,
-                        null, 0, payload, ByteArray(0))
+                    null, null, null, 0, payload, payload, ByteArray(0))
                 it("should return a result equal to $expected") {
                     result shouldEqual expected
                 }

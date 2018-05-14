@@ -24,7 +24,17 @@ class OnlineBatchReceiverSoapImpl (
     private val kafkaProducer: Producer<String, ExternalAttachment>
 ) : OnlineBatchReceiverSoap {
 
-    override fun receiveOnlineBatchExternalAttachment(username: String?, passwd: String?, receiversReference: String?, sequenceNumber: Long, dataBatch: String, attachments: ByteArray?): String {
+    override fun receiveOnlineBatchExternalAttachment(
+        username: String?,
+        username1: String?,
+        passwd: String?,
+        password: String?,
+        receiversReference: String?,
+        sequenceNumber: Long,
+        batch: String?,
+        batch1: String?,
+        attachments: ByteArray?
+    ): String {
         var serviceCode: String? = null
         var serviceEditionCode: String? = null
         var archiveReference: String? = null
@@ -34,6 +44,14 @@ class OnlineBatchReceiverSoapImpl (
 
         requestsTotal.inc()
         try {
+            println("batch $batch")
+            println("batch1 $batch1")
+            val dataBatch = when {
+                batch != null -> batch
+                batch1 != null -> batch1
+                else -> throw RuntimeException("Empty batch")
+            }
+
             val externalAttachment = toAvroObject(dataBatch).also {
                 serviceCode = it.getSc()
                 serviceEditionCode = it.getSec()

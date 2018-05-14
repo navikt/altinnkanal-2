@@ -40,7 +40,8 @@ applicationDefaultJvmArgs = [
 wsdl2java {
     wsdlDir = file("src/main/resources")
     wsdlsToGenerate = [
-            ["$projectDir/src/main/resources/OnlineBatchReceiver.wsdl"]
+        ['-xjc', '-b', "$projectDir/src/main/resources/bindings.xjb", '-autoNameResolution',
+         "$projectDir/src/main/resources/OnlineBatchReceiver.wsdl"]
     ]
 }
 

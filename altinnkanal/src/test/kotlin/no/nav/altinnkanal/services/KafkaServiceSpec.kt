@@ -37,8 +37,8 @@ object KafkaServiceSpec : Spek({
     given("a valid data batch") {
         val simpleBatch = Utils.readToString("/data/basic_data_batch.xml")
         on("receiveOnlineBatchExternalAttachment") {
-            onlineBatchReceiver.receiveOnlineBatchExternalAttachment("", "", "",
-                    0, simpleBatch, ByteArray(0))
+            onlineBatchReceiver.receiveOnlineBatchExternalAttachment("", "", "", "",
+                    "", 0, simpleBatch, null, ByteArray(0))
             val record = captor.firstValue
             it("it should invoke the Kafka Producer once") {
                 verify(kafkaProducer, times(1)).send(any())

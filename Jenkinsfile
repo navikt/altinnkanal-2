@@ -85,19 +85,18 @@ pipeline {
                     slackStatus status: 'aborted'
                 }
             }
+            junit '**/build/test-results/junit-platform/*.xml'
+            archiveArtifacts artifacts: '**/build/libs/*', allowEmptyArchive: true
+            archiveArtifacts artifacts: '**/build/install/*', allowEmptyArchive: true
+            deleteDir()
         }
         success {
-            junit '**/build/test-results/junit-platform/*.xml'
-            archive '**/build/libs/*'
-            archive '**/build/install/*'
-            deleteDir()
             githubStatus 'success'
             slackStatus status: 'success'
         }
         failure {
             githubStatus 'failure'
             slackStatus status: 'failure'
-            deleteDir()
         }
     }
 }
