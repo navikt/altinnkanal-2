@@ -85,9 +85,8 @@ class LdapUntValidator : UsernameTokenValidator() {
         return credential
     }
 
-    private fun findUsernameInAd(username: String, initCtx: InitialDirContext): Boolean {
-        // There should be exactly one match
-        return initCtx.search(config.baseDn, "(cn=$username)", searchControls).run {
+    private fun findUsernameInAd(username: String, initCtx: InitialDirContext) = initCtx
+        .search(config.baseDn, "(cn=$username)", searchControls).run {
             when (hasMoreElements()) {
                 true -> {
                     nextElement()
@@ -97,17 +96,14 @@ class LdapUntValidator : UsernameTokenValidator() {
                 else -> false // NamingEnumeration auto-closes if !hasMoreElements
             }
         }
-    }
 
-    private fun checkGroupMembershipInAd(username: String, initCtx: InitialDirContext): Boolean {
-        return initCtx
-            .search(config.baseDn, "(cn=$username)", searchControls).run {
-                nextElement().attributes.get("memberOf").all.asSequence()
-                .any { it.toString().substringAfter("=").substringBefore(",")
-                        .equals(config.adGroup, true) }
-                .also { close() }
-            }
-    }
+    private fun checkGroupMembershipInAd(username: String, initCtx: InitialDirContext) = initCtx
+        .search(config.baseDn, "(cn=$username)", searchControls).run {
+            nextElement().attributes.get("memberOf").all.asSequence()
+            .any { it.toString().substringAfter("=").substringBefore(",")
+                    .equals(config.adGroup, true) }
+            .also { close() }
+        }
 
     private fun wsSecAuthFail(message: String): Nothing {
         log.error(message)

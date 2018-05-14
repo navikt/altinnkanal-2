@@ -42,19 +42,12 @@ fun main(args: Array<String>) {
             setProperty("schema.registry.url", it)
         }
     }
+
+    LdapConfiguration.config // trigger lazy evaluation
+
     val kafkaProducer = KafkaProducer<String, ExternalAttachment>(kafkaProperties)
-
     val batchReceiver = OnlineBatchReceiverSoapImpl(topicService, kafkaProducer)
-
     val server = Server(8080)
-
-    LdapConfiguration.init(LdapConfiguration.Config(
-        adGroup = System.getenv("LDAP_AD_GROUP") ?: "0000-GA-altinnkanal-Operator",
-        url = System.getenv("LDAP_URL"),
-        username = System.getenv("LDAP_USERNAME"),
-        password = System.getenv("LDAP_PASSWORD"),
-        baseDn = System.getenv("LDAP_SERVICEUSER_BASEDN"))
-    )
     bootstrap(server, batchReceiver)
     server.join()
 }
