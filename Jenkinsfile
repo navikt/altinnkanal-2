@@ -11,15 +11,11 @@ pipeline {
     }
 
     stages {
-        stage('prepare') {
-            steps {
-                ciSkip 'check'
-            }
-        }
         stage('initialize') {
             steps {
+                ciSkip 'check'
+                sh './gradlew clean'
                 script {
-                    sh './gradlew clean'
                     applicationVersionGradle = sh(script: './gradlew -q printVersion', returnStdout: true).trim()
                     env.COMMIT_HASH = gitVars 'commitHash'
                     env.COMMIT_HASH_SHORT = gitVars 'commitHashShort'
@@ -37,31 +33,23 @@ pipeline {
         }
         stage('build') {
             steps {
-                script {
-                    sh './gradlew build -x test'
-                }
+                sh './gradlew build -x test'
             }
         }
         stage('run tests (unit & intergration)') {
             steps {
-                script {
-                    sh './gradlew test'
-                }
+                sh './gradlew test'
                 slackStatus status: 'passed'
             }
         }
         stage('deploy schemas to maven repo') {
             steps {
-                script {
-                    sh './gradlew publish'
-                }
+                sh './gradlew publish'
             }
         }
         stage('extract application files') {
             steps {
-                script {
-                    sh './gradlew installDist'
-                }
+                sh './gradlew installDist'
             }
         }
         stage('push docker image') {
