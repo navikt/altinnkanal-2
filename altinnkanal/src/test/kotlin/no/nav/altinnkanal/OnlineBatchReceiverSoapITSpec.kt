@@ -7,6 +7,9 @@ import no.nav.altinnkanal.config.topicRouting
 import no.nav.altinnkanal.services.TopicService
 import no.nav.altinnkanal.services.TopicServiceSpec
 import no.nav.altinnkanal.soap.OnlineBatchReceiverSoapImpl
+import no.nav.altinnkanal.soap.SoapResponse.FAILED
+import no.nav.altinnkanal.soap.SoapResponse.FAILED_DO_NOT_RETRY
+import no.nav.altinnkanal.soap.SoapResponse.OK
 import no.nav.common.KafkaEnvironment
 import no.nav.common.embeddedutils.ServerBase
 import org.amshove.kluent.shouldEqual

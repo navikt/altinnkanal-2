@@ -15,6 +15,9 @@ import java.io.StringReader
 
 import net.logstash.logback.argument.StructuredArguments.kv
 import net.logstash.logback.encoder.org.apache.commons.lang.StringEscapeUtils
+import no.nav.altinnkanal.soap.SoapResponse.FAILED
+import no.nav.altinnkanal.soap.SoapResponse.FAILED_DO_NOT_RETRY
+import no.nav.altinnkanal.soap.SoapResponse.OK
 
 class OnlineBatchReceiverSoapImpl (
     private val topicService: TopicService,
@@ -44,9 +47,9 @@ class OnlineBatchReceiverSoapImpl (
 
             if (topic == null) {
                 requestsFailedMissing.inc()
-                logDetails.add(kv("status", "FAILED_MISSING"))
+                logDetails.add(kv("status", FAILED_DO_NOT_RETRY))
                 log.warn("Denied ROBEA request due to missing/unknown codes: ${"{} ".repeat(logDetails.size)}", *logDetails.toTypedArray())
-                return "FAILED_DO_NOT_RETRY"
+                return FAILED_DO_NOT_RETRY
             }
 
             val metadata = kafkaProducer
@@ -59,20 +62,20 @@ class OnlineBatchReceiverSoapImpl (
 
             logDetails.apply {
                 add(kv("latency", String.format("%.0f", latency * 1000) + " ms"))
-                add(kv("size", String.format("%.2f", metadata.serializedValueSize() / (1024f * 1024f)) + " MB"))
+                add(kv("size", String.format("%.2f", metadata.serializedValueSize() / 1024f) + " KB"))
                 add(kv("topic", metadata.topic()))
                 add(kv("partition", metadata.partition()))
                 add(kv("offset", metadata.offset()))
-                add(kv("status", "SUCCESS"))
+                add(kv("status", OK))
             }
 
             log.info("Successfully published ROBEA request to Kafka: ${"{} ".repeat(logDetails.size)}", *logDetails.toTypedArray())
-            return "OK"
+            return OK
         } catch (e: Exception) {
             requestsFailedError.inc()
-            logDetails.add(kv("status", "FAILED"))
+            logDetails.add(kv("status", FAILED))
             log.error("Failed to send a ROBEA request to Kafka: ${"{} ".repeat(logDetails.size)}", *logDetails.toTypedArray(), e)
-            return "FAILED"
+            return FAILED
         }
     }
 
