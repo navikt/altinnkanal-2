@@ -10,10 +10,10 @@ object LdapConfiguration {
         val baseDn: String
     )
 
-    var override: Config? = null
+    var overrideConfig: Config? = null
 
     val config: Config by lazy {
-    override ?: LdapConfiguration.Config(
+        overrideConfig ?: LdapConfiguration.Config(
             adGroup = System.getenv("LDAP_AD_GROUP") ?: "0000-GA-altinnkanal-Operator",
             url = System.getenv("LDAP_URL"),
             username = System.getenv("LDAP_USERNAME"),
