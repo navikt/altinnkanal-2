@@ -5,7 +5,7 @@ import no.altinn.webservices.OnlineBatchReceiverSoap
 import no.nav.altinnkanal.avro.ExternalAttachment
 import no.nav.altinnkanal.config.LdapConfiguration
 import no.nav.altinnkanal.config.topicRouting
-import no.nav.altinnkanal.rest.HealthCheckRestController
+import no.nav.altinnkanal.rest.SelfTest
 import no.nav.altinnkanal.services.TopicService
 import no.nav.altinnkanal.soap.LdapUntValidator
 import no.nav.altinnkanal.soap.OnlineBatchReceiverSoapImpl
@@ -64,7 +64,7 @@ fun bootstrap(server: Server, batchReceiver: OnlineBatchReceiverSoap) {
     val cxfServlet = CXFNonSpringServlet()
 
     // Configure Jax RS
-    val jaxRSSingletons = setOf<Any>(HealthCheckRestController())
+    val jaxRSSingletons = setOf<Any>(SelfTest())
     val cxfRSServlet = CXFNonSpringJaxrsServlet(jaxRSSingletons)
 
     server.run {
