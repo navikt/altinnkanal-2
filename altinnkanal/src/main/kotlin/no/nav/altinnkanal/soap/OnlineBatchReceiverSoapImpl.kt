@@ -2,6 +2,7 @@ package no.nav.altinnkanal.soap
 
 import io.prometheus.client.Counter
 import io.prometheus.client.Summary
+import net.logstash.logback.argument.StructuredArgument
 import no.altinn.webservices.OnlineBatchReceiverSoap
 import no.nav.altinnkanal.avro.ExternalAttachment
 import no.nav.altinnkanal.services.TopicService
@@ -20,15 +21,35 @@ import no.nav.altinnkanal.soap.SoapResponse.FAILED
 import no.nav.altinnkanal.soap.SoapResponse.FAILED_DO_NOT_RETRY
 import no.nav.altinnkanal.soap.SoapResponse.OK
 
+private val log = LoggerFactory.getLogger(OnlineBatchReceiverSoap::class.java.name)
+private val xmlInputFactory = XMLInputFactory.newFactory()
+private val requestsTotal = Counter.build()
+        .name("altinnkanal_requests_total")
+        .help("Total requests.").register()
+private val requestsSuccess = Counter.build()
+        .name("altinnkanal_requests_success")
+        .help("Total successful requests.").register()
+private val requestsFailedMissing = Counter.build()
+        .name("altinnkanal_requests_missing")
+        .help("Total failed requests due to missing/unknown SC/SEC codes.").register()
+private val requestsFailedError = Counter.build()
+        .name("altinnkanal_requests_error")
+        .help("Total failed requests due to error.").register()
+private val requestSize = Summary.build()
+        .name("altinnkanal_request_size_bytes_sum").help("Request size in bytes.")
+        .register()
+private val requestTime = Summary.build()
+        .name("altinnkanal_request_time_ms").help("Request time in milliseconds.")
+        .register()
+
 class OnlineBatchReceiverSoapImpl (
     private val topicService: TopicService,
     private val kafkaProducer: Producer<String, ExternalAttachment>
 ) : OnlineBatchReceiverSoap {
-    override fun receiveOnlineBatchExternalAttachment(parameters: ReceiveOnlineBatchExternalAttachment?): ReceiveOnlineBatchExternalAttachmentResponse {
-        val receiversReference = parameters?.receiversReference
-        val sequenceNumber = parameters?.sequenceNumber
-        val batch = parameters?.batch
-        val batch1 = parameters?.batch1
+    override fun receiveOnlineBatchExternalAttachment(parameters: ReceiveOnlineBatchExternalAttachment): ReceiveOnlineBatchExternalAttachmentResponse {
+        val receiversReference = parameters.receiversReference
+        val sequenceNumber = parameters.sequenceNumber
+        val dataBatch = parameters.batch ?: parameters.batch1 ?: throw RuntimeException("Empty batch")
 
         val response = ReceiveOnlineBatchExternalAttachmentResponse()
 
@@ -36,23 +57,19 @@ class OnlineBatchReceiverSoapImpl (
         var serviceEditionCode: String? = null
         var archiveReference: String? = null
         val requestLatency = requestTime.startTimer()
-        var logDetails = mutableListOf(kv("SC", serviceCode), kv("SEC", serviceEditionCode),
-                kv("recRef", receiversReference), kv("archRef", archiveReference), kv("seqNum", sequenceNumber))
+        var logDetails: MutableList<StructuredArgument>? = null
 
         requestsTotal.inc()
         try {
-            val dataBatch = batch ?: batch1 ?: throw RuntimeException("Empty batch")
-
-            val externalAttachment = toAvroObject(dataBatch).also {
-                serviceCode = it.getSc()
-                serviceEditionCode = it.getSec()
-                archiveReference = it.getArchRef()
-            }
-
-            val topic = topicService.getTopic(serviceCode!!, serviceEditionCode!!)
+            val externalAttachment = toAvroObject(dataBatch)
+            serviceCode = externalAttachment.getSc()
+            serviceEditionCode = externalAttachment.getSec()
+            archiveReference = externalAttachment.getArchRef()
 
             logDetails = mutableListOf(kv("SC", serviceCode), kv("SEC", serviceEditionCode),
                     kv("recRef", receiversReference), kv("archRef", archiveReference), kv("seqNum", sequenceNumber))
+
+            val topic = topicService.getTopic(serviceCode!!, serviceEditionCode!!)
 
             if (topic == null) {
                 requestsFailedMissing.inc()
@@ -70,20 +87,22 @@ class OnlineBatchReceiverSoapImpl (
             requestSize.observe(metadata.serializedValueSize().toDouble())
             requestsSuccess.inc()
 
-            logDetails.apply {
-                add(kv("latency", String.format("%.0f", latency * 1000) + " ms"))
-                add(kv("size", String.format("%.2f", metadata.serializedValueSize() / 1024f) + " KB"))
-                add(kv("topic", metadata.topic()))
-                add(kv("partition", metadata.partition()))
-                add(kv("offset", metadata.offset()))
-                add(kv("status", OK))
-            }
-
+            logDetails.addAll(arrayOf(
+                    kv("latency", "${(latency * 1000).toLong()} ms"),
+                    kv("size", String.format("%.2f", metadata.serializedValueSize() / 1024f) + " KB"),
+                    kv("topic", metadata.topic()),
+                    kv("partition", metadata.partition()),
+                    kv("offset", metadata.offset()),
+                    kv("status", OK)
+            ))
             log.info("Successfully published ROBEA request to Kafka: ${"{} ".repeat(logDetails.size)}", *logDetails.toTypedArray())
             response.receiveOnlineBatchExternalAttachmentResult = OK
             return response
         } catch (e: Exception) {
             requestsFailedError.inc()
+            logDetails = logDetails ?: mutableListOf(kv("SC", serviceCode), kv("SEC", serviceEditionCode),
+                    kv("recRef", receiversReference), kv("archRef", archiveReference), kv("seqNum", sequenceNumber))
+
             logDetails.add(kv("status", FAILED))
             log.error("Failed to send a ROBEA request to Kafka: ${"{} ".repeat(logDetails.size)}", *logDetails.toTypedArray(), e)
             response.receiveOnlineBatchExternalAttachmentResult = FAILED
@@ -92,66 +111,30 @@ class OnlineBatchReceiverSoapImpl (
     }
 
     private fun toAvroObject(dataBatch: String): ExternalAttachment {
-        val reader = StringReader(dataBatch)
-        val xmlReader = xmlInputFactory.createXMLStreamReader(reader)
-        var serviceCode: String? = null
-        var serviceEditionCode: String? = null
-        var archiveReference: String? = null
+        val xmlReader = xmlInputFactory.createXMLStreamReader(StringReader(dataBatch))
 
-        while (xmlReader.hasNext()) {
-            val eventType = xmlReader.next()
-            if (eventType == XMLEvent.START_ELEMENT) {
-                val tagName = xmlReader.localName
-                when (tagName) {
-                    "ServiceCode" -> {
-                        xmlReader.next()
-                        serviceCode = xmlReader.text
+        return try {
+            val builder = ExternalAttachment.newBuilder()
+            while (xmlReader.hasNext() && (!builder.hasArchRef() || !builder.hasSc() || !builder.hasSec())) {
+                val eventType = xmlReader.next()
+                if (eventType == XMLEvent.START_ELEMENT) {
+                    when (xmlReader.localName) {
+                        "ServiceCode" -> {
+                            builder.sc = xmlReader.elementText
+                        }
+                        "ServiceEditionCode" -> {
+                            builder.sec = xmlReader.elementText
+                        }
+                        "DataUnit" -> {
+                            builder.archRef = xmlReader.getAttributeValue(null, "archiveReference")
+                        }
                     }
-                    "ServiceEditionCode" -> {
-                        xmlReader.next()
-                        serviceEditionCode = xmlReader.text
-                    }
-                    "DataUnit" -> archiveReference = xmlReader.getAttributeValue(null, "archiveReference")
                 }
             }
-            if (archiveReference != null && serviceCode != null && serviceEditionCode != null)
-                break
+
+            builder.setBatch(dataBatch).build()
+        } finally {
+            xmlReader.close()
         }
-
-        xmlReader.close()
-
-        val externalAttachment = ExternalAttachment.newBuilder()
-                .setSc(serviceCode)
-                .setSec(serviceEditionCode)
-                .setArchRef(archiveReference)
-                .setBatch(dataBatch)
-                .build()
-
-        log.debug("Got a ROBEA request", externalAttachment)
-
-        return externalAttachment
-    }
-
-    companion object {
-        private val log = LoggerFactory.getLogger(OnlineBatchReceiverSoap::class.java.name)
-        private val xmlInputFactory = XMLInputFactory.newFactory()
-        private val requestsTotal = Counter.build()
-                .name("altinnkanal_requests_total")
-                .help("Total requests.").register()
-        private val requestsSuccess = Counter.build()
-                .name("altinnkanal_requests_success")
-                .help("Total successful requests.").register()
-        private val requestsFailedMissing = Counter.build()
-                .name("altinnkanal_requests_missing")
-                .help("Total failed requests due to missing/unknown SC/SEC codes.").register()
-        private val requestsFailedError = Counter.build()
-                .name("altinnkanal_requests_error")
-                .help("Total failed requests due to error.").register()
-        private val requestSize = Summary.build()
-                .name("altinnkanal_request_size_bytes_sum").help("Request size in bytes.")
-                .register()
-        private val requestTime = Summary.build()
-                .name("altinnkanal_request_time_ms").help("Request time in milliseconds.")
-                .register()
     }
 }

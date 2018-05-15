@@ -33,35 +33,28 @@ class LdapUntValidator : UsernameTokenValidator() {
             returningAttributes = arrayOf("memberOf", "givenName")
             timeLimit = 30000
         }
-        private val boundedCache: Cache<String, Bounded> = Caffeine.newBuilder()
+        private val boundedCache: Cache<String, String> = Caffeine.newBuilder()
             .expireAfterWrite(10, TimeUnit.MINUTES)
             .maximumSize(10)
             .build()
         private val config = LdapConfiguration.config
     }
 
-    private data class Bounded(val username: String, val password: String)
-
     override fun validate(credential: Credential, data: RequestData): Credential {
         val username = credential.usernametoken.name
         val password = credential.usernametoken.password
-        val initProps = Properties().apply {
-            put(Context.INITIAL_CONTEXT_FACTORY, "com.sun.jndi.ldap.LdapCtxFactory")
-            put(Context.PROVIDER_URL, config.url)
-            put(Context.SECURITY_PRINCIPAL, config.username)
-            put(Context.SECURITY_CREDENTIALS, config.password)
-        }
+        val initProps = Properties()
+        initProps[Context.INITIAL_CONTEXT_FACTORY] = "com.sun.jndi.ldap.LdapCtxFactory"
+        initProps[Context.PROVIDER_URL] = config.url
+        initProps[Context.SECURITY_PRINCIPAL] = config.username
+        initProps[Context.SECURITY_CREDENTIALS] = config.password
         // Lookup provided user in cache to avoid unnecessary LDAP lookups
         boundedCache.getIfPresent(username)?.run {
-            if (password == this.password) return credential
+            if (password == this) return credential
         }
         try {
             InitialDirContext(initProps).let {
                 when {
-                    !findUsernameInAd(username, it) -> {
-                        it.close()
-                        wsSecAuthFail("User was not found in AD: ($username)")
-                    }
                     !checkGroupMembershipInAd(username, it) -> {
                         it.close()
                         wsSecAuthFail("AD group membership not found (user: $username, group: ${config.adGroup})")
@@ -70,32 +63,19 @@ class LdapUntValidator : UsernameTokenValidator() {
                 }
             }
             // Attempt to bind the credentials for authentication
-            InitialDirContext(initProps.apply {
-                put(Context.SECURITY_PRINCIPAL, "cn=$username,${config.baseDn}")
-                put(Context.SECURITY_CREDENTIALS, password)
-            }).close()
+            initProps[Context.SECURITY_PRINCIPAL] = "cn=$username,${config.baseDn}"
+            initProps[Context.SECURITY_CREDENTIALS] = password
+            InitialDirContext(initProps).close()
             // Cache the successful bind
-            boundedCache.put(username, Bounded(username, password))
+            boundedCache.put(username, password)
         } catch (e: AuthenticationException) {
             wsSecAuthFail("User does not have valid credentials: ($username)")
         } catch (e: NamingException) {
-            log.error("Connection to LDAP failed")
+            log.error("Connection to LDAP failed", e)
             throw RuntimeException("Could not initialize LDAP connection")
         }
         return credential
     }
-
-    private fun findUsernameInAd(username: String, initCtx: InitialDirContext) = initCtx
-        .search(config.baseDn, "(cn=$username)", searchControls).run {
-            when (hasMoreElements()) {
-                true -> {
-                    nextElement()
-                    !hasMoreElements()
-                    .also { close() }
-                }
-                else -> false // NamingEnumeration auto-closes if !hasMoreElements
-            }
-        }
 
     private fun checkGroupMembershipInAd(username: String, initCtx: InitialDirContext) = initCtx
         .search(config.baseDn, "(cn=$username)", searchControls).run {
