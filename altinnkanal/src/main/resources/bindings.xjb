@@ -6,11 +6,12 @@
     version="2.1"
     xmlns:xs="http://www.w3.org/2001/XMLSchema"
     wsdlLocation="OnlineBatchReceiver.wsdl">
+    <jaxws:enableWrapperStyle>false</jaxws:enableWrapperStyle>
 
-    <jaxws:bindings node="wsdl:definitions/wsdl:types/xs:schema/xs:element[@name='ReceiveOnlineBatchExternalAttachment']/xs:complexType/xs:sequence/xs:element[@name='username']">
+    <jaxws:bindings node=".//xs:element[@name='Username']">
         <jaxb:property name="username1" />
     </jaxws:bindings>
-    <jaxws:bindings node="wsdl:definitions/wsdl:types/xs:schema/xs:element[@name='ReceiveOnlineBatchExternalAttachment']/xs:complexType/xs:sequence/xs:element[@name='batch']">
+    <jaxws:bindings node=".//xs:element[@name='Batch']">
         <jaxb:property name="batch1"/>
     </jaxws:bindings>
 

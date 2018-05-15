@@ -6,6 +6,7 @@ import com.nhaarman.mockitokotlin2.mock
 import com.nhaarman.mockitokotlin2.times
 import com.nhaarman.mockitokotlin2.verify
 import com.nhaarman.mockitokotlin2.whenever
+import no.altinn.webservices.ReceiveOnlineBatchExternalAttachment
 import java.util.concurrent.Future
 import no.nav.altinnkanal.Utils
 import no.nav.altinnkanal.avro.ExternalAttachment
@@ -37,13 +38,17 @@ object KafkaServiceSpec : Spek({
     given("a valid data batch") {
         val simpleBatch = Utils.readToString("/data/basic_data_batch.xml")
         on("receiveOnlineBatchExternalAttachment") {
-            onlineBatchReceiver.receiveOnlineBatchExternalAttachment("", "", "", "",
-                    "", 0, simpleBatch, null, ByteArray(0))
+            onlineBatchReceiver.receiveOnlineBatchExternalAttachment(
+                ReceiveOnlineBatchExternalAttachment().apply {
+                    sequenceNumber = 0
+                    batch = simpleBatch
+                }
+            )
             val record = captor.firstValue
-            it("it should invoke the Kafka Producer once") {
+            it("should invoke the Kafka Producer once") {
                 verify(kafkaProducer, times(1)).send(any())
             }
-            it("it should send the message to the correct topic") {
+            it("should send the message to the correct topic") {
                 record.topic() shouldBe expectedTopic
             }
         }

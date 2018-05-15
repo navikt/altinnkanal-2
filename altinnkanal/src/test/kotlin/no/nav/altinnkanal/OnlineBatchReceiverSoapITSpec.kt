@@ -1,5 +1,6 @@
 package no.nav.altinnkanal
 
+import no.altinn.webservices.ReceiveOnlineBatchExternalAttachment
 import java.util.Properties
 import no.nav.altinnkanal.Utils.createPayload
 import no.nav.altinnkanal.avro.ExternalAttachment
@@ -59,10 +60,13 @@ object OnlineBatchReceiverSoapITSpec : Spek({
                     expected = SOAPFaultException::class),
             data("non-existent username", "altinnkanal", "password", expected = SOAPFaultException::class)
         ) { _, username, password, expected ->
-            val client = Utils.createSoapClient(localServerPort, username, password)
-            val result = { client.receiveOnlineBatchExternalAttachment(null, null,
-                    null, null, null, 0, payload, payload, ByteArray(0)) }
             it("should throw a SOAPFaultException") {
+                val client = Utils.createSoapClient(localServerPort, username, password)
+                val result = { client.receiveOnlineBatchExternalAttachment(
+                    ReceiveOnlineBatchExternalAttachment().apply {
+                        sequenceNumber = 0
+                        batch = simpleBatch
+                }) }
                 result shouldThrow expected
             }
         }
@@ -82,10 +86,20 @@ object OnlineBatchReceiverSoapITSpec : Spek({
                     Utils.readToString("/data/basic_data_batch_missing_sec.xml"),
                     expected = FAILED)
         ) { _, payload, expected ->
-            println(payload)
-            val result = soapClient.receiveOnlineBatchExternalAttachment(null, null,
-                    null, null, null, 0, payload, payload, ByteArray(0))
-            it("should return a result equal to $expected") {
+            it("should return a result equal to $expected for batch") {
+                val result = soapClient.receiveOnlineBatchExternalAttachment(
+                        ReceiveOnlineBatchExternalAttachment().apply {
+                            sequenceNumber = 0
+                            batch = payload
+                        }).receiveOnlineBatchExternalAttachmentResult
+                result shouldEqual expected
+            }
+            it("should return a result equal to $expected for Batch") {
+                val result = soapClient.receiveOnlineBatchExternalAttachment(
+                        ReceiveOnlineBatchExternalAttachment().apply {
+                            sequenceNumber = 0
+                            batch1 = payload
+                        }).receiveOnlineBatchExternalAttachmentResult
                 result shouldEqual expected
             }
         }
@@ -96,9 +110,22 @@ object OnlineBatchReceiverSoapITSpec : Spek({
                 data("Kafka back up again", ServerBase::start, expected = OK)
             ) { _, operation, expected ->
                 kafkaEnvironment.serverPark.brokers.forEach(operation)
-                val result = soapClient.receiveOnlineBatchExternalAttachment(null, null,
-                    null, null, null, 0, payload, payload, ByteArray(0))
-                it("should return a result equal to $expected") {
+                it("should return a result equal to $expected for batch") {
+                    val result = soapClient.receiveOnlineBatchExternalAttachment(
+                            ReceiveOnlineBatchExternalAttachment().apply {
+                                sequenceNumber = 0
+                                batch = simpleBatch
+                            }
+                    ).receiveOnlineBatchExternalAttachmentResult
+                    result shouldEqual expected
+                }
+                it("should return a result equal to $expected for Batch") {
+                    val result = soapClient.receiveOnlineBatchExternalAttachment(
+                            ReceiveOnlineBatchExternalAttachment().apply {
+                                sequenceNumber = 0
+                                batch1 = simpleBatch
+                            }
+                    ).receiveOnlineBatchExternalAttachmentResult
                     result shouldEqual expected
                 }
             }

@@ -14,7 +14,8 @@ import javax.xml.stream.events.XMLEvent
 import java.io.StringReader
 
 import net.logstash.logback.argument.StructuredArguments.kv
-import net.logstash.logback.encoder.org.apache.commons.lang.StringEscapeUtils
+import no.altinn.webservices.ReceiveOnlineBatchExternalAttachment
+import no.altinn.webservices.ReceiveOnlineBatchExternalAttachmentResponse
 import no.nav.altinnkanal.soap.SoapResponse.FAILED
 import no.nav.altinnkanal.soap.SoapResponse.FAILED_DO_NOT_RETRY
 import no.nav.altinnkanal.soap.SoapResponse.OK
@@ -23,18 +24,14 @@ class OnlineBatchReceiverSoapImpl (
     private val topicService: TopicService,
     private val kafkaProducer: Producer<String, ExternalAttachment>
 ) : OnlineBatchReceiverSoap {
+    override fun receiveOnlineBatchExternalAttachment(parameters: ReceiveOnlineBatchExternalAttachment?): ReceiveOnlineBatchExternalAttachmentResponse {
+        val receiversReference = parameters?.receiversReference
+        val sequenceNumber = parameters?.sequenceNumber
+        val batch = parameters?.batch
+        val batch1 = parameters?.batch1
 
-    override fun receiveOnlineBatchExternalAttachment(
-        username: String?,
-        username1: String?,
-        passwd: String?,
-        password: String?,
-        receiversReference: String?,
-        sequenceNumber: Long,
-        batch: String?,
-        batch1: String?,
-        attachments: ByteArray?
-    ): String {
+        val response = ReceiveOnlineBatchExternalAttachmentResponse()
+
         var serviceCode: String? = null
         var serviceEditionCode: String? = null
         var archiveReference: String? = null
@@ -44,13 +41,7 @@ class OnlineBatchReceiverSoapImpl (
 
         requestsTotal.inc()
         try {
-            println("batch $batch")
-            println("batch1 $batch1")
-            val dataBatch = when {
-                batch != null -> batch
-                batch1 != null -> batch1
-                else -> throw RuntimeException("Empty batch")
-            }
+            val dataBatch = batch ?: batch1 ?: throw RuntimeException("Empty batch")
 
             val externalAttachment = toAvroObject(dataBatch).also {
                 serviceCode = it.getSc()
@@ -67,7 +58,8 @@ class OnlineBatchReceiverSoapImpl (
                 requestsFailedMissing.inc()
                 logDetails.add(kv("status", FAILED_DO_NOT_RETRY))
                 log.warn("Denied ROBEA request due to missing/unknown codes: ${"{} ".repeat(logDetails.size)}", *logDetails.toTypedArray())
-                return FAILED_DO_NOT_RETRY
+                response.receiveOnlineBatchExternalAttachmentResult = FAILED_DO_NOT_RETRY
+                return response
             }
 
             val metadata = kafkaProducer
@@ -88,17 +80,19 @@ class OnlineBatchReceiverSoapImpl (
             }
 
             log.info("Successfully published ROBEA request to Kafka: ${"{} ".repeat(logDetails.size)}", *logDetails.toTypedArray())
-            return OK
+            response.receiveOnlineBatchExternalAttachmentResult = OK
+            return response
         } catch (e: Exception) {
             requestsFailedError.inc()
             logDetails.add(kv("status", FAILED))
             log.error("Failed to send a ROBEA request to Kafka: ${"{} ".repeat(logDetails.size)}", *logDetails.toTypedArray(), e)
-            return FAILED
+            response.receiveOnlineBatchExternalAttachmentResult = FAILED
+            return response
         }
     }
 
     private fun toAvroObject(dataBatch: String): ExternalAttachment {
-        val reader = StringReader(StringEscapeUtils.unescapeXml(dataBatch))
+        val reader = StringReader(dataBatch)
         val xmlReader = xmlInputFactory.createXMLStreamReader(reader)
         var serviceCode: String? = null
         var serviceEditionCode: String? = null
