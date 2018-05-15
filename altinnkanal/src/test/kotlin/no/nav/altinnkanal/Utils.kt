@@ -29,8 +29,8 @@ object Utils {
 
     fun createPayload(simpleBatch: String, serviceCode: String, serviceEditionCode: String): String {
         return simpleBatch
-                .replace("\\{\\{serviceCode}}".toRegex(), serviceCode)
-                .replace("\\{\\{serviceEditionCode}}".toRegex(), serviceEditionCode)
+            .replace("\\{\\{serviceCode}}".toRegex(), serviceCode)
+            .replace("\\{\\{serviceEditionCode}}".toRegex(), serviceEditionCode)
     }
 
     fun createLdapServer(): InMemoryDirectoryServer {

@@ -4,8 +4,8 @@
   "name": "ExternalAttachment",
   "fields": [
     { "name": "batch", "type": "string" },
-    { "name": "sc", "type": "string" },
-    { "name": "sec", "type": "string" },
-    { "name": "archRef", "type": "string" }
+    { "name": "serviceCode", "type": "string" },
+    { "name": "serviceEditionCode", "type": "string" },
+    { "name": "archiveReference", "type": "string" }
   ]
 }

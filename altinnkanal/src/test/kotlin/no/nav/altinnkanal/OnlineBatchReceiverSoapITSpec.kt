@@ -65,7 +65,7 @@ object OnlineBatchReceiverSoapITSpec : Spek({
                 val result = { client.receiveOnlineBatchExternalAttachment(
                     ReceiveOnlineBatchExternalAttachment().apply {
                         sequenceNumber = 0
-                        batch = simpleBatch
+                        batch = payload
                 }) }
                 result shouldThrow expected
             }
@@ -88,18 +88,18 @@ object OnlineBatchReceiverSoapITSpec : Spek({
         ) { _, payload, expected ->
             it("should return a result equal to $expected for batch") {
                 val result = soapClient.receiveOnlineBatchExternalAttachment(
-                        ReceiveOnlineBatchExternalAttachment().apply {
-                            sequenceNumber = 0
-                            batch = payload
-                        }).receiveOnlineBatchExternalAttachmentResult
+                    ReceiveOnlineBatchExternalAttachment().apply {
+                        sequenceNumber = 0
+                        batch = payload
+                }).receiveOnlineBatchExternalAttachmentResult
                 result shouldEqual expected
             }
             it("should return a result equal to $expected for Batch") {
                 val result = soapClient.receiveOnlineBatchExternalAttachment(
-                        ReceiveOnlineBatchExternalAttachment().apply {
-                            sequenceNumber = 0
-                            batch1 = payload
-                        }).receiveOnlineBatchExternalAttachmentResult
+                    ReceiveOnlineBatchExternalAttachment().apply {
+                        sequenceNumber = 0
+                        batch1 = payload
+                }).receiveOnlineBatchExternalAttachmentResult
                 result shouldEqual expected
             }
         }
@@ -112,19 +112,19 @@ object OnlineBatchReceiverSoapITSpec : Spek({
                 kafkaEnvironment.serverPark.brokers.forEach(operation)
                 it("should return a result equal to $expected for batch") {
                     val result = soapClient.receiveOnlineBatchExternalAttachment(
-                            ReceiveOnlineBatchExternalAttachment().apply {
-                                sequenceNumber = 0
-                                batch = simpleBatch
-                            }
+                        ReceiveOnlineBatchExternalAttachment().apply {
+                            sequenceNumber = 0
+                            batch = payload
+                        }
                     ).receiveOnlineBatchExternalAttachmentResult
                     result shouldEqual expected
                 }
                 it("should return a result equal to $expected for Batch") {
                     val result = soapClient.receiveOnlineBatchExternalAttachment(
-                            ReceiveOnlineBatchExternalAttachment().apply {
-                                sequenceNumber = 0
-                                batch1 = simpleBatch
-                            }
+                        ReceiveOnlineBatchExternalAttachment().apply {
+                            sequenceNumber = 0
+                            batch1 = simpleBatch
+                        }
                     ).receiveOnlineBatchExternalAttachmentResult
                     result shouldEqual expected
                 }

@@ -24,23 +24,23 @@ import no.nav.altinnkanal.soap.SoapResponse.OK
 private val log = LoggerFactory.getLogger(OnlineBatchReceiverSoap::class.java.name)
 private val xmlInputFactory = XMLInputFactory.newFactory()
 private val requestsTotal = Counter.build()
-        .name("altinnkanal_requests_total")
-        .help("Total requests.").register()
+    .name("altinnkanal_requests_total")
+    .help("Total requests.").register()
 private val requestsSuccess = Counter.build()
-        .name("altinnkanal_requests_success")
-        .help("Total successful requests.").register()
+    .name("altinnkanal_requests_success")
+    .help("Total successful requests.").register()
 private val requestsFailedMissing = Counter.build()
-        .name("altinnkanal_requests_missing")
-        .help("Total failed requests due to missing/unknown SC/SEC codes.").register()
+    .name("altinnkanal_requests_missing")
+    .help("Total failed requests due to missing/unknown SC/SEC codes.").register()
 private val requestsFailedError = Counter.build()
-        .name("altinnkanal_requests_error")
-        .help("Total failed requests due to error.").register()
+    .name("altinnkanal_requests_error")
+    .help("Total failed requests due to error.").register()
 private val requestSize = Summary.build()
-        .name("altinnkanal_request_size_bytes_sum").help("Request size in bytes.")
-        .register()
+    .name("altinnkanal_request_size_bytes_sum").help("Request size in bytes.")
+    .register()
 private val requestTime = Summary.build()
-        .name("altinnkanal_request_time_ms").help("Request time in milliseconds.")
-        .register()
+    .name("altinnkanal_request_time_ms").help("Request time in milliseconds.")
+    .register()
 
 class OnlineBatchReceiverSoapImpl (
     private val topicService: TopicService,
@@ -62,9 +62,9 @@ class OnlineBatchReceiverSoapImpl (
         requestsTotal.inc()
         try {
             val externalAttachment = toAvroObject(dataBatch)
-            serviceCode = externalAttachment.getSc()
-            serviceEditionCode = externalAttachment.getSec()
-            archiveReference = externalAttachment.getArchRef()
+            serviceCode = externalAttachment.getServiceCode()
+            serviceEditionCode = externalAttachment.getServiceEditionCode()
+            archiveReference = externalAttachment.getArchiveReference()
 
             logDetails = mutableListOf(kv("SC", serviceCode), kv("SEC", serviceEditionCode),
                     kv("recRef", receiversReference), kv("archRef", archiveReference), kv("seqNum", sequenceNumber))
@@ -115,18 +115,18 @@ class OnlineBatchReceiverSoapImpl (
 
         return try {
             val builder = ExternalAttachment.newBuilder()
-            while (xmlReader.hasNext() && (!builder.hasArchRef() || !builder.hasSc() || !builder.hasSec())) {
+            while (xmlReader.hasNext() && (!builder.hasArchiveReference() || !builder.hasServiceCode() || !builder.hasServiceEditionCode())) {
                 val eventType = xmlReader.next()
                 if (eventType == XMLEvent.START_ELEMENT) {
                     when (xmlReader.localName) {
                         "ServiceCode" -> {
-                            builder.sc = xmlReader.elementText
+                            builder.serviceCode = xmlReader.elementText
                         }
                         "ServiceEditionCode" -> {
-                            builder.sec = xmlReader.elementText
+                            builder.serviceEditionCode = xmlReader.elementText
                         }
                         "DataUnit" -> {
-                            builder.archRef = xmlReader.getAttributeValue(null, "archiveReference")
+                            builder.archiveReference = xmlReader.getAttributeValue(null, "archiveReference")
                         }
                     }
                 }
