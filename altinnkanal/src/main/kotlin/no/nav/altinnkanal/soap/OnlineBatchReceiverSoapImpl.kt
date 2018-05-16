@@ -17,9 +17,6 @@ import java.io.StringReader
 import net.logstash.logback.argument.StructuredArguments.kv
 import no.altinn.webservices.ReceiveOnlineBatchExternalAttachment
 import no.altinn.webservices.ReceiveOnlineBatchExternalAttachmentResponse
-import no.nav.altinnkanal.soap.SoapResponse.FAILED
-import no.nav.altinnkanal.soap.SoapResponse.FAILED_DO_NOT_RETRY
-import no.nav.altinnkanal.soap.SoapResponse.OK
 
 private val log = LoggerFactory.getLogger(OnlineBatchReceiverSoap::class.java.name)
 private val xmlInputFactory = XMLInputFactory.newFactory()
@@ -42,6 +39,10 @@ private val requestTime = Summary.build()
     .name("altinnkanal_request_time_ms").help("Request time in milliseconds.")
     .register()
 
+const val OK = "OK"
+const val FAILED = "FAILED"
+const val FAILED_DO_NOT_RETRY = "FAILED_DO_NOT_RETRY"
+
 class OnlineBatchReceiverSoapImpl (
     private val topicService: TopicService,
     private val kafkaProducer: Producer<String, ExternalAttachment>
@@ -61,13 +62,14 @@ class OnlineBatchReceiverSoapImpl (
 
         requestsTotal.inc()
         try {
-            val externalAttachment = toAvroObject(dataBatch)
-            serviceCode = externalAttachment.getServiceCode()
-            serviceEditionCode = externalAttachment.getServiceEditionCode()
-            archiveReference = externalAttachment.getArchiveReference()
+            val externalAttachment = toAvroObject(dataBatch).also {
+                serviceCode = it.getServiceCode()
+                serviceEditionCode = it.getServiceEditionCode()
+                archiveReference = it.getArchiveReference()
+            }
 
             logDetails = mutableListOf(kv("SC", serviceCode), kv("SEC", serviceEditionCode),
-                    kv("recRef", receiversReference), kv("archRef", archiveReference), kv("seqNum", sequenceNumber))
+                kv("recRef", receiversReference), kv("archRef", archiveReference), kv("seqNum", sequenceNumber))
 
             val topic = topicService.getTopic(serviceCode!!, serviceEditionCode!!)
 
@@ -80,20 +82,20 @@ class OnlineBatchReceiverSoapImpl (
             }
 
             val metadata = kafkaProducer
-                    .send(ProducerRecord(topic, externalAttachment))
-                    .get()
+                .send(ProducerRecord(topic, externalAttachment))
+                .get()
 
             val latency = requestLatency.observeDuration()
             requestSize.observe(metadata.serializedValueSize().toDouble())
             requestsSuccess.inc()
 
             logDetails.addAll(arrayOf(
-                    kv("latency", "${(latency * 1000).toLong()} ms"),
-                    kv("size", String.format("%.2f", metadata.serializedValueSize() / 1024f) + " KB"),
-                    kv("topic", metadata.topic()),
-                    kv("partition", metadata.partition()),
-                    kv("offset", metadata.offset()),
-                    kv("status", OK)
+                kv("latency", "${(latency * 1000).toLong()} ms"),
+                kv("size", String.format("%.2f", metadata.serializedValueSize() / 1024f) + " KB"),
+                kv("topic", metadata.topic()),
+                kv("partition", metadata.partition()),
+                kv("offset", metadata.offset()),
+                kv("status", OK)
             ))
             log.info("Successfully published ROBEA request to Kafka: ${"{} ".repeat(logDetails.size)}", *logDetails.toTypedArray())
             response.receiveOnlineBatchExternalAttachmentResult = OK
@@ -101,7 +103,7 @@ class OnlineBatchReceiverSoapImpl (
         } catch (e: Exception) {
             requestsFailedError.inc()
             logDetails = logDetails ?: mutableListOf(kv("SC", serviceCode), kv("SEC", serviceEditionCode),
-                    kv("recRef", receiversReference), kv("archRef", archiveReference), kv("seqNum", sequenceNumber))
+                kv("recRef", receiversReference), kv("archRef", archiveReference), kv("seqNum", sequenceNumber))
 
             logDetails.add(kv("status", FAILED))
             log.error("Failed to send a ROBEA request to Kafka: ${"{} ".repeat(logDetails.size)}", *logDetails.toTypedArray(), e)

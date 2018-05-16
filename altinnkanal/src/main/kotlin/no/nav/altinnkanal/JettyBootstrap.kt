@@ -3,10 +3,9 @@ package no.nav.altinnkanal
 import io.prometheus.client.exporter.MetricsServlet
 import no.altinn.webservices.OnlineBatchReceiverSoap
 import no.nav.altinnkanal.avro.ExternalAttachment
-import no.nav.altinnkanal.config.LdapConfiguration
-import no.nav.altinnkanal.config.topicRouting
 import no.nav.altinnkanal.rest.SelfTest
 import no.nav.altinnkanal.services.TopicService
+import no.nav.altinnkanal.services.topicRouting
 import no.nav.altinnkanal.soap.LdapUntValidator
 import no.nav.altinnkanal.soap.OnlineBatchReceiverSoapImpl
 import org.apache.cxf.BusFactory
@@ -26,9 +25,6 @@ import javax.xml.ws.Endpoint
 import kotlin.reflect.jvm.jvmName
 
 fun main(args: Array<String>) {
-
-    val topicService = TopicService(topicRouting())
-
     val kafkaProperties = Properties().apply {
         load(OnlineBatchReceiverSoapImpl::class.java.getResourceAsStream("/kafka.properties"))
         val username = System.getenv("SRVALTINNKANAL_USERNAME")
@@ -42,35 +38,26 @@ fun main(args: Array<String>) {
             setProperty("schema.registry.url", it)
         }
     }
-
-    LdapConfiguration.config // trigger lazy evaluation
-
-    val kafkaProducer = KafkaProducer<String, ExternalAttachment>(kafkaProperties)
-    val batchReceiver = OnlineBatchReceiverSoapImpl(topicService, kafkaProducer)
-    val server = Server(8080)
-    bootstrap(server, batchReceiver)
-    server.join()
+    Server(8080).run {
+        bootstrap(this, OnlineBatchReceiverSoapImpl(
+            TopicService(topicRouting()), KafkaProducer<String, ExternalAttachment>(kafkaProperties))
+        )
+        join()
+    }
 }
 
 fun bootstrap(server: Server, batchReceiver: OnlineBatchReceiverSoap) {
     // Configure Jax WS
     val cxfServlet = CXFNonSpringServlet()
-
-    // Configure Jax RS
-    val jaxRSSingletons = setOf<Any>(SelfTest())
-    val cxfRSServlet = CXFNonSpringJaxrsServlet(jaxRSSingletons)
-
     server.run {
         handler = ServletContextHandler().apply {
             addServlet(ServletHolder(MetricsServlet()), "/prometheus")
             addServlet(ServletHolder(cxfServlet), "/webservices/*")
-            addServlet(ServletHolder(cxfRSServlet), "/*")
+            addServlet(ServletHolder(CXFNonSpringJaxrsServlet(setOf<Any>(SelfTest()))), "/*")
         }
         start()
     }
-
     BusFactory.setDefaultBus(cxfServlet.bus)
-
     Endpoint.publish("/OnlineBatchReceiverSoap", batchReceiver).let {
         it as EndpointImpl
         it.server.endpoint.inInterceptors.add(WSS4JInInterceptor(HashMap<String, Any>().apply {

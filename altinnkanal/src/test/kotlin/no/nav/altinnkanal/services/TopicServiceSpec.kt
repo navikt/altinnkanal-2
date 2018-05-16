@@ -1,6 +1,5 @@
 package no.nav.altinnkanal.services
 
-import no.nav.altinnkanal.config.TopicRouting
 import org.amshove.kluent.shouldBe
 import org.amshove.kluent.shouldNotBe
 import org.jetbrains.spek.api.Spek
@@ -12,8 +11,9 @@ object TopicServiceSpec : Spek({
     val serviceCode = "testcode"
     val serviceEditionCode = "testeditioncode"
     val expectedTopic = "test.testeditioncode"
-    val topicConfig = TopicRouting(listOf(TopicRouting.TopicRoute(serviceCode, serviceEditionCode, expectedTopic)))
-    val topicService = TopicService(topicConfig)
+    val topicService = TopicService(
+        TopicRouting(listOf(TopicRouting.TopicRoute(serviceCode, serviceEditionCode, expectedTopic)))
+    )
 
     given("non-routed combinations of SC and SEC") {
         val invalidServiceCode = "missing"

@@ -6,7 +6,8 @@ import com.unboundid.ldap.sdk.OperationType
 import com.unboundid.ldap.sdk.schema.Schema
 import com.unboundid.ldif.LDIFReader
 import no.altinn.webservices.OnlineBatchReceiverSoap
-import no.nav.altinnkanal.config.LdapConfiguration
+import no.nav.altinnkanal.soap.LdapConfig
+import no.nav.altinnkanal.soap.overrideConfig
 import org.apache.cxf.jaxws.JaxWsProxyFactoryBean
 import org.apache.cxf.ws.security.wss4j.WSS4JOutInterceptor
 import org.apache.wss4j.common.ext.WSPasswordCallback
@@ -49,7 +50,7 @@ object Utils {
             .apply {
                 importFromLDIF(true, LDIFReader(Utils::class.java.getResourceAsStream("/ldap/UsersAndGroups.ldif")))
                 startListening()
-                LdapConfiguration.overrideConfig = LdapConfiguration.Config(adGroup = adGroup, url = "ldap://127.0.0.1:$listenPort",
+                overrideConfig = LdapConfig(adGroup = adGroup, url = "ldap://127.0.0.1:$listenPort",
                     username = "cn=$username,$baseDn", password = password, baseDn = baseDn)
             }
     }

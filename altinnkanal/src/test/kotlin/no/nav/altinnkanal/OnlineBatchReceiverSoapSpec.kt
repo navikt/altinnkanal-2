@@ -7,9 +7,9 @@ import no.altinn.webservices.ReceiveOnlineBatchExternalAttachment
 import java.util.concurrent.Future
 import no.nav.altinnkanal.avro.ExternalAttachment
 import no.nav.altinnkanal.services.TopicService
+import no.nav.altinnkanal.soap.FAILED_DO_NOT_RETRY
+import no.nav.altinnkanal.soap.OK
 import no.nav.altinnkanal.soap.OnlineBatchReceiverSoapImpl
-import no.nav.altinnkanal.soap.SoapResponse.FAILED_DO_NOT_RETRY
-import no.nav.altinnkanal.soap.SoapResponse.OK
 import org.amshove.kluent.shouldBe
 import org.apache.kafka.clients.producer.Producer
 import org.apache.kafka.clients.producer.RecordMetadata
