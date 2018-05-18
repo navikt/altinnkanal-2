@@ -1,5 +1,6 @@
 package no.nav.altinnkanal.services
 
+import no.nav.altinnkanal.config.TopicRouting
 import org.amshove.kluent.shouldBe
 import org.amshove.kluent.shouldNotBe
 import org.jetbrains.spek.api.Spek

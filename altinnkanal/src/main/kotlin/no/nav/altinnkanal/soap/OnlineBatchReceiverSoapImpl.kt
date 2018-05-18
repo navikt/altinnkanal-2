@@ -15,8 +15,8 @@ import javax.xml.stream.events.XMLEvent
 import java.io.StringReader
 
 import net.logstash.logback.argument.StructuredArguments.kv
-import no.altinn.webservices.ReceiveOnlineBatchExternalAttachment
-import no.altinn.webservices.ReceiveOnlineBatchExternalAttachmentResponse
+import no.altinn.webservices.ReceiveOnlineBatchExternalAttachment as Request
+import no.altinn.webservices.ReceiveOnlineBatchExternalAttachmentResponse as Response
 
 private val log = LoggerFactory.getLogger(OnlineBatchReceiverSoap::class.java.name)
 private val xmlInputFactory = XMLInputFactory.newFactory()
@@ -47,12 +47,12 @@ class OnlineBatchReceiverSoapImpl (
     private val topicService: TopicService,
     private val kafkaProducer: Producer<String, ExternalAttachment>
 ) : OnlineBatchReceiverSoap {
-    override fun receiveOnlineBatchExternalAttachment(parameters: ReceiveOnlineBatchExternalAttachment): ReceiveOnlineBatchExternalAttachmentResponse {
-        val receiversReference = parameters.receiversReference
-        val sequenceNumber = parameters.sequenceNumber
-        val dataBatch = parameters.batch ?: parameters.batch1 ?: throw RuntimeException("Empty batch")
+    override fun receiveOnlineBatchExternalAttachment(params: Request): Response {
+        val receiversReference = params.receiversReference
+        val sequenceNumber = params.sequenceNumber
+        val dataBatch = params.batch ?: params.batch1 ?: throw RuntimeException("Empty batch")
 
-        val response = ReceiveOnlineBatchExternalAttachmentResponse()
+        val response = Response()
 
         var serviceCode: String? = null
         var serviceEditionCode: String? = null

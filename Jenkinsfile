@@ -8,6 +8,8 @@ pipeline {
         FASIT_ENV = 'q1'
         ZONE = 'fss'
         NAMESPACE = 'default'
+        COMMIT_HASH_SHORT = gitVars 'commitHashShort'
+        COMMIT_HASH = gitVars 'commitHash'
     }
 
     stages {
@@ -17,8 +19,6 @@ pipeline {
                 sh './gradlew clean'
                 script {
                     applicationVersionGradle = sh(script: './gradlew -q printVersion', returnStdout: true).trim()
-                    env.COMMIT_HASH = gitVars 'commitHash'
-                    env.COMMIT_HASH_SHORT = gitVars 'commitHashShort'
                     env.APPLICATION_VERSION = "${applicationVersionGradle}"
                     if (applicationVersionGradle.endsWith('-SNAPSHOT')) {
                         env.APPLICATION_VERSION = "${applicationVersionGradle}.${env.BUILD_ID}-${env.COMMIT_HASH_SHORT}"

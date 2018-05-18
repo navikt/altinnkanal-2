@@ -3,7 +3,7 @@ package no.nav.altinnkanal
 import com.nhaarman.mockitokotlin2.any
 import com.nhaarman.mockitokotlin2.mock
 import com.nhaarman.mockitokotlin2.whenever
-import no.altinn.webservices.ReceiveOnlineBatchExternalAttachment
+import no.altinn.webservices.ReceiveOnlineBatchExternalAttachment as ROBEA
 import java.util.concurrent.Future
 import no.nav.altinnkanal.avro.ExternalAttachment
 import no.nav.altinnkanal.services.TopicService
@@ -24,7 +24,7 @@ object OnlineBatchReceiverSoapSpec : Spek({
     val kafkaProducer = mock<Producer<String, ExternalAttachment>>()
     val metadataFuture = mock<Future<RecordMetadata>>()
     val soapService = OnlineBatchReceiverSoapImpl(topicService, kafkaProducer)
-    val simpleBatch = Utils.readToString("/data/basic_data_batch.xml")
+    val simpleBatch = "/data/basic_data_batch.xml".getResource()
 
     whenever(metadataFuture.get()).thenReturn(mock())
     whenever(kafkaProducer.send(any())).thenReturn(metadataFuture)
@@ -37,7 +37,7 @@ object OnlineBatchReceiverSoapSpec : Spek({
             whenever(topicService.getTopic(any(), any())).thenReturn(mockValue)
             it("should return $expected for batch") {
                 val result = soapService.receiveOnlineBatchExternalAttachment(
-                    ReceiveOnlineBatchExternalAttachment().apply {
+                    ROBEA().apply {
                         sequenceNumber = 0
                         batch = simpleBatch
                 }).receiveOnlineBatchExternalAttachmentResult
@@ -45,7 +45,7 @@ object OnlineBatchReceiverSoapSpec : Spek({
             }
             it("should return $expected for Batch") {
                 val result = soapService.receiveOnlineBatchExternalAttachment(
-                    ReceiveOnlineBatchExternalAttachment().apply {
+                    ROBEA().apply {
                         sequenceNumber = 0
                         batch1 = simpleBatch
                 }).receiveOnlineBatchExternalAttachmentResult

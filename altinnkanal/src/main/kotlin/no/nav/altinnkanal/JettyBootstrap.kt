@@ -5,9 +5,9 @@ import no.altinn.webservices.OnlineBatchReceiverSoap
 import no.nav.altinnkanal.avro.ExternalAttachment
 import no.nav.altinnkanal.rest.SelfTest
 import no.nav.altinnkanal.services.TopicService
-import no.nav.altinnkanal.services.topicRouting
 import no.nav.altinnkanal.soap.LdapUntValidator
 import no.nav.altinnkanal.soap.OnlineBatchReceiverSoapImpl
+import no.nav.altinnkanal.config.Ldap.config as InitLdapConfig
 import org.apache.cxf.BusFactory
 import org.apache.cxf.jaxrs.servlet.CXFNonSpringJaxrsServlet
 import org.apache.cxf.jaxws.EndpointImpl
@@ -38,9 +38,10 @@ fun main(args: Array<String>) {
             setProperty("schema.registry.url", it)
         }
     }
+    InitLdapConfig
     Server(8080).run {
         bootstrap(this, OnlineBatchReceiverSoapImpl(
-            TopicService(topicRouting()), KafkaProducer<String, ExternalAttachment>(kafkaProperties))
+            TopicService(), KafkaProducer<String, ExternalAttachment>(kafkaProperties))
         )
         join()
     }

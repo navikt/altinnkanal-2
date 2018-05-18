@@ -6,10 +6,10 @@ import com.nhaarman.mockitokotlin2.mock
 import com.nhaarman.mockitokotlin2.times
 import com.nhaarman.mockitokotlin2.verify
 import com.nhaarman.mockitokotlin2.whenever
-import no.altinn.webservices.ReceiveOnlineBatchExternalAttachment
+import no.altinn.webservices.ReceiveOnlineBatchExternalAttachment as ROBEA
 import java.util.concurrent.Future
-import no.nav.altinnkanal.Utils
 import no.nav.altinnkanal.avro.ExternalAttachment
+import no.nav.altinnkanal.getResource
 import no.nav.altinnkanal.soap.OnlineBatchReceiverSoapImpl
 import org.amshove.kluent.shouldBe
 import org.apache.kafka.clients.producer.Producer
@@ -36,10 +36,10 @@ object KafkaServiceSpec : Spek({
     whenever(topicRepository.getTopic(any(), any())).thenReturn(expectedTopic)
 
     given("a valid data batch") {
-        val simpleBatch = Utils.readToString("/data/basic_data_batch.xml")
+        val simpleBatch = "/data/basic_data_batch.xml".getResource()
         on("receiveOnlineBatchExternalAttachment") {
             onlineBatchReceiver.receiveOnlineBatchExternalAttachment(
-                ReceiveOnlineBatchExternalAttachment().apply {
+                ROBEA().apply {
                     sequenceNumber = 0
                     batch = simpleBatch
                 }

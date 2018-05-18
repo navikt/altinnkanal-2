@@ -2,6 +2,7 @@ package no.nav.altinnkanal.soap
 
 import com.github.benmanes.caffeine.cache.Cache
 import com.github.benmanes.caffeine.cache.Caffeine
+import no.nav.altinnkanal.config.Ldap.config
 import org.apache.wss4j.common.ext.WSSecurityException
 import org.apache.wss4j.dom.handler.RequestData
 import org.apache.wss4j.dom.validate.Credential
@@ -15,24 +16,6 @@ import javax.naming.NamingException
 import javax.naming.directory.InitialDirContext
 import javax.naming.directory.SearchControls
 import kotlin.reflect.jvm.jvmName
-
-data class LdapConfig(
-    val adGroup: String,
-    val url: String,
-    val username: String,
-    val password: String,
-    val baseDn: String
-)
-var overrideConfig: LdapConfig? = null
-private val config: LdapConfig by lazy {
-    overrideConfig ?: LdapConfig(
-        adGroup = System.getenv("LDAP_AD_GROUP") ?: "0000-GA-altinnkanal-Operator",
-        url = System.getenv("LDAP_URL"),
-        username = System.getenv("LDAP_USERNAME"),
-        password = System.getenv("LDAP_PASSWORD"),
-        baseDn = System.getenv("LDAP_SERVICEUSER_BASEDN")
-    )
-}
 
 private val log = LoggerFactory.getLogger(LdapUntValidator::class.jvmName)
 private val searchControls = SearchControls().apply {
@@ -76,7 +59,6 @@ class LdapUntValidator : UsernameTokenValidator() {
                 put(Context.SECURITY_PRINCIPAL, "cn=$username,${config.baseDn}")
                 put(Context.SECURITY_CREDENTIALS, password)
             }).close()
-            // Cache the successful bind
             boundedCache.put(username, password)
         } catch (e: AuthenticationException) {
             wsSecAuthFail("User does not have valid credentials: [$username]")
@@ -100,7 +82,6 @@ class LdapUntValidator : UsernameTokenValidator() {
         throw WSSecurityException(WSSecurityException.ErrorCode.FAILED_AUTHENTICATION)
     }
 
-    // Only allow usernames with alphanumeric characters and whitespaces
     private fun validateInput(input: String) =
         if (input.matches(Regex("[\\w\\s]*"))) input
         else wsSecAuthFail("Invalid username: [$input]")
