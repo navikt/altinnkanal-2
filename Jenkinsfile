@@ -25,9 +25,9 @@ pipeline {
                     } else {
                         env.DEPLOY_TO = 'production'
                     }
-                    changeLog = utils.gitVars(env.APPLICATION_NAME).changeLog
+                    changeLog = utils.gitVars(env.APPLICATION_NAME).changeLog.toString()
                     githubStatus 'pending'
-                    slackStatus status: 'started', changeLog: "${changeLog.toString()}"
+                    slackStatus status: 'started', changeLog: "${changeLog}"
                 }
             }
         }
