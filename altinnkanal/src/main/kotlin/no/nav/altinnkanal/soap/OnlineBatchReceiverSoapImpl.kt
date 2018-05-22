@@ -20,24 +20,6 @@ import no.altinn.webservices.ReceiveOnlineBatchExternalAttachmentResponse as Res
 
 private val log = LoggerFactory.getLogger(OnlineBatchReceiverSoap::class.java.name)
 private val xmlInputFactory = XMLInputFactory.newFactory()
-private val requestsTotal = Counter.build()
-    .name("altinnkanal_requests_total")
-    .help("Total requests.").register()
-private val requestsSuccess = Counter.build()
-    .name("altinnkanal_requests_success")
-    .help("Total successful requests.").register()
-private val requestsFailedMissing = Counter.build()
-    .name("altinnkanal_requests_missing")
-    .help("Total failed requests due to missing/unknown SC/SEC codes.").register()
-private val requestsFailedError = Counter.build()
-    .name("altinnkanal_requests_error")
-    .help("Total failed requests due to error.").register()
-private val requestSize = Summary.build()
-    .name("altinnkanal_request_size_bytes_sum").help("Request size in bytes.")
-    .register()
-private val requestTime = Summary.build()
-    .name("altinnkanal_request_time_ms").help("Request time in milliseconds.")
-    .register()
 
 const val OK = "OK"
 const val FAILED = "FAILED"
@@ -138,5 +120,26 @@ class OnlineBatchReceiverSoapImpl (
         } finally {
             xmlReader.close()
         }
+    }
+
+    companion object {
+        @JvmStatic private val requestsTotal = Counter.build()
+                .name("altinnkanal_requests_total")
+                .help("Total requests.").register()
+        @JvmStatic private val requestsSuccess = Counter.build()
+                .name("altinnkanal_requests_success")
+                .help("Total successful requests.").register()
+        @JvmStatic private val requestsFailedMissing = Counter.build()
+                .name("altinnkanal_requests_missing")
+                .help("Total failed requests due to missing/unknown SC/SEC codes.").register()
+        @JvmStatic private val requestsFailedError = Counter.build()
+                .name("altinnkanal_requests_error")
+                .help("Total failed requests due to error.").register()
+        @JvmStatic private val requestSize = Summary.build()
+                .name("altinnkanal_request_size_bytes_sum").help("Request size in bytes.")
+                .register()
+        @JvmStatic private val requestTime = Summary.build()
+                .name("altinnkanal_request_time_ms").help("Request time in milliseconds.")
+                .register()
     }
 }

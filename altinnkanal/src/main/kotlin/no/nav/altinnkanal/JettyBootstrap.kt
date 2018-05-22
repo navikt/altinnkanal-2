@@ -1,6 +1,7 @@
 package no.nav.altinnkanal
 
 import io.prometheus.client.exporter.MetricsServlet
+import io.prometheus.client.hotspot.DefaultExports
 import no.altinn.webservices.OnlineBatchReceiverSoap
 import no.nav.altinnkanal.avro.ExternalAttachment
 import no.nav.altinnkanal.rest.SelfTest
@@ -69,4 +70,5 @@ fun bootstrap(server: Server, batchReceiver: OnlineBatchReceiverSoap) {
             put(SecurityConstants.USERNAME_TOKEN_VALIDATOR, LdapUntValidator::class.jvmName)
         }
     }
+    DefaultExports.initialize()
 }
