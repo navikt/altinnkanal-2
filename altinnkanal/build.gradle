@@ -35,7 +35,10 @@ applicationDefaultJvmArgs = [
         '-Xms128M',
         '-Xmx512M',
         '-Djavax.net.ssl.trustStore=${NAV_TRUSTSTORE_PATH}',
-        '-Djavax.net.ssl.trustStorePassword=${NAV_TRUSTSTORE_PASSWORD}'
+        '-Djavax.net.ssl.trustStorePassword=${NAV_TRUSTSTORE_PASSWORD}',
+        '-XX:+UnlockExperimentalVMOptions',
+        '-XX:+UseCGroupMemoryLimitForHeap',
+        '-Dlogback.configurationFile=logback-remote.xml'
 ]
 
 wsdl2java {
