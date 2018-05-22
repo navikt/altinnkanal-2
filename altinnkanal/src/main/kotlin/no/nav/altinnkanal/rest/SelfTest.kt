@@ -9,9 +9,9 @@ import javax.ws.rs.Produces
 import javax.ws.rs.core.MediaType
 import javax.ws.rs.core.Response
 
-private const val APPLICATION_ALIVE = "Application is alive"
-private const val APPLICATION_READY = "Application is ready"
-private const val WSDL_URL = "http://localhost:8080/webservices/OnlineBatchReceiverSoap?wsdl"
+const val APPLICATION_ALIVE = "Application is alive"
+const val APPLICATION_READY = "Application is ready"
+const val WSDL_URL = "http://localhost:8080/webservices/OnlineBatchReceiverSoap?wsdl"
 private val logger = LoggerFactory.getLogger(SelfTest::class.java.name)
 
 @Path("/")

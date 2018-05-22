@@ -4,6 +4,9 @@ import no.altinn.webservices.ReceiveOnlineBatchExternalAttachment as ROBEA
 import java.util.Properties
 import no.nav.altinnkanal.Utils.createPayload
 import no.nav.altinnkanal.avro.ExternalAttachment
+import no.nav.altinnkanal.rest.APPLICATION_ALIVE
+import no.nav.altinnkanal.rest.APPLICATION_READY
+import no.nav.altinnkanal.rest.SelfTest
 import no.nav.altinnkanal.services.TopicService
 import no.nav.altinnkanal.soap.FAILED
 import no.nav.altinnkanal.soap.FAILED_DO_NOT_RETRY
@@ -18,11 +21,15 @@ import org.apache.cxf.binding.soap.SoapFault
 import org.apache.kafka.clients.producer.KafkaProducer
 import org.eclipse.jetty.server.Server
 import org.jetbrains.spek.api.Spek
+import org.jetbrains.spek.api.dsl.context
 import org.jetbrains.spek.api.dsl.given
 import org.jetbrains.spek.api.dsl.it
 import org.jetbrains.spek.api.dsl.on
 import org.jetbrains.spek.data_driven.data
 import org.jetbrains.spek.data_driven.on
+import java.net.HttpURLConnection
+import java.net.URL
+import java.util.Scanner
 
 object OnlineBatchReceiverSoapITSpec : Spek({
     val simpleBatch = "/data/basic_data_batch.xml".getResource()
@@ -39,7 +46,7 @@ object OnlineBatchReceiverSoapITSpec : Spek({
         remove("security.protocol")
     }
     val producer = KafkaProducer<String, ExternalAttachment>(kafkaProperties)
-    val localServerPort = 8123
+    val localServerPort = 8080
     // val localServerPort = ServerSocket(-1).run { this.localPort }
     val server = Server(localServerPort).apply {
         bootstrap(this, OnlineBatchReceiverSoapImpl(
@@ -71,7 +78,6 @@ object OnlineBatchReceiverSoapITSpec : Spek({
             }
         }
     }
-
     given("valid usernametoken") {
         val soapClient = Utils.createSoapClient(localServerPort, "srvaltinnkanal",
             "supersecurepassword")
@@ -128,6 +134,39 @@ object OnlineBatchReceiverSoapITSpec : Spek({
                     ).receiveOnlineBatchExternalAttachmentResult
                     result shouldEqual expected
                 }
+            }
+        }
+    }
+    context("SelfTest Connection") {
+        on("%s",
+            data("isAlive", expected = APPLICATION_ALIVE),
+            data("isReady", expected = APPLICATION_READY)
+        ) { path, expected ->
+            val conn = URL("http://localhost:$localServerPort/$path").let {
+                it.openConnection() as HttpURLConnection
+            }
+            it("should return HTTP 200 OK") {
+                conn.responseCode shouldEqual HttpURLConnection.HTTP_OK
+            }
+            it("should return $expected") {
+                val response = Scanner(
+                    URL("http://localhost:$localServerPort/$path").openStream(), "UTF-8")
+                    .useDelimiter("\\A").next()
+                response shouldEqual expected
+            }
+        }
+    }
+    context("SelfTest Classes") {
+        on("getIsAlive") {
+            val expected = APPLICATION_ALIVE
+            it("should return $expected") {
+                SelfTest().getIsAlive() shouldEqual expected
+            }
+        }
+        on("getIsReady") {
+            val expected = APPLICATION_READY
+            it("should return $expected") {
+                SelfTest().getIsReady().readEntity(String::class.java) shouldEqual expected
             }
         }
     }

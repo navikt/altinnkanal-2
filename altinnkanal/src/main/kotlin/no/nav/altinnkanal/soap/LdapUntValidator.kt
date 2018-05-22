@@ -41,9 +41,7 @@ class LdapUntValidator : UsernameTokenValidator() {
         }
 
         // Lookup provided user in cache to avoid unnecessary LDAP lookups
-        boundedCache.getIfPresent(username)?.run {
-            if (password == this) return credential
-        }
+        boundedCache.getIfPresent(username)?.run { if (password == this) return credential }
         try {
             InitialDirContext(initProps).let {
                 when {
