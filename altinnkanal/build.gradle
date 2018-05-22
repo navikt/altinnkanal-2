@@ -1,18 +1,18 @@
 buildscript {
-    ext.jetty_version = "9.4.9.v20180320"
+    ext.jetty_version = "9.4.10.v20180503"
     ext.kafka_test_version = '0.6.0'
     ext.kotlin_version = '1.2.41'
     ext.confluent_version = '4.0.0'
     ext.cxf_version = '3.2.4'
     ext.kafka_version = '1.0.0'
     ext.jackson_version = '2.9.5'
-    ext.prometheus_version = '0.3.0'
-    ext.logstash_encoder_version = '5.0'
-    ext.mockito_kotlin_version = '2.0.0-alpha03'
+    ext.prometheus_version = '0.4.0'
+    ext.logstash_encoder_version = '5.1'
+    ext.mockito_kotlin_version = '2.0.0-alpha04'
     ext.kluent_version = '1.38'
     ext.spek_version = '1.1.5'
     ext.caffeine_version = '2.6.2'
-    ext.unboundid_version = '4.0.5'
+    ext.unboundid_version = '4.0.6'
 
     dependencies {
         classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version"
@@ -23,6 +23,7 @@ buildscript {
 plugins {
     id 'no.nils.wsdl2java' version '0.10'
     id 'org.jmailen.kotlinter' version '1.12.0'
+    id 'com.github.ben-manes.versions' version '0.17.0'
 }
 
 apply plugin: 'application'
