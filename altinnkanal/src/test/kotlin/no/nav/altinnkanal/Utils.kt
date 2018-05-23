@@ -5,6 +5,7 @@ import com.unboundid.ldap.listener.InMemoryDirectoryServerConfig
 import com.unboundid.ldap.sdk.OperationType
 import com.unboundid.ldap.sdk.schema.Schema
 import com.unboundid.ldif.LDIFReader
+import net.logstash.logback.encoder.org.apache.commons.lang.StringEscapeUtils
 import no.altinn.webservices.OnlineBatchReceiverSoap
 import no.nav.altinnkanal.config.Ldap.Config
 import no.nav.altinnkanal.config.Ldap.override as ldapConfigOverride
@@ -14,15 +15,33 @@ import org.apache.wss4j.common.ext.WSPasswordCallback
 import org.apache.wss4j.dom.WSConstants
 import org.apache.wss4j.dom.handler.WSHandlerConstants
 import java.io.InputStream
+import java.io.StringReader
 import java.nio.charset.Charset
 import java.nio.file.Files
 import java.nio.file.Paths
 import java.util.HashMap
 import javax.security.auth.callback.CallbackHandler
+import javax.xml.stream.XMLInputFactory
+import javax.xml.stream.events.XMLEvent
+
+private val xmlInputFactory = XMLInputFactory.newFactory()
 
 fun String.getResourceStream(): InputStream = Utils::class.java.getResourceAsStream(this)
 fun String.getResource(): String = String(Files.readAllBytes(Paths.get(Utils::class.java.getResource(this).toURI())),
         Charset.forName("UTF-8"))
+fun String.getResultCode(): String? =
+    xmlInputFactory.createXMLStreamReader(StringReader(StringEscapeUtils.unescapeXml(this))).run {
+        try {
+            while (hasNext()) {
+                if (next() == XMLEvent.START_ELEMENT && localName == "Result") {
+                    return getAttributeValue(null, "resultCode").toString()
+                }
+            }
+        } finally {
+            close()
+        }
+        null
+}
 
 object Utils {
     fun createPayload(simpleBatch: String, serviceCode: String, serviceEditionCode: String): String {

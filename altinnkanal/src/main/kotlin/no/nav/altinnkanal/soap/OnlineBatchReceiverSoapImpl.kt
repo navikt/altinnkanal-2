@@ -18,12 +18,14 @@ import net.logstash.logback.argument.StructuredArguments.kv
 import no.altinn.webservices.ReceiveOnlineBatchExternalAttachment as Request
 import no.altinn.webservices.ReceiveOnlineBatchExternalAttachmentResponse as Response
 
-private val log = LoggerFactory.getLogger(OnlineBatchReceiverSoap::class.java.name)
-private val xmlInputFactory = XMLInputFactory.newFactory()
-
 const val OK = "OK"
 const val FAILED = "FAILED"
 const val FAILED_DO_NOT_RETRY = "FAILED_DO_NOT_RETRY"
+
+private val log = LoggerFactory.getLogger(OnlineBatchReceiverSoap::class.java.name)
+private val xmlInputFactory = XMLInputFactory.newFactory()
+private fun receiptResponse(resultCode: String, message: String) =
+        "&lt;OnlineBatchReceipt&gt;&lt;Result resultCode=&quot;$resultCode&quot;&gt;$message&lt;/Result&gt;&lt;/OnlineBatchReceipt&gt;"
 
 class OnlineBatchReceiverSoapImpl (
     private val topicService: TopicService,
@@ -59,7 +61,8 @@ class OnlineBatchReceiverSoapImpl (
                 requestsFailedMissing.inc()
                 logDetails.add(kv("status", FAILED_DO_NOT_RETRY))
                 log.warn("Denied ROBEA request due to missing/unknown codes: ${"{} ".repeat(logDetails.size)}", *logDetails.toTypedArray())
-                response.receiveOnlineBatchExternalAttachmentResult = FAILED_DO_NOT_RETRY
+                response.receiveOnlineBatchExternalAttachmentResult = receiptResponse(resultCode = FAILED_DO_NOT_RETRY,
+                    message = "Invalid combination of Service Code and Service Edition Code (archiveReference=$archiveReference)")
                 return response
             }
 
@@ -80,7 +83,8 @@ class OnlineBatchReceiverSoapImpl (
                 kv("status", OK)
             ))
             log.info("Successfully published ROBEA request to Kafka: ${"{} ".repeat(logDetails.size)}", *logDetails.toTypedArray())
-            response.receiveOnlineBatchExternalAttachmentResult = OK
+            response.receiveOnlineBatchExternalAttachmentResult = receiptResponse(resultCode = OK,
+                message = "Message received OK (archiveReference=$archiveReference)")
             return response
         } catch (e: Exception) {
             requestsFailedError.inc()
@@ -89,7 +93,8 @@ class OnlineBatchReceiverSoapImpl (
 
             logDetails.add(kv("status", FAILED))
             log.error("Failed to send a ROBEA request to Kafka: ${"{} ".repeat(logDetails.size)}", *logDetails.toTypedArray(), e)
-            response.receiveOnlineBatchExternalAttachmentResult = FAILED
+            response.receiveOnlineBatchExternalAttachmentResult = receiptResponse(resultCode = FAILED,
+                message = "An error occurred: ${e.message} (archiveReference=$archiveReference)")
             return response
         }
     }
@@ -115,7 +120,6 @@ class OnlineBatchReceiverSoapImpl (
                     }
                 }
             }
-
             builder.setBatch(dataBatch).build()
         } finally {
             xmlReader.close()

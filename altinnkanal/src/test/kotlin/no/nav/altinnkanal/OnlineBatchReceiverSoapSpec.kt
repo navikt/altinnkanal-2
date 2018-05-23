@@ -10,7 +10,7 @@ import no.nav.altinnkanal.services.TopicService
 import no.nav.altinnkanal.soap.FAILED_DO_NOT_RETRY
 import no.nav.altinnkanal.soap.OK
 import no.nav.altinnkanal.soap.OnlineBatchReceiverSoapImpl
-import org.amshove.kluent.shouldBe
+import org.amshove.kluent.shouldEqual
 import org.apache.kafka.clients.producer.Producer
 import org.apache.kafka.clients.producer.RecordMetadata
 import org.jetbrains.spek.api.Spek
@@ -40,16 +40,16 @@ object OnlineBatchReceiverSoapSpec : Spek({
                     ROBEA().apply {
                         sequenceNumber = 0
                         batch = simpleBatch
-                }).receiveOnlineBatchExternalAttachmentResult
-                result shouldBe expected
+                }).receiveOnlineBatchExternalAttachmentResult.getResultCode()
+                result shouldEqual expected
             }
             it("should return $expected for Batch") {
                 val result = soapService.receiveOnlineBatchExternalAttachment(
                     ROBEA().apply {
                         sequenceNumber = 0
                         batch1 = simpleBatch
-                }).receiveOnlineBatchExternalAttachmentResult
-                result shouldBe expected
+                }).receiveOnlineBatchExternalAttachmentResult.getResultCode()
+                result shouldEqual expected
             }
         }
     }

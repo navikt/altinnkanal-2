@@ -97,7 +97,7 @@ object OnlineBatchReceiverSoapITSpec : Spek({
                     ROBEA().apply {
                         sequenceNumber = 0
                         batch = payload
-                }).receiveOnlineBatchExternalAttachmentResult
+                }).receiveOnlineBatchExternalAttachmentResult.getResultCode()
                 result shouldEqual expected
             }
             it("should return a result equal to $expected for Batch") {
@@ -105,7 +105,7 @@ object OnlineBatchReceiverSoapITSpec : Spek({
                     ROBEA().apply {
                         sequenceNumber = 0
                         batch1 = payload
-                }).receiveOnlineBatchExternalAttachmentResult
+                }).receiveOnlineBatchExternalAttachmentResult.getResultCode()
                 result shouldEqual expected
             }
         }
@@ -122,7 +122,7 @@ object OnlineBatchReceiverSoapITSpec : Spek({
                             sequenceNumber = 0
                             batch = payload
                         }
-                    ).receiveOnlineBatchExternalAttachmentResult
+                    ).receiveOnlineBatchExternalAttachmentResult.getResultCode()
                     result shouldEqual expected
                 }
                 it("should return a result equal to $expected for Batch") {
@@ -131,7 +131,7 @@ object OnlineBatchReceiverSoapITSpec : Spek({
                             sequenceNumber = 0
                             batch1 = simpleBatch
                         }
-                    ).receiveOnlineBatchExternalAttachmentResult
+                    ).receiveOnlineBatchExternalAttachmentResult.getResultCode()
                     result shouldEqual expected
                 }
             }
