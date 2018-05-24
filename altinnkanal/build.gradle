@@ -34,12 +34,11 @@ mainClassName = 'no.nav.altinnkanal.JettyBootstrapKt'
 applicationDefaultJvmArgs = [
         '-Djavax.net.ssl.trustStore=${NAV_TRUSTSTORE_PATH}',
         '-Djavax.net.ssl.trustStorePassword=${NAV_TRUSTSTORE_PASSWORD}',
+        '-Xms200m',
         '-XX:+UnlockExperimentalVMOptions',
         '-XX:+UseCGroupMemoryLimitForHeap',
         '-XX:+UseG1GC',
         '-XX:MaxRAMFraction=2',
-        '-XX:MinHeapFreeRatio=5',
-        '-XX:MaxHeapFreeRatio=10',
         '-XshowSettings:vm',
         '-Dlogback.configurationFile=logback-remote.xml'
 ]
