@@ -44,7 +44,7 @@ class OnlineBatchReceiverSoapImpl (
         val requestLatency = requestTime.startTimer()
         var logDetails: MutableList<StructuredArgument>? = null
 
-        requestsTotal.inc()
+        requestsTotal.labels("$serviceCode", "$serviceEditionCode").inc()
         try {
             val externalAttachment = toAvroObject(dataBatch).also {
                 serviceCode = it.getServiceCode()
@@ -58,7 +58,7 @@ class OnlineBatchReceiverSoapImpl (
             val topic = topicService.getTopic(serviceCode!!, serviceEditionCode!!)
 
             if (topic == null) {
-                requestsFailedMissing.inc()
+                requestsFailedMissing.labels("$serviceCode", "$serviceEditionCode").inc()
                 logDetails.add(kv("status", FAILED_DO_NOT_RETRY))
                 log.warn("Denied ROBEA request due to missing/unknown codes: ${"{} ".repeat(logDetails.size)}", *logDetails.toTypedArray())
                 response.receiveOnlineBatchExternalAttachmentResult = receiptResponse(resultCode = FAILED_DO_NOT_RETRY,
@@ -72,7 +72,7 @@ class OnlineBatchReceiverSoapImpl (
 
             val latency = requestLatency.observeDuration()
             requestSize.observe(metadata.serializedValueSize().toDouble())
-            requestsSuccess.inc()
+            requestsSuccess.labels("$serviceCode", "$serviceEditionCode").inc()
 
             logDetails.addAll(arrayOf(
                 kv("latency", "${(latency * 1000).toLong()} ms"),
@@ -87,7 +87,7 @@ class OnlineBatchReceiverSoapImpl (
                 message = "Message received OK (archiveReference=$archiveReference)")
             return response
         } catch (e: Exception) {
-            requestsFailedError.inc()
+            requestsFailedError.labels("$serviceCode", "$serviceEditionCode").inc()
             logDetails = logDetails ?: mutableListOf(kv("SC", serviceCode), kv("SEC", serviceEditionCode),
                 kv("recRef", receiversReference), kv("archRef", archiveReference), kv("seqNum", sequenceNumber))
 
@@ -128,22 +128,30 @@ class OnlineBatchReceiverSoapImpl (
 
     companion object {
         @JvmStatic private val requestsTotal = Counter.build()
-                .name("altinnkanal_requests_total")
-                .help("Total requests.").register()
+            .name("altinnkanal_requests_total")
+            .help("Total requests.")
+            .labelNames("sc", "sec")
+            .register()
         @JvmStatic private val requestsSuccess = Counter.build()
-                .name("altinnkanal_requests_success")
-                .help("Total successful requests.").register()
+            .name("altinnkanal_requests_success")
+            .help("Total successful requests.")
+            .labelNames("sc", "sec")
+            .register()
         @JvmStatic private val requestsFailedMissing = Counter.build()
-                .name("altinnkanal_requests_missing")
-                .help("Total failed requests due to missing/unknown SC/SEC codes.").register()
+            .name("altinnkanal_requests_missing")
+            .help("Total failed requests due to missing/unknown SC/SEC codes.")
+            .labelNames("sc", "sec")
+            .register()
         @JvmStatic private val requestsFailedError = Counter.build()
-                .name("altinnkanal_requests_error")
-                .help("Total failed requests due to error.").register()
+            .name("altinnkanal_requests_error")
+            .help("Total failed requests due to error.")
+            .labelNames("sc", "sec")
+            .register()
         @JvmStatic private val requestSize = Summary.build()
-                .name("altinnkanal_request_size_bytes_sum").help("Request size in bytes.")
-                .register()
+            .name("altinnkanal_request_size_bytes_sum").help("Request size in bytes.")
+            .register()
         @JvmStatic private val requestTime = Summary.build()
-                .name("altinnkanal_request_time_ms").help("Request time in milliseconds.")
-                .register()
+            .name("altinnkanal_request_time_ms").help("Request time in milliseconds.")
+            .register()
     }
 }
