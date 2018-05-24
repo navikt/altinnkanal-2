@@ -7,7 +7,7 @@ allprojects {
     targetCompatibility = 1.8
 
     group = 'no.nav.altinnkanal'
-    version = '1.0.37-SNAPSHOT'
+    version = '1.0.38'
 }
 
 task printVersion() {
