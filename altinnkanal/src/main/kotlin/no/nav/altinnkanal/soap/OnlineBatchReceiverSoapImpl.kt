@@ -44,7 +44,7 @@ class OnlineBatchReceiverSoapImpl (
         val requestLatency = requestTime.startTimer()
         var logDetails: MutableList<StructuredArgument>? = null
 
-        requestsTotal.labels("$serviceCode", "$serviceEditionCode").inc()
+        requestsTotal.inc()
         try {
             val externalAttachment = toAvroObject(dataBatch).also {
                 serviceCode = it.getServiceCode()
@@ -58,7 +58,7 @@ class OnlineBatchReceiverSoapImpl (
             val topic = topicService.getTopic(serviceCode!!, serviceEditionCode!!)
 
             if (topic == null) {
-                requestsFailedMissing.labels("$serviceCode", "$serviceEditionCode").inc()
+                requestsFailedMissing.inc()
                 logDetails.add(kv("status", FAILED_DO_NOT_RETRY))
                 log.warn("Denied ROBEA request due to missing/unknown codes: ${"{} ".repeat(logDetails.size)}", *logDetails.toTypedArray())
                 response.receiveOnlineBatchExternalAttachmentResult = receiptResponse(resultCode = FAILED_DO_NOT_RETRY,
@@ -87,7 +87,7 @@ class OnlineBatchReceiverSoapImpl (
                 message = "Message received OK (archiveReference=$archiveReference)")
             return response
         } catch (e: Exception) {
-            requestsFailedError.labels("$serviceCode", "$serviceEditionCode").inc()
+            requestsFailedError.inc()
             logDetails = logDetails ?: mutableListOf(kv("SC", serviceCode), kv("SEC", serviceEditionCode),
                 kv("recRef", receiversReference), kv("archRef", archiveReference), kv("seqNum", sequenceNumber))
 
@@ -130,7 +130,6 @@ class OnlineBatchReceiverSoapImpl (
         @JvmStatic private val requestsTotal = Counter.build()
             .name("altinnkanal_requests_total")
             .help("Total requests.")
-            .labelNames("sc", "sec")
             .register()
         @JvmStatic private val requestsSuccess = Counter.build()
             .name("altinnkanal_requests_success")
@@ -140,12 +139,10 @@ class OnlineBatchReceiverSoapImpl (
         @JvmStatic private val requestsFailedMissing = Counter.build()
             .name("altinnkanal_requests_missing")
             .help("Total failed requests due to missing/unknown SC/SEC codes.")
-            .labelNames("sc", "sec")
             .register()
         @JvmStatic private val requestsFailedError = Counter.build()
             .name("altinnkanal_requests_error")
             .help("Total failed requests due to error.")
-            .labelNames("sc", "sec")
             .register()
         @JvmStatic private val requestSize = Summary.build()
             .name("altinnkanal_request_size_bytes_sum").help("Request size in bytes.")
