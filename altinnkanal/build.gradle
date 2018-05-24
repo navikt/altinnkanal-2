@@ -32,12 +32,15 @@ apply plugin: 'org.junit.platform.gradle.plugin'
 
 mainClassName = 'no.nav.altinnkanal.JettyBootstrapKt'
 applicationDefaultJvmArgs = [
-        '-Xms128M',
-        '-Xmx512M',
         '-Djavax.net.ssl.trustStore=${NAV_TRUSTSTORE_PATH}',
         '-Djavax.net.ssl.trustStorePassword=${NAV_TRUSTSTORE_PASSWORD}',
         '-XX:+UnlockExperimentalVMOptions',
         '-XX:+UseCGroupMemoryLimitForHeap',
+        '-XX:+UseG1GC',
+        '-XX:MaxRAMFraction=2',
+        '-XX:MinHeapFreeRatio=5',
+        '-XX:MaxHeapFreeRatio=10',
+        '-XshowSettings:vm',
         '-Dlogback.configurationFile=logback-remote.xml'
 ]
 
