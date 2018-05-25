@@ -18,7 +18,7 @@ pipeline {
                 ciSkip 'check'
                 sh './gradlew clean'
                 script {
-                    applicationVersionGradle = sh(script: './gradlew -q printVersion', returnStdout: true).trim()
+                    applicationVersionGradle = sh(script: './gradlew -q :altinnkanal:printVersion', returnStdout: true).trim()
                     env.APPLICATION_VERSION = "${applicationVersionGradle}"
                     if (applicationVersionGradle.endsWith('-SNAPSHOT')) {
                         env.APPLICATION_VERSION = "${applicationVersionGradle}.${env.BUILD_ID}-${env.COMMIT_HASH_SHORT}"
@@ -40,11 +40,6 @@ pipeline {
             steps {
                 sh './gradlew test'
                 slackStatus status: 'passed'
-            }
-        }
-        stage('deploy schemas to maven repo') {
-            steps {
-                sh './gradlew publish'
             }
         }
         stage('extract application files') {

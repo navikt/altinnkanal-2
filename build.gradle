@@ -7,17 +7,15 @@ allprojects {
     targetCompatibility = 1.8
 
     group = 'no.nav.altinnkanal'
-    version = '1.0.40'
-}
-
-task printVersion() {
-    doLast {
-        println(version)
-    }
 }
 
 subprojects {
     repositories {
         mavenCentral()
+    }
+    task printVersion() {
+        doLast {
+            println(version)
+        }
     }
 }
