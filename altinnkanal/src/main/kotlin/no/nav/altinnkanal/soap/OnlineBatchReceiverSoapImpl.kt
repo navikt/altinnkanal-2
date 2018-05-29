@@ -2,13 +2,13 @@ package no.nav.altinnkanal.soap
 
 import io.prometheus.client.Counter
 import io.prometheus.client.Summary
+import mu.KotlinLogging
 import net.logstash.logback.argument.StructuredArgument
 import no.altinn.webservices.OnlineBatchReceiverSoap
 import no.nav.altinnkanal.avro.ExternalAttachment
 import no.nav.altinnkanal.services.TopicService
 import org.apache.kafka.clients.producer.Producer
 import org.apache.kafka.clients.producer.ProducerRecord
-import org.slf4j.LoggerFactory
 
 import javax.xml.stream.XMLInputFactory
 import javax.xml.stream.events.XMLEvent
@@ -22,7 +22,7 @@ const val OK = "OK"
 const val FAILED = "FAILED"
 const val FAILED_DO_NOT_RETRY = "FAILED_DO_NOT_RETRY"
 
-private val log = LoggerFactory.getLogger(OnlineBatchReceiverSoap::class.java.name)
+private val log = KotlinLogging.logger { }
 private val xmlInputFactory = XMLInputFactory.newFactory()
 private fun receiptResponse(resultCode: String, message: String) =
         "&lt;OnlineBatchReceipt&gt;&lt;Result resultCode=&quot;$resultCode&quot;&gt;$message&lt;/Result&gt;&lt;/OnlineBatchReceipt&gt;"

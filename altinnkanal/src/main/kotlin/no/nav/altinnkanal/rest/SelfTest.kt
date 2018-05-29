@@ -1,6 +1,6 @@
 package no.nav.altinnkanal.rest
 
-import org.slf4j.LoggerFactory
+import mu.KotlinLogging
 import java.net.HttpURLConnection
 import java.net.URL
 import javax.ws.rs.GET
@@ -12,7 +12,7 @@ import javax.ws.rs.core.Response
 const val APPLICATION_ALIVE = "Application is alive"
 const val APPLICATION_READY = "Application is ready"
 const val WSDL_URL = "http://localhost:8080/webservices/OnlineBatchReceiverSoap?wsdl"
-private val logger = LoggerFactory.getLogger(SelfTest::class.java.name)
+private val logger = KotlinLogging.logger { }
 
 @Path("/")
 class SelfTest {
@@ -39,7 +39,7 @@ class SelfTest {
                 if (it.responseCode == HttpURLConnection.HTTP_OK) Status.OK else Status.ERROR
             }
         } catch (e: Exception) {
-            logger.error("HTTP endpoint readiness test failed", e)
+            logger.error(e) { "HTTP endpoint readiness test failed" }
             Status.ERROR
         }
 

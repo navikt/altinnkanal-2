@@ -2,12 +2,12 @@ package no.nav.altinnkanal.soap
 
 import com.github.benmanes.caffeine.cache.Cache
 import com.github.benmanes.caffeine.cache.Caffeine
+import mu.KotlinLogging
 import no.nav.altinnkanal.config.Ldap.config
 import org.apache.wss4j.common.ext.WSSecurityException
 import org.apache.wss4j.dom.handler.RequestData
 import org.apache.wss4j.dom.validate.Credential
 import org.apache.wss4j.dom.validate.UsernameTokenValidator
-import org.slf4j.LoggerFactory
 import java.util.Properties
 import java.util.concurrent.TimeUnit
 import javax.naming.AuthenticationException
@@ -15,9 +15,8 @@ import javax.naming.Context
 import javax.naming.NamingException
 import javax.naming.directory.InitialDirContext
 import javax.naming.directory.SearchControls
-import kotlin.reflect.jvm.jvmName
 
-private val log = LoggerFactory.getLogger(LdapUntValidator::class.jvmName)
+private val log = KotlinLogging.logger { }
 private val searchControls = SearchControls().apply {
     searchScope = SearchControls.SUBTREE_SCOPE
     returningAttributes = arrayOf("memberOf", "givenName")
@@ -61,7 +60,7 @@ class LdapUntValidator : UsernameTokenValidator() {
         } catch (e: AuthenticationException) {
             wsSecAuthFail("User does not have valid credentials: [$username]")
         } catch (e: NamingException) {
-            log.error("Connection to LDAP failed", e)
+            log.error(e) { "Connection to LDAP failed" }
             throw RuntimeException("Could not initialize LDAP connection")
         }
         return credential
