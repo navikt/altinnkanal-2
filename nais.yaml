@@ -28,12 +28,12 @@ resources:
     memory: 200Mi
 fasitResources:
   used:
-  - alias: altinnkanalProps
-    resourceType: applicationproperties
   - alias: srvaltinnkanal
     resourceType: credential
   - alias: ldap
     resourceType: ldap
+  - alias: kafka_bootstrap_servers
+    resourceType: BaseUrl
   exposed:
   - alias: altinnkanal-2-ws-endpoint
     resourceType: Webserviceendpoint

@@ -120,7 +120,6 @@ dependencies {
     testRuntime ("org.jetbrains.spek:spek-junit-platform-engine:$spek_version") {
         exclude group: 'org.jetbrains.kotlin'
     }
-    testRuntimeOnly "org.apache.kafka:kafka_2.12:$kafka_version"
     testImplementation "org.amshove.kluent:kluent:$kluent_version"
     testImplementation "no.nav.common:embedded.kafka:$kafka_test_version"
     testImplementation "com.unboundid:unboundid-ldapsdk:$unboundid_version"
