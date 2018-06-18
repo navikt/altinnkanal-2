@@ -17,11 +17,11 @@ import java.io.StringReader
 import java.nio.charset.Charset
 import java.nio.file.Files
 import java.nio.file.Paths
-import java.util.HashMap
 import javax.security.auth.callback.CallbackHandler
 import javax.xml.stream.XMLInputFactory
 import javax.xml.stream.events.XMLEvent
 
+private object Utils
 private val xmlInputFactory = XMLInputFactory.newFactory()
 
 fun String.getResourceStream(): InputStream = Utils::class.java.getResourceAsStream(this)
@@ -41,49 +41,51 @@ fun String.getResultCode(): String? =
         null
 }
 
-object Utils {
-    fun createPayload(simpleBatch: String, serviceCode: String, serviceEditionCode: String): String {
-        return simpleBatch
-            .replace("\\{\\{serviceCode}}".toRegex(), serviceCode)
-            .replace("\\{\\{serviceEditionCode}}".toRegex(), serviceEditionCode)
+fun createPayload(simpleBatch: String, serviceCode: String, serviceEditionCode: String): String {
+    return simpleBatch
+        .replace("\\{\\{serviceCode}}".toRegex(), serviceCode)
+        .replace("\\{\\{serviceEditionCode}}".toRegex(), serviceEditionCode)
+}
+
+fun createLdapServer(): InMemoryDirectoryServer {
+    val username = "srvadmin"
+    val password = "password"
+    val baseDn = "ou=ServiceAccounts,dc=testing,dc=local"
+    val adGroup = "Operator-Altinnkanal"
+
+    val config = InMemoryDirectoryServerConfig("dc=testing,dc=local").apply {
+        schema = Schema.mergeSchemas(Schema.getDefaultStandardSchema(),
+                Schema.getSchema("/ldap/memberOf.ldif".getResourceStream()),
+                Schema.getSchema("/ldap/person.ldif".getResourceStream()))
+        setAuthenticationRequiredOperationTypes(OperationType.COMPARE)
     }
-
-    fun createLdapServer(): InMemoryDirectoryServer {
-        val username = "srvadmin"
-        val password = "password"
-        val baseDn = "ou=ServiceAccounts,dc=testing,dc=local"
-        val adGroup = "Operator-Altinnkanal"
-
-        val config = InMemoryDirectoryServerConfig("dc=testing,dc=local").apply {
-            schema = Schema.mergeSchemas(Schema.getDefaultStandardSchema(),
-                    Schema.getSchema("/ldap/memberOf.ldif".getResourceStream()),
-                    Schema.getSchema("/ldap/person.ldif".getResourceStream()))
-            setAuthenticationRequiredOperationTypes(OperationType.COMPARE)
+    return InMemoryDirectoryServer(config)
+        .apply {
+            importFromLDIF(true, LDIFReader("/ldap/UsersAndGroups.ldif".getResourceStream()))
+            startListening()
+            mapOf(
+                "ldap.ad.group" to adGroup,
+                "ldap.url" to "ldap://127.0.0.1:$listenPort",
+                "ldap.username" to "cn=$username,$baseDn",
+                "ldap.password" to password,
+                "ldap.serviceuser.basedn" to baseDn
+            ).forEach { k, v -> System.setProperty(k, v) }
         }
-        return InMemoryDirectoryServer(config)
-            .apply {
-                importFromLDIF(true, LDIFReader("/ldap/UsersAndGroups.ldif".getResourceStream()))
-                startListening()
-                ldapConfigOverride = Config(adGroup = adGroup, url = "ldap://127.0.0.1:$listenPort",
-                    username = "cn=$username,$baseDn", password = password, baseDn = baseDn)
-            }
-    }
+}
 
-    fun createSoapClient(port: Int, username: String, password: String): OnlineBatchReceiverSoap {
-        val props = HashMap<String, Any>().apply {
-            put(WSHandlerConstants.ACTION, WSHandlerConstants.USERNAME_TOKEN)
-            put(WSHandlerConstants.USER, username)
-            put(WSHandlerConstants.PASSWORD_TYPE, WSConstants.PW_TEXT)
-            put(WSHandlerConstants.PW_CALLBACK_REF, CallbackHandler { callbacks ->
-                val pc = callbacks[0] as WSPasswordCallback
-                pc.password = password
-            })
+fun createSoapClient(port: Int, username: String, password: String): OnlineBatchReceiverSoap {
+    val props = mapOf(
+        WSHandlerConstants.ACTION to WSHandlerConstants.USERNAME_TOKEN,
+        WSHandlerConstants.USER to username,
+        WSHandlerConstants.PASSWORD_TYPE to WSConstants.PW_TEXT,
+        WSHandlerConstants.PW_CALLBACK_REF to CallbackHandler {
+            (it[0] as WSPasswordCallback).password = password
         }
-        return JaxWsProxyFactoryBean().run {
-            serviceClass = OnlineBatchReceiverSoap::class.java
-            address = "http://localhost:$port/webservices/OnlineBatchReceiverSoap"
-            outInterceptors.add(WSS4JOutInterceptor(props))
-            create() as OnlineBatchReceiverSoap
-        }
+    )
+    return JaxWsProxyFactoryBean().run {
+        serviceClass = OnlineBatchReceiverSoap::class.java
+        address = "http://localhost:$port/webservices/OnlineBatchReceiverSoap"
+        outInterceptors.add(WSS4JOutInterceptor(props))
+        create() as OnlineBatchReceiverSoap
     }
 }

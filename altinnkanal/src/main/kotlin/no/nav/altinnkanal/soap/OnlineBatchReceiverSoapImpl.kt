@@ -1,31 +1,26 @@
 package no.nav.altinnkanal.soap
 
-import io.prometheus.client.Counter
-import io.prometheus.client.Summary
 import mu.KotlinLogging
 import net.logstash.logback.argument.StructuredArgument
+import net.logstash.logback.argument.StructuredArguments.kv
 import no.altinn.webservices.OnlineBatchReceiverSoap
+import no.altinn.webservices.ReceiveOnlineBatchExternalAttachment as Request
+import no.altinn.webservices.ReceiveOnlineBatchExternalAttachmentResponse as Response
 import no.nav.altinnkanal.avro.ExternalAttachment
 import no.nav.altinnkanal.services.TopicService
+import no.nav.altinnkanal.Metrics
 import org.apache.kafka.clients.producer.Producer
 import org.apache.kafka.clients.producer.ProducerRecord
-
 import javax.xml.stream.XMLInputFactory
 import javax.xml.stream.events.XMLEvent
 import java.io.StringReader
 
-import net.logstash.logback.argument.StructuredArguments.kv
-import no.altinn.webservices.ReceiveOnlineBatchExternalAttachment as Request
-import no.altinn.webservices.ReceiveOnlineBatchExternalAttachmentResponse as Response
-
-const val OK = "OK"
-const val FAILED = "FAILED"
-const val FAILED_DO_NOT_RETRY = "FAILED_DO_NOT_RETRY"
+enum class Status {
+    OK, FAILED, FAILED_DO_NOT_RETRY
+}
 
 private val log = KotlinLogging.logger { }
 private val xmlInputFactory = XMLInputFactory.newFactory()
-private fun receiptResponse(resultCode: String, message: String) =
-        "&lt;OnlineBatchReceipt&gt;&lt;Result resultCode=&quot;$resultCode&quot;&gt;$message&lt;/Result&gt;&lt;/OnlineBatchReceipt&gt;"
 
 class OnlineBatchReceiverSoapImpl (
     private val topicService: TopicService,
@@ -41,10 +36,10 @@ class OnlineBatchReceiverSoapImpl (
         var serviceCode: String? = null
         var serviceEditionCode: String? = null
         var archiveReference: String? = null
-        val requestLatency = requestTime.startTimer()
+        val requestLatency = Metrics.requestTime.startTimer()
         var logDetails: MutableList<StructuredArgument>? = null
 
-        requestsTotal.inc()
+        Metrics.requestsTotal.inc()
         try {
             val externalAttachment = toAvroObject(dataBatch).also {
                 serviceCode = it.getServiceCode()
@@ -58,11 +53,11 @@ class OnlineBatchReceiverSoapImpl (
             val topic = topicService.getTopic(serviceCode!!, serviceEditionCode!!)
 
             if (topic == null) {
-                requestsFailedMissing.inc()
-                logDetails.add(kv("status", FAILED_DO_NOT_RETRY))
-                log.warn("Denied ROBEA request due to missing/unknown codes: ${"{} ".repeat(logDetails.size)}", *logDetails.toTypedArray())
-                response.receiveOnlineBatchExternalAttachmentResult = receiptResponse(resultCode = FAILED_DO_NOT_RETRY,
-                    message = "Invalid combination of Service Code and Service Edition Code (archiveReference=$archiveReference)")
+                Metrics.requestsFailedMissing.inc()
+                logDetails.add(kv("status", Status.FAILED_DO_NOT_RETRY))
+
+                response.receiveOnlineBatchExternalAttachmentResult = receiptResponse(Status.FAILED_DO_NOT_RETRY,
+                    archiveReference, logDetails)
                 return response
             }
 
@@ -71,8 +66,8 @@ class OnlineBatchReceiverSoapImpl (
                 .get()
 
             val latency = requestLatency.observeDuration()
-            requestSize.observe(metadata.serializedValueSize().toDouble())
-            requestsSuccess.labels("$serviceCode", "$serviceEditionCode").inc()
+            Metrics.requestSize.observe(metadata.serializedValueSize().toDouble())
+            Metrics.requestsSuccess.labels("$serviceCode", "$serviceEditionCode").inc()
 
             logDetails.addAll(arrayOf(
                 kv("latency", "${(latency * 1000).toLong()} ms"),
@@ -80,28 +75,25 @@ class OnlineBatchReceiverSoapImpl (
                 kv("topic", metadata.topic()),
                 kv("partition", metadata.partition()),
                 kv("offset", metadata.offset()),
-                kv("status", OK)
+                kv("status", Status.OK)
             ))
-            log.info("Successfully published ROBEA request to Kafka: ${"{} ".repeat(logDetails.size)}", *logDetails.toTypedArray())
-            response.receiveOnlineBatchExternalAttachmentResult = receiptResponse(resultCode = OK,
-                message = "Message received OK (archiveReference=$archiveReference)")
+
+            response.receiveOnlineBatchExternalAttachmentResult = receiptResponse(Status.OK, archiveReference, logDetails)
             return response
         } catch (e: Exception) {
-            requestsFailedError.inc()
+            Metrics.requestsFailedError.inc()
             logDetails = logDetails ?: mutableListOf(kv("SC", serviceCode), kv("SEC", serviceEditionCode),
                 kv("recRef", receiversReference), kv("archRef", archiveReference), kv("seqNum", sequenceNumber))
+            logDetails.add(kv("status", Status.FAILED))
 
-            logDetails.add(kv("status", FAILED))
-            log.error("Failed to send a ROBEA request to Kafka: ${"{} ".repeat(logDetails.size)}", *logDetails.toTypedArray(), e)
-            response.receiveOnlineBatchExternalAttachmentResult = receiptResponse(resultCode = FAILED,
-                message = "An error occurred: ${e.message} (archiveReference=$archiveReference)")
+            response.receiveOnlineBatchExternalAttachmentResult = receiptResponse(Status.FAILED, archiveReference,
+                logDetails, e)
             return response
         }
     }
 
     private fun toAvroObject(dataBatch: String): ExternalAttachment {
         val xmlReader = xmlInputFactory.createXMLStreamReader(StringReader(dataBatch))
-
         return try {
             val builder = ExternalAttachment.newBuilder()
             while (xmlReader.hasNext() && (!builder.hasArchiveReference() || !builder.hasServiceCode() || !builder.hasServiceEditionCode())) {
@@ -126,36 +118,33 @@ class OnlineBatchReceiverSoapImpl (
         }
     }
 
-    companion object {
-        private const val NAMESPACE = "altinnkanal"
-        @JvmStatic private val requestsTotal = Counter.build()
-            .namespace(NAMESPACE)
-            .name("requests_total")
-            .help("Total requests.")
-            .register()
-        @JvmStatic private val requestsSuccess = Counter.build()
-            .namespace(NAMESPACE)
-            .name("requests_success")
-            .help("Total successful requests.")
-            .labelNames("sc", "sec")
-            .register()
-        @JvmStatic private val requestsFailedMissing = Counter.build()
-            .namespace(NAMESPACE)
-            .name("requests_missing")
-            .help("Total failed requests due to missing/unknown SC/SEC codes.")
-            .register()
-        @JvmStatic private val requestsFailedError = Counter.build()
-            .namespace(NAMESPACE)
-            .name("requests_error")
-            .help("Total failed requests due to error.")
-            .register()
-        @JvmStatic private val requestSize = Summary.build()
-            .namespace(NAMESPACE)
-            .name("request_size_bytes_sum").help("Request size in bytes.")
-            .register()
-        @JvmStatic private val requestTime = Summary.build()
-            .namespace(NAMESPACE)
-            .name("request_time_ms").help("Request time in milliseconds.")
-            .register()
+    private fun receiptResponse(
+        resultCode: Status,
+        archRef: String?,
+        logDetails: MutableList<StructuredArgument>,
+        e: Exception? = null
+    ): String {
+        val (logString, logArray) = logDetails.keyValueLogDetails()
+        val message: String = when (resultCode) {
+            Status.OK -> {
+                log.info("Successfully published ROBEA request to Kafka: $logString", *logArray)
+                "Message received OK (archiveReference=$archRef)"
+            }
+            Status.FAILED_DO_NOT_RETRY -> {
+                log.warn("Denied ROBEA request due to missing/unknown codes: $logString", *logArray)
+                "Invalid combination of Service Code and Service Edition Code (archiveReference=$archRef)"
+            }
+            Status.FAILED -> {
+                log.error("Failed to send a ROBEA request to Kafka: $logString", *logArray, e)
+                "An error occurred: ${e?.message} (archiveReference=$archRef)"
+            }
+        }
+        return "&lt;OnlineBatchReceipt&gt;&lt;Result resultCode=&quot;$resultCode&quot;&gt;$message&lt;/Result&gt;&lt;/OnlineBatchReceipt&gt;"
+    }
+
+    private fun MutableList<StructuredArgument>.keyValueLogDetails(): Pair<String, Array<StructuredArgument>> {
+        val first = (0..(this.size - 1)).joinToString(", ", "", "") { "{}" }
+        val second = this.toTypedArray()
+        return Pair(first, second)
     }
 }

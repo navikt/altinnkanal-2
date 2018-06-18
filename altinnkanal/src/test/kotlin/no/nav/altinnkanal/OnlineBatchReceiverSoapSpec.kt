@@ -7,9 +7,8 @@ import no.altinn.webservices.ReceiveOnlineBatchExternalAttachment as ROBEA
 import java.util.concurrent.Future
 import no.nav.altinnkanal.avro.ExternalAttachment
 import no.nav.altinnkanal.services.TopicService
-import no.nav.altinnkanal.soap.FAILED_DO_NOT_RETRY
-import no.nav.altinnkanal.soap.OK
 import no.nav.altinnkanal.soap.OnlineBatchReceiverSoapImpl
+import no.nav.altinnkanal.soap.Status
 import org.amshove.kluent.shouldEqual
 import org.apache.kafka.clients.producer.Producer
 import org.apache.kafka.clients.producer.RecordMetadata
@@ -30,25 +29,31 @@ object OnlineBatchReceiverSoapSpec : Spek({
     whenever(kafkaProducer.send(any())).thenReturn(metadataFuture)
 
     describe("receiveOnlineBatchExternalAttachment") {
+
         on("%s",
-            data<String, String?, String>("valid topic routing", "test", expected = OK),
-            data<String, String?, String>("missing topic routing", null, expected = FAILED_DO_NOT_RETRY)
+            data<String, String?, String>("valid topic routing", "test", expected = Status.OK.name),
+            data<String, String?, String>("missing topic routing", null, expected = Status.FAILED_DO_NOT_RETRY.name)
         ) { _, mockValue: String?, expected: String ->
+
             whenever(topicService.getTopic(any(), any())).thenReturn(mockValue)
+
             it("should return $expected for batch") {
                 val result = soapService.receiveOnlineBatchExternalAttachment(
                     ROBEA().apply {
                         sequenceNumber = 0
                         batch = simpleBatch
                 }).receiveOnlineBatchExternalAttachmentResult.getResultCode()
+
                 result shouldEqual expected
             }
+
             it("should return $expected for Batch") {
                 val result = soapService.receiveOnlineBatchExternalAttachment(
                     ROBEA().apply {
                         sequenceNumber = 0
                         batch1 = simpleBatch
                 }).receiveOnlineBatchExternalAttachmentResult.getResultCode()
+
                 result shouldEqual expected
             }
         }
