@@ -5,18 +5,18 @@ replicas:
 port: 8080
 healthcheck:
   liveness:
-    path: /isAlive
+    path: /internal/is_alive
     initialDelay: 30
     periodSeconds: 10
     failureThreshold: 5
   readiness:
-    path: /isReady
+    path: /internal/is_ready
     initialDelay: 30
     periodSeconds: 5
     failureThreshold: 5
 prometheus:
   enabled: true
-  path: /prometheus
+  path: /internal/prometheus
 ingress:
   enabled: true
 resources:

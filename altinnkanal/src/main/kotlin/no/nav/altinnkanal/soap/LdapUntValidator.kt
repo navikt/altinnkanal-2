@@ -3,7 +3,7 @@ package no.nav.altinnkanal.soap
 import com.github.benmanes.caffeine.cache.Cache
 import com.github.benmanes.caffeine.cache.Caffeine
 import mu.KotlinLogging
-import no.nav.altinnkanal.config.Ldap.config
+import no.nav.altinnkanal.config.LdapConfig.config
 import org.apache.wss4j.common.ext.WSSecurityException
 import org.apache.wss4j.dom.handler.RequestData
 import org.apache.wss4j.dom.validate.Credential

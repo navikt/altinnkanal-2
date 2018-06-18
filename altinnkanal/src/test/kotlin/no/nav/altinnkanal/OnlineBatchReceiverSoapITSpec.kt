@@ -4,9 +4,6 @@ import no.altinn.webservices.ReceiveOnlineBatchExternalAttachment as ROBEA
 import java.util.Properties
 import no.nav.altinnkanal.Utils.createPayload
 import no.nav.altinnkanal.avro.ExternalAttachment
-import no.nav.altinnkanal.rest.APPLICATION_ALIVE
-import no.nav.altinnkanal.rest.APPLICATION_READY
-import no.nav.altinnkanal.rest.SelfTest
 import no.nav.altinnkanal.services.TopicService
 import no.nav.altinnkanal.soap.FAILED
 import no.nav.altinnkanal.soap.FAILED_DO_NOT_RETRY
@@ -137,36 +134,26 @@ object OnlineBatchReceiverSoapITSpec : Spek({
             }
         }
     }
-    context("SelfTest Connection") {
+
+    context("self tests") {
         on("%s",
-            data("isAlive", expected = APPLICATION_ALIVE),
-            data("isReady", expected = APPLICATION_READY)
+            data("is_alive", expected = APPLICATION_ALIVE),
+            data("is_ready", expected = APPLICATION_READY)
         ) { path, expected ->
-            val conn = URL("http://localhost:$localServerPort/$path").let {
+            val conn = URL("http://localhost:$localServerPort/internal/$path").let {
                 it.openConnection() as HttpURLConnection
             }
+
             it("should return HTTP 200 OK") {
                 conn.responseCode shouldEqual HttpURLConnection.HTTP_OK
             }
+
             it("should return $expected") {
                 val response = Scanner(
-                    URL("http://localhost:$localServerPort/$path").openStream(), "UTF-8")
-                    .useDelimiter("\\A").next()
+                    URL("http://localhost:$localServerPort/internal/$path").openStream(), "UTF-8")
+                    .useDelimiter("\\n").next()
+
                 response shouldEqual expected
-            }
-        }
-    }
-    context("SelfTest Classes") {
-        on("getIsAlive") {
-            val expected = APPLICATION_ALIVE
-            it("should return $expected") {
-                SelfTest().getIsAlive() shouldEqual expected
-            }
-        }
-        on("getIsReady") {
-            val expected = APPLICATION_READY
-            it("should return $expected") {
-                SelfTest().getIsReady().readEntity(String::class.java) shouldEqual expected
             }
         }
     }

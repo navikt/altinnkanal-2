@@ -7,8 +7,6 @@ import com.unboundid.ldap.sdk.schema.Schema
 import com.unboundid.ldif.LDIFReader
 import net.logstash.logback.encoder.org.apache.commons.lang.StringEscapeUtils
 import no.altinn.webservices.OnlineBatchReceiverSoap
-import no.nav.altinnkanal.config.Ldap.Config
-import no.nav.altinnkanal.config.Ldap.override as ldapConfigOverride
 import org.apache.cxf.jaxws.JaxWsProxyFactoryBean
 import org.apache.cxf.ws.security.wss4j.WSS4JOutInterceptor
 import org.apache.wss4j.common.ext.WSPasswordCallback
