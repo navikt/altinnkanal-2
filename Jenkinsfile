@@ -80,7 +80,7 @@ pipeline {
                     slackStatus status: 'aborted'
                 }
             }
-            junit '**/build/test-results/junit-platform/*.xml'
+            junit '**/build/test-results/test/*.xml'
             archiveArtifacts artifacts: '**/build/libs/*', allowEmptyArchive: true
             archiveArtifacts artifacts: '**/build/install/*', allowEmptyArchive: true
             deleteDir()
