@@ -1,52 +1,43 @@
 # Altinnkanal 2
 
-Repository for Altinnkanal 2. Application written in Kotlin to handle routing of messages from Altinn through a webservice
- endpoint to internal systems using Kafka. 
+Altinnkanal-2 is an application written in Kotlin that exposes a webservice endpoint, and handles routing
+of incoming messages from Altinn to internal systems by using Kafka.
 
 ## Technologies & Tools
 
-* Kotlin
-* Kafka
-* CXF
-* Jetty
-* Gradle
-* Spek
+* [Kotlin](https://kotlinlang.org)
+* [Kafka](https://kafka.apache.org)
+* [CXF](https://cxf.apache.org)
+* [Jetty](https://eclipse.org/jetty)
+* [Gradle](https://gradle.org)
+* [Spek](http://spekframework.org)
 
 ## Getting started
 
-### Build and run tests
+### Compile, build and run tests
 `./gradlew clean build`
 
-### Compile and build JARs + startup scripts:
-
-`./gradlew clean installDist`
+### Generate startup scripts and distribution files:
+`./gradlew installDist`
 
 The files needed for distribution should then be available under 
 
-`./altinnkanal/build/install/`
+`/altinnkanal/build/install/`
 
 with startup scripts under:
 
-`./altinnkanal/build/install/altinnkanal/bin/`
-
+`/altinnkanal/build/install/altinnkanal/bin/`
 
 ### Running locally
 
-The application assumes you've set certain environment variables:
+The application assumes you've set certain properties in [local.properties](altinnkanal/src/main/resources/local.properties):
 
-* The following are used for WS-Security validation. The webservice will validate
-  UsernameTokens in the SOAP headers against LDAP. 
-    * `LDAP_URL`
-    * `LDAP_USERNAME` - username for initial lookup (should not be the same as the one in the SOAP request).
-    * `LDAP_PASSWORD`
-    * `LDAP_SERVICEUSER_BASEDN` - the base distinguished name for lookup.
-    * `LDAP_AD_GROUP` - the group that user should be a member of.
+You will also need to specify the addresses for connecting to the Kafka brokers as well as Schema Registry in 
+[kafka.properties](altinnkanal/src/main/resources/kafka.properties). Consider using a Docker image or run the 
+[Confluent Open Source distribution](https://www.confluent.io/product/confluent-open-source/) locally.
 
-* `SRVALTINNKANAL_USERNAME` and `SRVALTINNKANAL_PASSWORD` - required for the JAAS
-configuration used when connecting to Kafka.
-
-A Webservice (as defined by the WSDL in `src/main/resources/OnlineBatchReceiver.wsdl`) should be available 
-at: http://localhost:8080/webservices/OnlineBatchReceiverSoap
+A Webservice (as defined by the WSDL in [OnlineBatchReceiver.wsdl](altinnkanal/src/main/resources/OnlineBatchReceiver.wsdl) 
+should be available at: http://localhost:8080/webservices/OnlineBatchReceiverSoap
 
 ### Contact us
 #### Code/project related questions can be sent to 
@@ -54,10 +45,4 @@ at: http://localhost:8080/webservices/OnlineBatchReceiverSoap
 * Trong Huu Nguyen, `trong.huu.nguyen@nav.no`
 
 #### For NAV employees
-We are also available on the slack channel #integrasjon for internal communication.
-
-##### Testing against Kafka
-IPs and hostnames for testing should be available in the #kafka Slack channel. Still WIP so they'll probably change. 
-You might want to consider using a Docker image or running the 
-[Confluent Open Source distribution](https://www.confluent.io/product/confluent-open-source/) locally.
-
+We're available on Slack in the channel #integrasjon for any inquiries.
