@@ -39,7 +39,6 @@ applicationDefaultJvmArgs = [
     '-XX:+UseG1GC',
     '-XX:MaxRAMFraction=2',
     '-XshowSettings:vm',
-    '-XX:+AlwaysPreTouch',
     '-Dlogback.configurationFile=logback-remote.xml'
 ]
 
