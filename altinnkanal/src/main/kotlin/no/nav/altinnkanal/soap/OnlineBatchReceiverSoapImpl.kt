@@ -4,8 +4,6 @@ import mu.KotlinLogging
 import net.logstash.logback.argument.StructuredArgument
 import net.logstash.logback.argument.StructuredArguments.kv
 import no.altinn.webservices.OnlineBatchReceiverSoap
-import no.altinn.webservices.ReceiveOnlineBatchExternalAttachment as Request
-import no.altinn.webservices.ReceiveOnlineBatchExternalAttachmentResponse as Response
 import no.nav.altinnkanal.avro.ExternalAttachment
 import no.nav.altinnkanal.services.TopicService
 import no.nav.altinnkanal.Metrics
@@ -26,12 +24,14 @@ class OnlineBatchReceiverSoapImpl (
     private val topicService: TopicService,
     private val kafkaProducer: Producer<String, ExternalAttachment>
 ) : OnlineBatchReceiverSoap {
-    override fun receiveOnlineBatchExternalAttachment(params: Request): Response {
-        val receiversReference = params.receiversReference
-        val sequenceNumber = params.sequenceNumber
-        val dataBatch = params.batch ?: params.batch1 ?: throw RuntimeException("Empty batch")
-
-        val response = Response()
+    override fun receiveOnlineBatchExternalAttachment(
+        username: String?,
+        passwd: String?,
+        receiversReference: String?,
+        sequenceNumber: Long,
+        dataBatch: String,
+        attachments: ByteArray?
+    ): String {
 
         var serviceCode: String? = null
         var serviceEditionCode: String? = null
@@ -56,9 +56,7 @@ class OnlineBatchReceiverSoapImpl (
                 Metrics.requestsFailedMissing.inc()
                 logDetails.add(kv("status", Status.FAILED_DO_NOT_RETRY))
 
-                response.receiveOnlineBatchExternalAttachmentResult = receiptResponse(Status.FAILED_DO_NOT_RETRY,
-                    archiveReference, logDetails)
-                return response
+                return receiptResponse(Status.FAILED_DO_NOT_RETRY, archiveReference, logDetails)
             }
 
             val metadata = kafkaProducer
@@ -78,17 +76,13 @@ class OnlineBatchReceiverSoapImpl (
                 kv("status", Status.OK)
             ))
 
-            response.receiveOnlineBatchExternalAttachmentResult = receiptResponse(Status.OK, archiveReference, logDetails)
-            return response
+            return receiptResponse(Status.OK, archiveReference, logDetails)
         } catch (e: Exception) {
             Metrics.requestsFailedError.inc()
             logDetails = logDetails ?: mutableListOf(kv("SC", serviceCode), kv("SEC", serviceEditionCode),
                 kv("recRef", receiversReference), kv("archRef", archiveReference), kv("seqNum", sequenceNumber))
             logDetails.add(kv("status", Status.FAILED))
-
-            response.receiveOnlineBatchExternalAttachmentResult = receiptResponse(Status.FAILED, archiveReference,
-                logDetails, e)
-            return response
+            return receiptResponse(Status.FAILED, archiveReference, logDetails, e)
         }
     }
 

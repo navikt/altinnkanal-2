@@ -3,7 +3,6 @@ package no.nav.altinnkanal
 import com.nhaarman.mockitokotlin2.any
 import com.nhaarman.mockitokotlin2.mock
 import com.nhaarman.mockitokotlin2.whenever
-import no.altinn.webservices.ReceiveOnlineBatchExternalAttachment as ROBEA
 import java.util.concurrent.Future
 import no.nav.altinnkanal.avro.ExternalAttachment
 import no.nav.altinnkanal.services.TopicService
@@ -39,20 +38,26 @@ object OnlineBatchReceiverSoapSpec : Spek({
 
             it("should return $expected for batch") {
                 val result = soapService.receiveOnlineBatchExternalAttachment(
-                    ROBEA().apply {
-                        sequenceNumber = 0
-                        batch = simpleBatch
-                }).receiveOnlineBatchExternalAttachmentResult.getResultCode()
+                    username = null,
+                    passwd = null,
+                    receiversReference = null,
+                    sequenceNumber = 0,
+                    dataBatch = simpleBatch,
+                    attachments = ByteArray(0)
+                ).getResultCode()
 
                 result shouldEqual expected
             }
 
             it("should return $expected for Batch") {
                 val result = soapService.receiveOnlineBatchExternalAttachment(
-                    ROBEA().apply {
-                        sequenceNumber = 0
-                        batch1 = simpleBatch
-                }).receiveOnlineBatchExternalAttachmentResult.getResultCode()
+                    username = null,
+                    passwd = null,
+                    receiversReference = null,
+                    sequenceNumber = 0,
+                    dataBatch = simpleBatch,
+                    attachments = ByteArray(0)
+                ).getResultCode()
 
                 result shouldEqual expected
             }

@@ -1,6 +1,5 @@
 package no.nav.altinnkanal
 
-import no.altinn.webservices.ReceiveOnlineBatchExternalAttachment as ROBEA
 import java.util.Properties
 import no.nav.altinnkanal.avro.ExternalAttachment
 import no.nav.altinnkanal.services.TopicService
@@ -64,11 +63,8 @@ object OnlineBatchReceiverSoapITSpec : Spek({
                 it("should throw a SOAPFaultException") {
                     val client = createSoapClient(localServerPort, username, password)
                     val result =
-                        { client.receiveOnlineBatchExternalAttachment(
-                            ROBEA().apply {
-                                sequenceNumber = 0
-                                batch = payload
-                            })
+                        { client.receiveOnlineBatchExternalAttachment(null, null, null,
+                            0, payload, ByteArray(0))
                         }
                     result shouldThrow Exception::class withCause expected
                 }
@@ -91,21 +87,8 @@ object OnlineBatchReceiverSoapITSpec : Spek({
             ) { _, payload, expected ->
 
                 it("should return a result equal to $expected for batch") {
-                    val result = soapClient.receiveOnlineBatchExternalAttachment(
-                        ROBEA().apply {
-                            sequenceNumber = 0
-                            batch = payload
-                        }).receiveOnlineBatchExternalAttachmentResult.getResultCode()
-
-                    result shouldEqual expected
-                }
-
-                it("should return a result equal to $expected for Batch") {
-                    val result = soapClient.receiveOnlineBatchExternalAttachment(
-                        ROBEA().apply {
-                            sequenceNumber = 0
-                            batch1 = payload
-                        }).receiveOnlineBatchExternalAttachmentResult.getResultCode()
+                    val result = soapClient.receiveOnlineBatchExternalAttachment(null, null, null,
+                        0, payload, ByteArray(0)).getResultCode()
 
                     result shouldEqual expected
                 }
@@ -121,23 +104,8 @@ object OnlineBatchReceiverSoapITSpec : Spek({
                     kafkaEnvironment.serverPark.brokers.forEach(operation)
 
                     it("should return a result equal to $expected for batch") {
-                        val result = soapClient.receiveOnlineBatchExternalAttachment(
-                            ROBEA().apply {
-                                sequenceNumber = 0
-                                batch = payload
-                            }
-                        ).receiveOnlineBatchExternalAttachmentResult.getResultCode()
-
-                        result shouldEqual expected
-                    }
-
-                    it("should return a result equal to $expected for Batch") {
-                        val result = soapClient.receiveOnlineBatchExternalAttachment(
-                            ROBEA().apply {
-                                sequenceNumber = 0
-                                batch1 = payload
-                            }
-                        ).receiveOnlineBatchExternalAttachmentResult.getResultCode()
+                        val result = soapClient.receiveOnlineBatchExternalAttachment(null, null, null,
+                            0, payload, ByteArray(0)).getResultCode()
 
                         result shouldEqual expected
                     }

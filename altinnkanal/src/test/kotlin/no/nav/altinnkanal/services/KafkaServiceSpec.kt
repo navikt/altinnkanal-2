@@ -6,7 +6,6 @@ import com.nhaarman.mockitokotlin2.mock
 import com.nhaarman.mockitokotlin2.times
 import com.nhaarman.mockitokotlin2.verify
 import com.nhaarman.mockitokotlin2.whenever
-import no.altinn.webservices.ReceiveOnlineBatchExternalAttachment as ROBEA
 import java.util.concurrent.Future
 import no.nav.altinnkanal.avro.ExternalAttachment
 import no.nav.altinnkanal.getResource
@@ -39,10 +38,12 @@ object KafkaServiceSpec : Spek({
         val simpleBatch = "/data/basic_data_batch.xml".getResource()
         on("receiveOnlineBatchExternalAttachment") {
             onlineBatchReceiver.receiveOnlineBatchExternalAttachment(
-                ROBEA().apply {
-                    sequenceNumber = 0
-                    batch = simpleBatch
-                }
+                username = null,
+                passwd = null,
+                receiversReference = null,
+                sequenceNumber = 0,
+                dataBatch = simpleBatch,
+                attachments = ByteArray(0)
             )
             val record = captor.firstValue
             it("should invoke the Kafka Producer once") {
