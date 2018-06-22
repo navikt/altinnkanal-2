@@ -30,13 +30,13 @@ with startup scripts under:
 
 ### Running locally
 
-The application assumes you've set certain properties in [local.properties](altinnkanal/src/main/resources/local.properties):
+The application assumes you've set certain properties in [local.properties](altinnkanal/src/main/resources/local.properties)
 
 You will also need to specify the addresses for connecting to the Kafka brokers as well as Schema Registry in 
 [kafka.properties](altinnkanal/src/main/resources/kafka.properties). Consider using a Docker image or run the 
 [Confluent Open Source distribution](https://www.confluent.io/product/confluent-open-source/) locally.
 
-A Webservice (as defined by the WSDL in [OnlineBatchReceiver.wsdl](altinnkanal/src/main/resources/OnlineBatchReceiver.wsdl) 
+A Webservice (as defined by the WSDL in [OnlineBatchReceiver.wsdl](altinnkanal/src/main/resources/OnlineBatchReceiver.wsdl)) 
 should be available at: http://localhost:8080/webservices/OnlineBatchReceiverSoap
 
 ### Contact us
