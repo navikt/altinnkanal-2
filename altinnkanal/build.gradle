@@ -17,7 +17,7 @@ buildscript {
     ext.slf4j_version = '1.7.25'
 
     // test dependencies
-    ext.kafka_embedded_version = '0.7.2'
+    ext.kafka_embedded_version = '0.7.3'
     ext.kluent_version = '1.38'
     ext.spek_version = '1.1.5'
     ext.unboundid_version = '4.0.6'
@@ -91,6 +91,7 @@ dependencies {
     implementation ("io.confluent:kafka-avro-serializer:$confluent_version") {
         exclude group: 'org.slf4j'
         exclude group: 'log4j'
+        exclude group: 'org.apache.kafka'
     }
     implementation "org.apache.kafka:kafka-clients:$kafka_version"
 
