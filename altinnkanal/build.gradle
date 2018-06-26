@@ -36,6 +36,8 @@ mainClassName = 'no.nav.altinnkanal.JettyBootstrapKt'
 applicationDefaultJvmArgs = [
     '-Djavax.net.ssl.trustStore=${NAV_TRUSTSTORE_PATH}',
     '-Djavax.net.ssl.trustStorePassword=${NAV_TRUSTSTORE_PASSWORD}',
+    '-XX:+UnlockExperimentalVMOptions',
+    '-XX:+UseCGroupMemoryLimitForHeap',
     '-XX:+UseG1GC',
     '-XX:MaxRAMFraction=2',
     '-XshowSettings:vm',
@@ -69,13 +71,12 @@ test {
 
 repositories {
     maven {
-        name 'Confluent maven repo'
-        url 'http://packages.confluent.io/maven/'
-    }
-
-    maven {
         name 'iApp Nexus 3 server - releases'
         url 'https://repo.adeo.no/repository/maven-releases/'
+    }
+    maven {
+        name 'Confluent maven repo'
+        url 'http://packages.confluent.io/maven/'
     }
     jcenter()
 }
