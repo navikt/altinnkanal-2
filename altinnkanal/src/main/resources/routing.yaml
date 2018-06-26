@@ -26,3 +26,9 @@ routes:
   - topic: aapen-altinn-inntektsskjema-Mottatt
     serviceCode: 4936
     serviceEditionCode: 2
+  - topic: aapen-altinn-meldingomunndragelse-Mottatt
+    serviceCode: 5161
+    serviceEditionCode: 1
+  - topic: aapen-altinn-meldingomsoning-Mottatt
+    serviceCode: 5152
+    serviceEditionCode: 1
