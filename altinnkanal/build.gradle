@@ -113,7 +113,6 @@ dependencies {
     runtimeOnly "org.slf4j:log4j-over-slf4j:$slf4j_version"
     implementation "net.logstash.logback:logstash-logback-encoder:$logstash_encoder_version"
 
-    testImplementation 'org.mockito:mockito-core:2.19.0'
     testImplementation "com.nhaarman.mockitokotlin2:mockito-kotlin:$mockito_kotlin_version"
     testImplementation ("org.jetbrains.spek:spek-api:$spek_version") {
         exclude group: 'org.jetbrains.kotlin'
