@@ -48,19 +48,6 @@ object OnlineBatchReceiverSoapSpec : Spek({
 
                 result shouldEqual expected
             }
-
-            it("should return $expected for Batch") {
-                val result = soapService.receiveOnlineBatchExternalAttachment(
-                    username = null,
-                    passwd = null,
-                    receiversReference = null,
-                    sequenceNumber = 0,
-                    dataBatch = simpleBatch,
-                    attachments = ByteArray(0)
-                ).getResultCode()
-
-                result shouldEqual expected
-            }
         }
     }
 })
