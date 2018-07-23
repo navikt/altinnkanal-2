@@ -20,7 +20,7 @@ enum class Status {
 private val log = KotlinLogging.logger { }
 private val xmlInputFactory = XMLInputFactory.newFactory()
 
-class OnlineBatchReceiverSoapImpl (
+class OnlineBatchReceiverSoapImpl(
     private val topicService: TopicService,
     private val kafkaProducer: Producer<String, ExternalAttachment>
 ) : OnlineBatchReceiverSoap {

@@ -36,7 +36,7 @@ object TopicServiceSpec : Spek({
             it("should not return null") {
                 topic shouldNotBe null
             }
-            it ("should return $expectedTopic") {
+            it("should return $expectedTopic") {
                 topic shouldBe expectedTopic
             }
         }
