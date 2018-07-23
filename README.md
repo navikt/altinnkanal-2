@@ -1,5 +1,7 @@
 # Altinnkanal 2
 
+[![Build Status](https://travis-ci.org/navikt/altinnkanal-2.svg?branch=master)](https://travis-ci.org/navikt/altinnkanal-2)
+
 Altinnkanal-2 is an application written in Kotlin that exposes a webservice endpoint, and handles routing
 of incoming messages from Altinn to internal systems by using Kafka.
 
