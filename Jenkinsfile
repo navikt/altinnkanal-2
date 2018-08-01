@@ -60,7 +60,7 @@ pipeline {
         }
         stage('deploy to preprod') {
             steps {
-                createJiraIssue('jiraDeploy')
+                deployApplication()
                 waitForCallback()
             }
         }
@@ -73,8 +73,9 @@ pipeline {
             }
             steps {
                 script {
-                    createJiraIssue('jiraDeploy')
-                    createJiraIssue('jiraDeployProd')
+                    jiraIssueId = deployApplication()
+                    def jiraProdIssueId = nais action: 'jiraDeployProd', jiraIssueId: jiraIssueId
+                    slackStatus status: 'deploying', jiraIssueId: "${jiraProdIssueId}"
                     waitForCallback()
                     githubStatus 'tagRelease'
                 }
@@ -106,9 +107,10 @@ pipeline {
     }
 }
 
-void createJiraIssue(String action) {
-    def jiraIssueId = nais action: action
+void deployApplication() {
+    def jiraIssueId = nais action: 'jiraDeploy'
     slackStatus status: 'deploying', jiraIssueId: "${jiraIssueId}"
+    return jiraIssueId
 }
 
 void waitForCallback() {
