@@ -60,7 +60,8 @@ pipeline {
         }
         stage('deploy to preprod') {
             steps {
-                deployApplication()
+                createJiraIssue('jiraDeploy')
+                waitForCallback()
             }
         }
         stage('deploy to production') {
@@ -72,18 +73,10 @@ pipeline {
             }
             steps {
                 script {
-                    def jiraIssueId = nais action: 'jiraDeploy'
-                    slackStatus status: 'deploying', jiraIssueId: "${jiraIssueId}"
-                    def jiraProdIssueId = nais action: 'jiraDeployProd', jiraIssueId: jiraIssueId
-                    slackStatus status: 'deploying', jiraIssueId: "${jiraProdIssueId}"
-                    try {
-                        timeout(time: 1, unit: 'HOURS') {
-                            input id: "deploy", message: "Waiting for remote Jenkins server to deploy the application..."
-                        }
-                    } catch (Exception exception) {
-                        currentBuild.description = "Deploy failed, see " + currentBuild.description
-                        throw exception
-                    }
+                    createJiraIssue('jiraDeploy')
+                    createJiraIssue('jiraDeployProd')
+                    waitForCallback()
+                    githubStatus 'tagRelease'
                 }
             }
         }
@@ -113,9 +106,12 @@ pipeline {
     }
 }
 
-void deployApplication() {
-    def jiraIssueId = nais action: 'jiraDeploy'
+void createJiraIssue(String action) {
+    def jiraIssueId = nais action: action
     slackStatus status: 'deploying', jiraIssueId: "${jiraIssueId}"
+}
+
+void waitForCallback() {
     try {
         timeout(time: 1, unit: 'HOURS') {
             input id: "deploy", message: "Waiting for remote Jenkins server to deploy the application..."
