@@ -3,7 +3,7 @@ package no.nav.altinnkanal.soap
 import com.github.benmanes.caffeine.cache.Cache
 import com.github.benmanes.caffeine.cache.Caffeine
 import mu.KotlinLogging
-import no.nav.altinnkanal.config.LdapConfig.config
+import no.nav.altinnkanal.config.LdapConfig
 import org.apache.wss4j.common.ext.WSSecurityException
 import org.apache.wss4j.dom.handler.RequestData
 import org.apache.wss4j.dom.validate.Credential
@@ -34,9 +34,9 @@ class LdapUntValidator : UsernameTokenValidator() {
         val password = credential.usernametoken.password
         val initProps = Properties().apply {
             put(Context.INITIAL_CONTEXT_FACTORY, "com.sun.jndi.ldap.LdapCtxFactory")
-            put(Context.PROVIDER_URL, config.url)
-            put(Context.SECURITY_PRINCIPAL, config.username)
-            put(Context.SECURITY_CREDENTIALS, config.password)
+            put(Context.PROVIDER_URL, LdapConfig.url)
+            put(Context.SECURITY_PRINCIPAL, LdapConfig.username)
+            put(Context.SECURITY_CREDENTIALS, LdapConfig.password)
         }
 
         // Lookup provided user in cache to avoid unnecessary LDAP lookups
@@ -46,14 +46,14 @@ class LdapUntValidator : UsernameTokenValidator() {
                 when {
                     !checkGroupMembershipInAd(username, it) -> {
                         it.close()
-                        wsSecAuthFail("AD group membership not found [user: $username, group: ${config.adGroup}]")
+                        wsSecAuthFail("AD group membership not found [user: $username, group: ${LdapConfig.adGroup}]")
                     }
                     else -> { it.close() }
                 }
             }
             // Attempt to bind the credentials for authentication
             InitialDirContext(initProps.apply {
-                put(Context.SECURITY_PRINCIPAL, "cn=$username,${config.baseDn}")
+                put(Context.SECURITY_PRINCIPAL, "cn=$username,${LdapConfig.baseDn}")
                 put(Context.SECURITY_CREDENTIALS, password)
             }).close()
             boundedCache.put(username, password)
@@ -67,10 +67,10 @@ class LdapUntValidator : UsernameTokenValidator() {
     }
 
     private fun checkGroupMembershipInAd(username: String, initCtx: InitialDirContext) = initCtx
-        .search(config.baseDn, "(cn=$username)", searchControls).run {
+        .search(LdapConfig.baseDn, "(cn=$username)", searchControls).run {
             nextElement().attributes.get("memberOf").all.asSequence()
             .any { it.toString().substringAfter("=").substringBefore(",")
-                    .equals(config.adGroup, true) }
+                    .equals(LdapConfig.adGroup, true) }
             .also { close() }
         }
 

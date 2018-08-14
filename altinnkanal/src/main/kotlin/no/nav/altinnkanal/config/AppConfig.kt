@@ -13,21 +13,11 @@ val appConfig = EnvironmentVariables() overriding
     ConfigurationProperties.fromResource("local.properties")
 
 object LdapConfig {
-    private val adGroup = Key("ldap.ad.group", stringType)
-    private val url = Key("ldap.url", stringType)
-    private val username = Key("ldap.username", stringType)
-    private val password = Key("ldap.password", stringType)
-    private val baseDn = Key("ldap.serviceuser.basedn", stringType)
-
-    data class Config(
-        val adGroup: String = appConfig[LdapConfig.adGroup],
-        val url: String = appConfig[LdapConfig.url],
-        val username: String = appConfig[LdapConfig.username],
-        val password: String = appConfig[LdapConfig.password],
-        val baseDn: String = appConfig[LdapConfig.baseDn]
-    )
-
-    val config = Config()
+    val adGroup = appConfig[Key("ldap.ad.group", stringType)]
+    val url = appConfig[Key("ldap.url", stringType)]
+    val username = appConfig[Key("ldap.username", stringType)]
+    val password = appConfig[Key("ldap.password", stringType)]
+    val baseDn = appConfig[Key("ldap.serviceuser.basedn", stringType)]
 }
 
 object KafkaConfig {
