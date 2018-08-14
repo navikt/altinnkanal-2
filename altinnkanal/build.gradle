@@ -1,8 +1,8 @@
 buildscript {
-    ext.kotlin_version = '1.2.51'
+    ext.kotlin_version = '1.2.60'
 
     ext.jetty_version = "9.4.11.v20180605"
-    ext.cxf_version = '3.2.5'
+    ext.cxf_version = '3.2.6'
     ext.caffeine_version = '2.6.2'
     ext.jackson_version = '2.9.6'
     ext.prometheus_version = '0.5.0'
@@ -11,8 +11,8 @@ buildscript {
     ext.kafka_version = '1.1.1'
     ext.confluent_version = '4.1.1'
 
-    ext.kotlinlogging_version = '1.5.8'
-    ext.logstash_encoder_version = '5.1'
+    ext.kotlinlogging_version = '1.5.9'
+    ext.logstash_encoder_version = '5.2'
     ext.logback_version = '1.2.3'
     ext.slf4j_version = '1.7.25'
 
@@ -20,15 +20,15 @@ buildscript {
     ext.kafka_embedded_version = '1.0.0'
     ext.kluent_version = '1.40'
     ext.spek_version = '1.2.0'
-    ext.unboundid_version = '4.0.6'
+    ext.unboundid_version = '4.0.7'
     ext.mockito_kotlin_version = '2.0.0-RC1'
 }
 
 plugins {
     id 'no.nils.wsdl2java' version '0.10'
-    id 'org.jmailen.kotlinter' version '1.15.1'
+    id 'org.jmailen.kotlinter' version '1.16.0'
     id 'com.github.ben-manes.versions' version '0.20.0'
-    id 'org.jetbrains.kotlin.jvm' version '1.2.51'
+    id 'org.jetbrains.kotlin.jvm' version '1.2.60'
     id 'application'
 }
 
