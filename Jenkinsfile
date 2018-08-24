@@ -5,18 +5,16 @@ pipeline {
 
     environment {
         APPLICATION_NAME = 'altinnkanal-2'
-        FASIT_ENV = 'q1'
+        APPLICATION_SERVICE = 'CMDB-32744'
+        APPLICATION_COMPONENT = 'CMDB-190474'
+        FASIT_ENVIRONMENT = 'q1'
         ZONE = 'fss'
-        NAMESPACE = 'default'
-        COMMIT_HASH_SHORT = gitVars 'commitHashShort'
-        COMMIT_HASH = gitVars 'commitHash'
     }
 
     stages {
         stage('initialize') {
             steps {
-                ciSkip 'check'
-                sh './gradlew clean'
+                init action: 'default'
                 script {
                     applicationVersionGradle = sh(script: './gradlew -q :altinnkanal:printVersion', returnStdout: true).trim()
                     env.APPLICATION_VERSION = "${applicationVersionGradle}"
@@ -25,10 +23,8 @@ pipeline {
                     } else {
                         env.DEPLOY_TO = 'production'
                     }
-                    changeLog = utils.gitVars(env.APPLICATION_NAME).changeLog.toString()
-                    githubStatus 'pending'
-                    slackStatus status: 'started', changeLog: "${changeLog}"
                 }
+                init action: 'updateStatus'
             }
         }
         stage('build') {
@@ -49,7 +45,7 @@ pipeline {
         }
         stage('push docker image') {
             steps {
-                dockerUtils 'createPushImage'
+                dockerUtils action: 'createPushImage'
             }
         }
         stage('validate & upload nais.yaml to nexus m2internal') {
@@ -60,66 +56,28 @@ pipeline {
         }
         stage('deploy to preprod') {
             steps {
-                deployApplication()
-                waitForCallback()
+                deploy action: 'jiraPreprod'
             }
         }
         stage('deploy to production') {
             when { environment name: 'DEPLOY_TO', value: 'production' }
-            environment {
-                FASIT_ENV = 'p'
-                APPLICATION_SERVICE = 'CMDB-32744'
-                APPLICATION_COMPONENT = 'CMDB-190474'
-            }
             steps {
-                script {
-                    jiraIssueId = deployApplication()
-                    def jiraProdIssueId = nais action: 'jiraDeployProd', jiraIssueId: jiraIssueId
-                    slackStatus status: 'deploying', jiraIssueId: "${jiraProdIssueId}"
-                    waitForCallback()
-                    githubStatus 'tagRelease'
-                }
+                deploy action: 'jiraProd'
             }
         }
     }
     post {
         always {
-            ciSkip 'postProcess'
-            dockerUtils 'pruneBuilds'
-            script {
-                if (currentBuild.result == 'ABORTED') {
-                    slackStatus status: 'aborted'
-                }
-            }
+            postProcess action: 'always'
             junit '**/build/test-results/test/*.xml'
             archiveArtifacts artifacts: '**/build/libs/*', allowEmptyArchive: true
             archiveArtifacts artifacts: '**/build/install/*', allowEmptyArchive: true
-            deleteDir()
         }
         success {
-            githubStatus 'success'
-            slackStatus status: 'success'
+            postProcess action: 'success'
         }
         failure {
-            githubStatus 'failure'
-            slackStatus status: 'failure'
+            postProcess action: 'failure'
         }
-    }
-}
-
-void deployApplication() {
-    def jiraIssueId = nais action: 'jiraDeploy'
-    slackStatus status: 'deploying', jiraIssueId: "${jiraIssueId}"
-    return jiraIssueId
-}
-
-void waitForCallback() {
-    try {
-        timeout(time: 1, unit: 'HOURS') {
-            input id: "deploy", message: "Waiting for remote Jenkins server to deploy the application..."
-        }
-    } catch (Exception exception) {
-        currentBuild.description = "Deploy failed, see " + currentBuild.description
-        throw exception
     }
 }
