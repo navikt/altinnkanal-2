@@ -15,6 +15,7 @@ pipeline {
         stage('initialize') {
             steps {
                 init action: 'default'
+                sh './gradlew clean'
                 script {
                     applicationVersionGradle = sh(script: './gradlew -q :altinnkanal:printVersion', returnStdout: true).trim()
                     env.APPLICATION_VERSION = "${applicationVersionGradle}"
