@@ -65,6 +65,7 @@ pipeline {
             when { environment name: 'DEPLOY_TO', value: 'production' }
             steps {
                 deploy action: 'jiraProd'
+                githubStatus action: 'tagRelease'
             }
         }
     }
