@@ -9,6 +9,7 @@ pipeline {
         APPLICATION_COMPONENT = 'CMDB-190474'
         FASIT_ENVIRONMENT = 'q1'
         ZONE = 'fss'
+        DOCKER_SLUG = 'integrasjon'
     }
 
     stages {
