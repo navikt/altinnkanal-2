@@ -32,3 +32,6 @@ routes:
   - topic: aapen-altinn-meldingomsoning-Mottatt
     serviceCode: 5152
     serviceEditionCode: 1
+  - topic: privat-altinn-paop-Mottatt
+    serviceCode: 9001
+    serviceEditionCode: 1
