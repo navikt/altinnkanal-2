@@ -33,16 +33,6 @@ plugins {
 }
 
 mainClassName = 'no.nav.altinnkanal.JettyBootstrapKt'
-applicationDefaultJvmArgs = [
-    '-Djavax.net.ssl.trustStore=${NAV_TRUSTSTORE_PATH}',
-    '-Djavax.net.ssl.trustStorePassword=${NAV_TRUSTSTORE_PASSWORD}',
-    '-XX:+UnlockExperimentalVMOptions',
-    '-XX:+UseCGroupMemoryLimitForHeap',
-    '-XX:+UseG1GC',
-    '-XX:MaxRAMFraction=2',
-    '-XshowSettings:vm',
-    '-Dlogback.configurationFile=logback-remote.xml'
-]
 
 wsdl2java {
     wsdlDir = file("src/main/resources")
@@ -52,15 +42,6 @@ wsdl2java {
 }
 
 compileKotlin.dependsOn wsdl2java
-
-startScripts {
-    doLast {
-        unixScript.text = unixScript.text.replace('\\${NAV_TRUSTSTORE_PATH}', '${NAV_TRUSTSTORE_PATH}')
-        unixScript.text = unixScript.text.replace('\\${NAV_TRUSTSTORE_PASSWORD}', '${NAV_TRUSTSTORE_PASSWORD}')
-        windowsScript.text = windowsScript.text.replace('${NAV_TRUSTSTORE_PATH}', '%NAV_TRUSTSTORE_PATH%')
-        windowsScript.text = windowsScript.text.replace('${NAV_TRUSTSTORE_PASSWORD}', '%NAV_TRUSTSTORE_PASSWORD%')
-    }
-}
 
 test {
     testLogging.showStandardStreams = true
