@@ -118,7 +118,8 @@ class OnlineBatchReceiverSoapImpl(
         logDetails: MutableList<StructuredArgument>,
         e: Exception? = null
     ): String {
-        val (logString, logArray) = logDetails.keyValueLogDetails()
+        val (logString, logArray) =
+            logDetails.joinToString { "{}" } to logDetails.toTypedArray()
         val message: String = when (resultCode) {
             Status.OK -> {
                 log.info("Successfully published ROBEA request to Kafka: $logString", *logArray)
@@ -134,11 +135,5 @@ class OnlineBatchReceiverSoapImpl(
             }
         }
         return "&lt;OnlineBatchReceipt&gt;&lt;Result resultCode=&quot;$resultCode&quot;&gt;$message&lt;/Result&gt;&lt;/OnlineBatchReceipt&gt;"
-    }
-
-    private fun MutableList<StructuredArgument>.keyValueLogDetails(): Pair<String, Array<StructuredArgument>> {
-        val first = (0..(this.size - 1)).joinToString(", ", "", "") { "{}" }
-        val second = this.toTypedArray()
-        return Pair(first, second)
     }
 }
