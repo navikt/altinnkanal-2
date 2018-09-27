@@ -1,10 +1,5 @@
 package no.nav.altinnkanal
 
-import com.unboundid.ldap.listener.InMemoryDirectoryServer
-import com.unboundid.ldap.listener.InMemoryDirectoryServerConfig
-import com.unboundid.ldap.sdk.OperationType
-import com.unboundid.ldap.sdk.schema.Schema
-import com.unboundid.ldif.LDIFReader
 import net.logstash.logback.encoder.org.apache.commons.lang.StringEscapeUtils
 import no.altinn.webservices.OnlineBatchReceiverSoap
 import org.apache.cxf.jaxws.JaxWsProxyFactoryBean
@@ -45,32 +40,6 @@ fun createPayload(simpleBatch: String, serviceCode: String, serviceEditionCode: 
     return simpleBatch
         .replace("\\{\\{serviceCode}}".toRegex(), serviceCode)
         .replace("\\{\\{serviceEditionCode}}".toRegex(), serviceEditionCode)
-}
-
-fun createLdapServer(): InMemoryDirectoryServer {
-    val username = "srvadmin"
-    val password = "password"
-    val baseDn = "ou=ServiceAccounts,dc=testing,dc=local"
-    val adGroup = "Operator-Altinnkanal"
-
-    val config = InMemoryDirectoryServerConfig("dc=testing,dc=local").apply {
-        schema = Schema.mergeSchemas(Schema.getDefaultStandardSchema(),
-                Schema.getSchema("/ldap/memberOf.ldif".getResourceStream()),
-                Schema.getSchema("/ldap/person.ldif".getResourceStream()))
-        setAuthenticationRequiredOperationTypes(OperationType.COMPARE)
-    }
-    return InMemoryDirectoryServer(config)
-        .apply {
-            importFromLDIF(true, LDIFReader("/ldap/UsersAndGroups.ldif".getResourceStream()))
-            startListening()
-            mapOf(
-                "ldap.ad.group" to adGroup,
-                "ldap.url" to "ldap://127.0.0.1:$listenPort",
-                "ldap.username" to "cn=$username,$baseDn",
-                "ldap.password" to password,
-                "ldap.serviceuser.basedn" to baseDn
-            ).forEach { k, v -> System.setProperty(k, v) }
-        }
 }
 
 fun createSoapClient(port: Int, username: String, password: String): OnlineBatchReceiverSoap {

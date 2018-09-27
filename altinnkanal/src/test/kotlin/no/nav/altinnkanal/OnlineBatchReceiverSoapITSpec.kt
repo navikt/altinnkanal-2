@@ -1,5 +1,12 @@
 package no.nav.altinnkanal
 
+import com.github.tomakehurst.wiremock.WireMockServer
+import com.github.tomakehurst.wiremock.client.WireMock.aResponse
+import com.github.tomakehurst.wiremock.client.WireMock.get
+import com.github.tomakehurst.wiremock.client.WireMock.urlEqualTo
+import com.github.tomakehurst.wiremock.common.Slf4jNotifier
+import com.github.tomakehurst.wiremock.core.WireMockConfiguration.options
+import io.ktor.http.HttpHeaders
 import java.util.Properties
 import no.nav.altinnkanal.avro.ExternalAttachment
 import no.nav.altinnkanal.services.TopicService
@@ -11,7 +18,9 @@ import org.amshove.kluent.shouldEqual
 import org.amshove.kluent.shouldThrow
 import org.amshove.kluent.withCause
 import org.apache.cxf.binding.soap.SoapFault
+import org.apache.http.entity.ContentType
 import org.apache.kafka.clients.producer.KafkaProducer
+import org.eclipse.jetty.http.HttpStatus
 import org.eclipse.jetty.server.Server
 import org.jetbrains.spek.api.Spek
 import org.jetbrains.spek.api.dsl.context
@@ -43,7 +52,43 @@ object OnlineBatchReceiverSoapITSpec : Spek({
     }
     val producer = KafkaProducer<String, ExternalAttachment>(kafkaProperties)
 
-    val ldapServer = createLdapServer()
+    val validUsername = "srvaltinnkanal"
+    val validPassword = "supersecurepassword"
+    System.setProperty("sts.valid.username", validUsername)
+
+    val stsServer = WireMockServer(options().dynamicPort().notifier(Slf4jNotifier(true)))
+        .also { it.start() }
+    val stsPath = "/rest/v1/sts/token?grant_type=client_credentials&scope=openid"
+    System.setProperty("sts.url", "http://localhost:${stsServer.port()}$stsPath")
+
+    stsServer.apply {
+        stubFor(get(urlEqualTo(stsPath))
+            .atPriority(1)
+            .withBasicAuth(validUsername, validPassword)
+            .willReturn(aResponse()
+                .withStatus(HttpStatus.OK_200)
+                .withHeader(HttpHeaders.ContentType, ContentType.APPLICATION_JSON.withCharset(Charsets.UTF_8).toString())
+                .withBodyFile("sts-response-ok.json")
+            )
+        )
+        stubFor(get(urlEqualTo(stsPath))
+            .atPriority(2)
+            .withBasicAuth("altinnkanal", "password")
+            .willReturn(aResponse()
+                .withStatus(HttpStatus.OK_200)
+                .withHeader(HttpHeaders.ContentType, ContentType.APPLICATION_JSON.withCharset(Charsets.UTF_8).toString())
+                .withBodyFile("sts-response-ok-other-subject.json")
+            )
+        )
+        stubFor(get(urlEqualTo(stsPath))
+            .atPriority(3)
+            .willReturn(aResponse()
+                .withStatus(HttpStatus.UNAUTHORIZED_401)
+                .withHeader(HttpHeaders.ContentType, ContentType.APPLICATION_JSON.withCharset(Charsets.UTF_8).toString())
+                .withBodyFile("sts-response-invalid.json")
+            )
+        )
+    }
 
     val localServerPort = 47859
     val server = Server(localServerPort).apply {
@@ -54,9 +99,7 @@ object OnlineBatchReceiverSoapITSpec : Spek({
             val payload = createPayload(simpleBatch, "2896", "87")
             on("usernametoken with %s",
                 data("invalid password", "srvaltinnkanal", "wrongpassword", expected = SoapFault::class),
-                data("valid credentials but missing AD-group membership", "srvnotaltinnkanal", "notpassword",
-                    expected = SoapFault::class),
-                data("non-existent username", "altinnkanal", "password", expected = SoapFault::class),
+                data("non-accepted username", "altinnkanal", "password", expected = SoapFault::class),
                 data("invalid username / ldap query injection", ") (&(cn=srvnotaltinnkanal)", "password",
                     expected = SoapFault::class)
             ) { _, username, password, expected ->
@@ -72,8 +115,7 @@ object OnlineBatchReceiverSoapITSpec : Spek({
         }
 
         given("valid usernametoken") {
-            val soapClient = createSoapClient(localServerPort, "srvaltinnkanal",
-                "supersecurepassword")
+            val soapClient = createSoapClient(localServerPort, validUsername, validPassword)
             on("a payload with %s",
                 data("valid combination of SC and SEC",
                     createPayload(simpleBatch, "2896", "87"),
@@ -143,7 +185,7 @@ object OnlineBatchReceiverSoapITSpec : Spek({
             flush()
             close()
         }
-        ldapServer.shutDown(true)
         server.stop()
+        stsServer.stop()
     }
 })

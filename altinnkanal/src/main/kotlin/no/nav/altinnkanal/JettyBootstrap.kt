@@ -5,9 +5,8 @@ import io.prometheus.client.hotspot.DefaultExports
 import no.altinn.webservices.OnlineBatchReceiverSoap
 import no.nav.altinnkanal.avro.ExternalAttachment
 import no.nav.altinnkanal.config.KafkaConfig
-import no.nav.altinnkanal.config.LdapConfig
 import no.nav.altinnkanal.services.TopicService
-import no.nav.altinnkanal.soap.LdapUntValidator
+import no.nav.altinnkanal.soap.StsUntValidator
 import no.nav.altinnkanal.soap.OnlineBatchReceiverSoapImpl
 import org.apache.cxf.BusFactory
 import org.apache.cxf.jaxws.EndpointImpl
@@ -35,9 +34,6 @@ fun main(args: Array<String>) {
 }
 
 fun bootstrap(server: Server, batchReceiver: OnlineBatchReceiverSoap) {
-    // Trigger initialization - fail early if not found
-    LdapConfig
-
     // Configure Jax WS
     val cxfServlet = CXFNonSpringServlet().apply {
         bus = BusFactory.getDefaultBus(true)
@@ -64,7 +60,7 @@ fun bootstrap(server: Server, batchReceiver: OnlineBatchReceiverSoap) {
             WSHandlerConstants.ACTION to WSHandlerConstants.USERNAME_TOKEN,
             WSHandlerConstants.PASSWORD_TYPE to WSConstants.PW_TEXT
         )))
-        it.properties = mapOf(SecurityConstants.USERNAME_TOKEN_VALIDATOR to LdapUntValidator::class.jvmName)
+        it.properties = mapOf(SecurityConstants.USERNAME_TOKEN_VALIDATOR to StsUntValidator::class.jvmName)
     }
 
     DefaultExports.initialize()

@@ -7,12 +7,12 @@ port: 8080
 healthcheck:
   liveness:
     path: /internal/is_alive
-    initialDelay: 30
+    initialDelay: 20
     periodSeconds: 10
     failureThreshold: 5
   readiness:
     path: /internal/is_ready
-    initialDelay: 30
+    initialDelay: 20
     periodSeconds: 5
     failureThreshold: 5
 prometheus:
@@ -31,15 +31,5 @@ fasitResources:
   used:
   - alias: srvaltinnkanal
     resourceType: credential
-  - alias: ldap
-    resourceType: ldap
   - alias: kafka_bootstrap_servers
     resourceType: BaseUrl
-  exposed:
-  - alias: altinnkanal-2-ws-endpoint
-    resourceType: Webserviceendpoint
-    path: /webservices/OnlineBatchReceiverSoap
-    securityToken: USERNAME_TOKEN
-    wsdlGroupId: no.nav.tjenester
-    wsdlArtifactId: ekstern-altinnkanal-onlineBatchReceiver-tjenestespesifikasjon
-    wsdlVersion: 1.0.0

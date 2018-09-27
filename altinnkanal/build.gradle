@@ -1,34 +1,35 @@
 buildscript {
-    ext.kotlin_version = '1.2.61'
+    ext.kotlin_version = '1.2.71'
 
     ext.jetty_version = "9.4.11.v20180605"
     ext.cxf_version = '3.2.6'
     ext.caffeine_version = '2.6.2'
-    ext.jackson_version = '2.9.6'
+    ext.jackson_version = '2.9.7'
     ext.prometheus_version = '0.5.0'
     ext.konfig_version = '1.6.10.0'
+    ext.ktor_version = '0.9.5'
 
     ext.kafka_version = '1.1.1'
     ext.confluent_version = '4.1.1'
 
-    ext.kotlinlogging_version = '1.5.9'
+    ext.kotlinlogging_version = '1.6.10'
     ext.logstash_encoder_version = '5.2'
     ext.logback_version = '1.2.3'
     ext.slf4j_version = '1.7.25'
 
     // test dependencies
     ext.kafka_embedded_version = '1.0.0'
-    ext.kluent_version = '1.40'
-    ext.spek_version = '1.2.0'
-    ext.unboundid_version = '4.0.7'
+    ext.kluent_version = '1.41'
+    ext.spek_version = '1.2.1'
     ext.mockito_kotlin_version = '2.0.0-RC1'
+    ext.wiremock_version = '2.19.0'
 }
 
 plugins {
     id 'no.nils.wsdl2java' version '0.10'
-    id 'org.jmailen.kotlinter' version '1.16.0'
+    id 'org.jmailen.kotlinter' version '1.19.0'
     id 'com.github.ben-manes.versions' version '0.20.0'
-    id 'org.jetbrains.kotlin.jvm' version '1.2.61'
+    id 'org.jetbrains.kotlin.jvm' version '1.2.71'
     id 'application'
 }
 
@@ -50,7 +51,10 @@ test {
     }
 }
 
+kotlin { experimental { coroutines "enable"} }
+
 repositories {
+    maven { url "https://dl.bintray.com/kotlin/ktor" }
     maven {
         name 'Confluent maven repo'
         url 'http://packages.confluent.io/maven/'
@@ -59,36 +63,36 @@ repositories {
 }
 
 dependencies {
-    implementation project(':altinnkanal-schemas')
-    implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk8:$kotlin_version"
-    implementation "org.jetbrains.kotlin:kotlin-reflect:$kotlin_version"
-    implementation "org.eclipse.jetty:jetty-server:$jetty_version"
-    implementation "org.eclipse.jetty:jetty-servlet:$jetty_version"
+    implementation project(':altinnkanal-schemas'),
+        "org.jetbrains.kotlin:kotlin-stdlib-jdk8:$kotlin_version",
+        "org.jetbrains.kotlin:kotlin-reflect:$kotlin_version",
+        "org.eclipse.jetty:jetty-server:$jetty_version",
+        "org.eclipse.jetty:jetty-servlet:$jetty_version",
+        "io.ktor:ktor-client-core:$ktor_version",
+        "io.ktor:ktor-client-apache:$ktor_version",
+        "org.apache.kafka:kafka-clients:$kafka_version",
+        "org.apache.cxf:cxf-rt-frontend-jaxws:$cxf_version",
+        "org.apache.cxf:cxf-rt-transports-http:$cxf_version",
+        "com.fasterxml.jackson.module:jackson-module-kotlin:$jackson_version",
+        "com.fasterxml.jackson.dataformat:jackson-dataformat-yaml:$jackson_version",
+        "io.prometheus:simpleclient_servlet:$prometheus_version",
+        "io.prometheus:simpleclient_hotspot:$prometheus_version",
+        "com.github.ben-manes.caffeine:caffeine:$caffeine_version",
+        "com.natpryce:konfig:$konfig_version",
+        "io.github.microutils:kotlin-logging:$kotlinlogging_version",
+        "net.logstash.logback:logstash-logback-encoder:$logstash_encoder_version"
 
     implementation ("io.confluent:kafka-avro-serializer:$confluent_version") {
         exclude group: 'org.slf4j'
         exclude group: 'log4j'
         exclude group: 'org.apache.kafka'
     }
-    implementation "org.apache.kafka:kafka-clients:$kafka_version"
-
-    implementation "org.apache.cxf:cxf-rt-frontend-jaxws:$cxf_version"
-    implementation "org.apache.cxf:cxf-rt-transports-http:$cxf_version"
     implementation ("org.apache.cxf:cxf-rt-ws-security:$cxf_version") {
         exclude group: 'org.opensaml'
     }
 
-    implementation "com.fasterxml.jackson.module:jackson-module-kotlin:$jackson_version"
-    implementation "com.fasterxml.jackson.dataformat:jackson-dataformat-yaml:$jackson_version"
-    implementation "io.prometheus:simpleclient_servlet:$prometheus_version"
-    implementation "io.prometheus:simpleclient_hotspot:$prometheus_version"
-    implementation "com.github.ben-manes.caffeine:caffeine:$caffeine_version"
-    implementation "com.natpryce:konfig:$konfig_version"
-
-    implementation "io.github.microutils:kotlin-logging:$kotlinlogging_version"
-    runtimeOnly "ch.qos.logback:logback-classic:$logback_version"
-    runtimeOnly "org.slf4j:log4j-over-slf4j:$slf4j_version"
-    implementation "net.logstash.logback:logstash-logback-encoder:$logstash_encoder_version"
+    runtimeOnly "ch.qos.logback:logback-classic:$logback_version",
+        "org.slf4j:log4j-over-slf4j:$slf4j_version"
 
     testImplementation "com.nhaarman.mockitokotlin2:mockito-kotlin:$mockito_kotlin_version"
     testImplementation ("org.jetbrains.spek:spek-api:$spek_version") {
@@ -101,8 +105,8 @@ dependencies {
         exclude group: 'org.junit.platform'
         exclude group: 'org.jetbrains.kotlin'
     }
-    testImplementation "org.amshove.kluent:kluent:$kluent_version"
-    testImplementation "no.nav:kafka-embedded-env:$kafka_embedded_version"
-    testImplementation "com.unboundid:unboundid-ldapsdk:$unboundid_version"
-    testImplementation 'org.junit.platform:junit-platform-runner:1.2.0'
+    testImplementation "org.amshove.kluent:kluent:$kluent_version",
+        "no.nav:kafka-embedded-env:$kafka_embedded_version",
+        'org.junit.platform:junit-platform-runner:1.2.0'
+    testCompile "com.github.tomakehurst:wiremock:$wiremock_version"
 }

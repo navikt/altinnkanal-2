@@ -12,12 +12,14 @@ val appConfig = EnvironmentVariables() overriding
     systemProperties() overriding
     ConfigurationProperties.fromResource("local.properties")
 
-object LdapConfig {
-    val adGroup = appConfig[Key("ldap.ad.group", stringType)]
-    val url = appConfig[Key("ldap.url", stringType)]
-    val username = appConfig[Key("ldap.username", stringType)]
-    val password = appConfig[Key("ldap.password", stringType)]
-    val baseDn = appConfig[Key("ldap.serviceuser.basedn", stringType)]
+object StsConfig {
+    val stsValidUsername = appConfig[Key("sts.valid.username", stringType)]
+    val stsUrl = appConfig[Key("sts.url", stringType)].let {
+        if (System.getenv("FASIT_ENVIRONMENT_NAME") == "q1") {
+            return@let it.replace("default", "q1")
+        }
+        it
+    }
 }
 
 object KafkaConfig {
