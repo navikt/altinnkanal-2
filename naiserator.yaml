@@ -13,19 +13,19 @@ spec:
     cpuThresholdPercentage: 50
   healthcheck:
     liveness:
-      path: /isAlive
+      path: /internal/is_alive
       timeout: 1
       initialDelay: 30
       periodSeconds: 10
       failureThreshold: 5
     readiness:
-      path: /isReady
+      path: /internal/is_ready
       initialDelay: 20
       timeout: 1
   leaderElection: false
   prometheus:
     enabled: true
-    path: /prometheus
+    path: /internal/prometheus
   istio:
     enabled: false # when true, envoy-proxy sidecar will be injected into pod and https urls envvars will be rewritten
   resources:
@@ -41,4 +41,3 @@ spec:
   configMaps:
     env:
     - 'KAFKA_BOOTSTRAP_SERVERS_URL="SSL://b27apvl00045.preprod.local:8443,SSL://b27apvl00046.preprod.local:8443,SSL://b27apvl00047.preprod.local:8443"'
-    - 'LDAP_URL="ldaps://ldapgw.preprod.local"'
