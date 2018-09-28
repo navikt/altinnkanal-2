@@ -23,10 +23,10 @@ ingress:
 resources:
   limits:
     cpu: 250m
-    memory: 512Mi
+    memory: 256Mi
   requests:
     cpu: 50m
-    memory: 256Mi
+    memory: 64Mi
 fasitResources:
   used:
   - alias: srvaltinnkanal
