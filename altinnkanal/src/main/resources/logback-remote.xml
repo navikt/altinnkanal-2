@@ -4,7 +4,7 @@
         <encoder class="net.logstash.logback.encoder.LogstashEncoder">
             <fieldNames><message>[ignore]</message></fieldNames>
             <provider class="net.logstash.logback.composite.loggingevent.LoggingEventPatternJsonProvider">
-                <pattern>{ "message": "%X - %m" }</pattern>
+                <pattern>{ "message": "%m - %X" }</pattern>
             </provider>
         </encoder>
     </appender>
