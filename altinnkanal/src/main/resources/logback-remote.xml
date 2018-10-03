@@ -2,7 +2,10 @@
 <configuration>
     <appender name="stdout_json" class="ch.qos.logback.core.ConsoleAppender">
         <encoder class="net.logstash.logback.encoder.LogstashEncoder">
-            <provider class="net.logstash.logback.composite.loggingevent.ArgumentsJsonProvider" />
+            <fieldNames><message>[ignore]</message></fieldNames>
+            <provider class="net.logstash.logback.composite.loggingevent.LoggingEventPatternJsonProvider">
+                <pattern>{ "message": "%X - %m" }</pattern>
+            </provider>
         </encoder>
     </appender>
 

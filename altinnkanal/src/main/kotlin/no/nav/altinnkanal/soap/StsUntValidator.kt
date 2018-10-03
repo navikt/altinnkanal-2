@@ -15,7 +15,6 @@ import io.ktor.http.HttpHeaders
 import io.ktor.http.isSuccess
 import io.ktor.util.decodeBase64
 import io.ktor.util.encodeBase64
-import io.ktor.util.error
 import kotlinx.coroutines.experimental.runBlocking
 import mu.KotlinLogging
 import no.nav.altinnkanal.config.StsConfig
@@ -23,6 +22,8 @@ import org.apache.wss4j.common.ext.WSSecurityException
 import org.apache.wss4j.dom.handler.RequestData
 import org.apache.wss4j.dom.validate.Credential
 import org.apache.wss4j.dom.validate.UsernameTokenValidator
+import org.slf4j.MDC
+import java.util.UUID
 import java.util.concurrent.TimeUnit
 
 private val log = KotlinLogging.logger { }
@@ -36,7 +37,11 @@ private val objectMapper = jacksonObjectMapper().registerKotlinModule()
 class StsUntValidator : UsernameTokenValidator() {
 
     override fun validate(credential: Credential, data: RequestData): Credential {
-        val username = validateInput(credential.usernametoken.name)
+        MDC.put("callId", UUID.randomUUID().toString())
+        val username = credential.usernametoken.name.let {
+            if (it.matches(Regex("[\\w\\s]*"))) it
+            else wsSecAuthFail("Invalid username: [$it]")
+        }
         val password = credential.usernametoken.password
         val credentialsBase64Encoded = "$username:$password".encodeBase64()
 
@@ -48,8 +53,9 @@ class StsUntValidator : UsernameTokenValidator() {
                     url(StsConfig.stsUrl)
                     header(HttpHeaders.Authorization, "Basic $credentialsBase64Encoded")
                 }
-                if (!response.status.isSuccess()) throw RuntimeException("Error response from STS: " +
-                    "${response.status.value} ${response.status.description}")
+                if (!response.status.isSuccess())
+                    throw RuntimeException("Error response from STS: ${response.status.value} ${response.status.description}")
+
                 response.readText()
             }
 
@@ -61,21 +67,17 @@ class StsUntValidator : UsernameTokenValidator() {
                 .decodeBase64()
                 .let { objectMapper.readTree(it).get("sub").asText() }
 
-            require(subject.equals(other = StsConfig.stsValidUsername, ignoreCase = true))
+            require(subject.equals(StsConfig.stsValidUsername, ignoreCase = true))
             boundedCache.put(username, password)
         } catch (e: Exception) {
-            log.error(e)
+            log.error(e) { }
             wsSecAuthFail("User does not have valid credentials: [$username]")
         }
         return credential
     }
 
     private fun wsSecAuthFail(message: String): Nothing {
-        log.error(message)
+        log.error { message }
         throw WSSecurityException(WSSecurityException.ErrorCode.FAILED_AUTHENTICATION)
     }
-
-    private fun validateInput(input: String) =
-        if (input.matches(Regex("[\\w\\s]*"))) input
-        else wsSecAuthFail("Invalid username: [$input]")
 }

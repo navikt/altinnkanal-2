@@ -9,6 +9,7 @@ import no.nav.altinnkanal.services.TopicService
 import no.nav.altinnkanal.Metrics
 import org.apache.kafka.clients.producer.Producer
 import org.apache.kafka.clients.producer.ProducerRecord
+import org.slf4j.MDC
 import javax.xml.stream.XMLInputFactory
 import javax.xml.stream.events.XMLEvent
 import java.io.StringReader
@@ -83,6 +84,8 @@ class OnlineBatchReceiverSoapImpl(
                 kv("recRef", receiversReference), kv("archRef", archiveReference), kv("seqNum", sequenceNumber))
             logDetails.add(kv("status", Status.FAILED))
             return receiptResponse(Status.FAILED, archiveReference, logDetails, e)
+        } finally {
+            MDC.clear()
         }
     }
 
@@ -94,18 +97,14 @@ class OnlineBatchReceiverSoapImpl(
                 val eventType = xmlReader.next()
                 if (eventType == XMLEvent.START_ELEMENT) {
                     when (xmlReader.localName) {
-                        "ServiceCode" -> {
-                            builder.serviceCode = xmlReader.elementText
-                        }
-                        "ServiceEditionCode" -> {
-                            builder.serviceEditionCode = xmlReader.elementText
-                        }
-                        "DataUnit" -> {
-                            builder.archiveReference = xmlReader.getAttributeValue(null, "archiveReference")
-                        }
+                        "ServiceCode" -> builder.serviceCode = xmlReader.elementText
+                        "ServiceEditionCode" -> builder.serviceEditionCode = xmlReader.elementText
+                        "DataUnit" -> builder.archiveReference = xmlReader
+                            .getAttributeValue(null, "archiveReference")
                     }
                 }
             }
+            builder.callId = MDC.get("callId")
             builder.setBatch(dataBatch).build()
         } finally {
             xmlReader.close()
