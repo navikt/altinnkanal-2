@@ -22,8 +22,6 @@ import org.apache.wss4j.common.ext.WSSecurityException
 import org.apache.wss4j.dom.handler.RequestData
 import org.apache.wss4j.dom.validate.Credential
 import org.apache.wss4j.dom.validate.UsernameTokenValidator
-import org.slf4j.MDC
-import java.util.UUID
 import java.util.concurrent.TimeUnit
 
 private val log = KotlinLogging.logger { }
@@ -37,7 +35,6 @@ private val objectMapper = jacksonObjectMapper().registerKotlinModule()
 class StsUntValidator : UsernameTokenValidator() {
 
     override fun validate(credential: Credential, data: RequestData): Credential {
-        MDC.put("callId", UUID.randomUUID().toString())
         val username = credential.usernametoken.name.let {
             if (it.matches(Regex("[\\w\\s]*"))) it
             else wsSecAuthFail("Invalid username: [$it]")

@@ -1,16 +1,18 @@
 package no.nav.altinnkanal.soap
 
 import mu.KotlinLogging
+import net.logstash.logback.argument.StructuredArgument
+import net.logstash.logback.argument.StructuredArguments.kv
 import no.altinn.webservices.OnlineBatchReceiverSoap
 import no.nav.altinnkanal.avro.ExternalAttachment
 import no.nav.altinnkanal.services.TopicService
 import no.nav.altinnkanal.Metrics
 import org.apache.kafka.clients.producer.Producer
 import org.apache.kafka.clients.producer.ProducerRecord
-import org.slf4j.MDC
 import javax.xml.stream.XMLInputFactory
 import javax.xml.stream.events.XMLEvent
 import java.io.StringReader
+import java.util.UUID
 
 enum class Status {
     OK, FAILED, FAILED_DO_NOT_RETRY
@@ -32,31 +34,31 @@ class OnlineBatchReceiverSoapImpl(
         attachments: ByteArray?
     ): String {
 
+        val callId = UUID.randomUUID().toString()
         var serviceCode: String? = null
         var serviceEditionCode: String? = null
         var archiveReference: String? = null
         val requestLatency = Metrics.requestTime.startTimer()
+        var logDetails: MutableList<StructuredArgument>? = null
 
         Metrics.requestsTotal.inc()
         try {
-            val externalAttachment = toAvroObject(dataBatch).also {
+            val externalAttachment = toAvroObject(dataBatch, callId).also {
                 serviceCode = it.getServiceCode()
                 serviceEditionCode = it.getServiceEditionCode()
                 archiveReference = it.getArchiveReference()
             }
 
-            MDC.put("SC", serviceCode)
-            MDC.put("SEC", serviceEditionCode)
-            MDC.put("recRef", receiversReference)
-            MDC.put("archRef", archiveReference)
-            MDC.put("seqNum", sequenceNumber.toString())
+            logDetails = mutableListOf(kv("callId", callId), kv("SC", serviceCode), kv("SEC", serviceEditionCode),
+                kv("recRef", receiversReference), kv("archRef", archiveReference), kv("seqNum", sequenceNumber))
 
             val topic = topicService.getTopic(serviceCode!!, serviceEditionCode!!)
 
             if (topic == null) {
                 Metrics.requestsFailedMissing.inc()
-                MDC.put("status", Status.FAILED_DO_NOT_RETRY.name)
-                return receiptResponse(Status.FAILED_DO_NOT_RETRY, archiveReference)
+                logDetails.add(kv("status", Status.FAILED_DO_NOT_RETRY))
+
+                return receiptResponse(Status.FAILED_DO_NOT_RETRY, archiveReference, logDetails)
             }
 
             val metadata = kafkaProducer
@@ -67,28 +69,26 @@ class OnlineBatchReceiverSoapImpl(
             Metrics.requestSize.observe(metadata.serializedValueSize().toDouble())
             Metrics.requestsSuccess.labels("$serviceCode", "$serviceEditionCode").inc()
 
-            MDC.put("latency", "${(latency * 1000).toLong()} ms")
-            MDC.put("size", String.format("%.2f", metadata.serializedValueSize() / 1024f) + " KB")
-            MDC.put("topic", metadata.topic())
-            MDC.put("partition", metadata.partition().toString())
-            MDC.put("offset", metadata.offset().toString())
-            MDC.put("status", Status.OK.name)
-            return receiptResponse(Status.OK, archiveReference)
+            logDetails.addAll(arrayOf(
+                kv("latency", "${(latency * 1000).toLong()} ms"),
+                kv("size", String.format("%.2f", metadata.serializedValueSize() / 1024f) + " KB"),
+                kv("topic", metadata.topic()),
+                kv("partition", metadata.partition()),
+                kv("offset", metadata.offset()),
+                kv("status", Status.OK)
+            ))
+
+            return receiptResponse(Status.OK, archiveReference, logDetails)
         } catch (e: Exception) {
             Metrics.requestsFailedError.inc()
-            MDC.put("SC", serviceCode)
-            MDC.put("SEC", serviceEditionCode)
-            MDC.put("recRef", receiversReference)
-            MDC.put("archRef", archiveReference)
-            MDC.put("seqNum", sequenceNumber.toString())
-            MDC.put("status", Status.FAILED.name)
-            return receiptResponse(Status.FAILED, archiveReference, e)
-        } finally {
-            MDC.clear()
+            logDetails = logDetails ?: mutableListOf(kv("callId", callId), kv("SC", serviceCode), kv("SEC", serviceEditionCode),
+                kv("recRef", receiversReference), kv("archRef", archiveReference), kv("seqNum", sequenceNumber))
+            logDetails.add(kv("status", Status.FAILED))
+            return receiptResponse(Status.FAILED, archiveReference, logDetails, e)
         }
     }
 
-    private fun toAvroObject(dataBatch: String): ExternalAttachment {
+    private fun toAvroObject(dataBatch: String, callId: String): ExternalAttachment {
         val xmlReader = xmlInputFactory.createXMLStreamReader(StringReader(dataBatch))
         return try {
             val builder = ExternalAttachment.newBuilder()
@@ -103,7 +103,7 @@ class OnlineBatchReceiverSoapImpl(
                     }
                 }
             }
-            builder.callId = MDC.get("callId")
+            builder.callId = callId
             builder.setBatch(dataBatch).build()
         } finally {
             xmlReader.close()
@@ -113,19 +113,22 @@ class OnlineBatchReceiverSoapImpl(
     private fun receiptResponse(
         resultCode: Status,
         archRef: String?,
+        logDetails: MutableList<StructuredArgument>,
         e: Exception? = null
     ): String {
+        val (logString, logArray) =
+            logDetails.joinToString { "{}" } to logDetails.toTypedArray()
         val message: String = when (resultCode) {
             Status.OK -> {
-                log.info("Successfully published ROBEA request to Kafka")
+                log.info("Successfully published ROBEA request to Kafka: $logString", *logArray)
                 "Message received OK (archiveReference=$archRef)"
             }
             Status.FAILED_DO_NOT_RETRY -> {
-                log.warn("Denied ROBEA request due to missing/unknown codes")
+                log.warn("Denied ROBEA request due to missing/unknown codes: $logString", *logArray)
                 "Invalid combination of Service Code and Service Edition Code (archiveReference=$archRef)"
             }
             Status.FAILED -> {
-                log.error("Failed to send a ROBEA request to Kafka", e)
+                log.error("Failed to send a ROBEA request to Kafka: $logString", *logArray, e)
                 "An error occurred: ${e?.message} (archiveReference=$archRef)"
             }
         }
