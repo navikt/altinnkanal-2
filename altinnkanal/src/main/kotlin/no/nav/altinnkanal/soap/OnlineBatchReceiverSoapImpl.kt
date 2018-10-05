@@ -19,7 +19,7 @@ enum class Status {
 }
 
 private val log = KotlinLogging.logger { }
-private val xmlInputFactory = XMLInputFactory.newFactory()
+private val xmlInputFactory = XMLInputFactory.newInstance()
 
 class OnlineBatchReceiverSoapImpl(
     private val topicService: TopicService,

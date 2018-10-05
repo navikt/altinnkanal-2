@@ -17,7 +17,7 @@ import javax.xml.stream.XMLInputFactory
 import javax.xml.stream.events.XMLEvent
 
 private object Utils
-private val xmlInputFactory = XMLInputFactory.newFactory()
+private val xmlInputFactory = XMLInputFactory.newInstance()
 
 fun String.getResourceStream(): InputStream = Utils::class.java.getResourceAsStream(this)
 fun String.getResource(): String = String(Files.readAllBytes(Paths.get(Utils::class.java.getResource(this).toURI())),

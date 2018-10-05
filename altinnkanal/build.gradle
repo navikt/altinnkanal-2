@@ -8,6 +8,8 @@ buildscript {
     ext.prometheus_version = '0.5.0'
     ext.konfig_version = '1.6.10.0'
     ext.ktor_version = '0.9.5'
+    ext.jaxws_api_version = '2.3.1'
+    ext.jaxws_tools_version = '2.3.1'
 
     ext.kafka_version = '1.1.1'
     ext.confluent_version = '4.1.1'
@@ -21,7 +23,7 @@ buildscript {
     ext.kafka_embedded_version = '1.0.0'
     ext.kluent_version = '1.41'
     ext.spek_version = '1.2.1'
-    ext.mockito_kotlin_version = '2.0.0-RC1'
+    ext.mockito_kotlin_version = '2.0.0-RC2'
     ext.wiremock_version = '2.19.0'
 }
 
@@ -54,6 +56,7 @@ test {
 kotlin { experimental { coroutines "enable"} }
 
 repositories {
+    mavenCentral()
     maven { url "https://dl.bintray.com/kotlin/ktor" }
     maven {
         name 'Confluent maven repo'
@@ -80,7 +83,12 @@ dependencies {
         "com.github.ben-manes.caffeine:caffeine:$caffeine_version",
         "com.natpryce:konfig:$konfig_version",
         "io.github.microutils:kotlin-logging:$kotlinlogging_version",
-        "net.logstash.logback:logstash-logback-encoder:$logstash_encoder_version"
+        "net.logstash.logback:logstash-logback-encoder:$logstash_encoder_version",
+        "javax.xml.ws:jaxws-api:$jaxws_api_version"
+
+    implementation ("com.sun.xml.ws:jaxws-tools:$jaxws_tools_version") {
+        exclude group: 'com.sun.xml.ws', module: 'policy'
+    }
 
     implementation ("io.confluent:kafka-avro-serializer:$confluent_version") {
         exclude group: 'org.slf4j'
