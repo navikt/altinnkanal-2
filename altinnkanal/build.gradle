@@ -10,6 +10,9 @@ buildscript {
     ext.ktor_version = '0.9.5'
     ext.jaxws_api_version = '2.3.1'
     ext.jaxws_tools_version = '2.3.1'
+    ext.jaxb_api_version = '2.4.0-b180830.0359'
+    ext.jaxb_runtime_version = '2.4.0-b180830.0438'
+    ext.javax_activation_version = '1.2.0'
 
     ext.kafka_version = '1.1.1'
     ext.confluent_version = '4.1.1'
@@ -25,6 +28,15 @@ buildscript {
     ext.spek_version = '1.2.1'
     ext.mockito_kotlin_version = '2.0.0-RC2'
     ext.wiremock_version = '2.19.0'
+
+    dependencies {
+        classpath "javax.xml.bind:jaxb-api:$jaxb_api_version"
+        classpath "org.glassfish.jaxb:jaxb-runtime:$jaxb_runtime_version"
+        classpath "com.sun.activation:javax.activation:$javax_activation_version"
+        classpath ("com.sun.xml.ws:jaxws-tools:$jaxws_tools_version") {
+            exclude group: 'com.sun.xml.ws', module: 'policy'
+        }
+    }
 }
 
 plugins {
