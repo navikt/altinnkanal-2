@@ -3,6 +3,10 @@
 pipeline {
     agent any
 
+    tools {
+        jdk 'openjdk11'
+    }
+
     environment {
         APPLICATION_NAME = 'altinnkanal-2'
         APPLICATION_SERVICE = 'CMDB-32744'
