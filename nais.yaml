@@ -27,9 +27,4 @@ resources:
   requests:
     cpu: 50m
     memory: 256Mi
-fasitResources:
-  used:
-  - alias: srvaltinnkanal
-    resourceType: credential
-  - alias: kafka_bootstrap_servers
-    resourceType: BaseUrl
+secrets: true

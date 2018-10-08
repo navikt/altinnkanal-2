@@ -6,11 +6,21 @@ import com.natpryce.konfig.EnvironmentVariables
 import com.natpryce.konfig.Key
 import com.natpryce.konfig.overriding
 import com.natpryce.konfig.stringType
+import java.io.File
 import java.util.Properties
 
-val appConfig = EnvironmentVariables() overriding
-    systemProperties() overriding
-    ConfigurationProperties.fromResource("local.properties")
+private const val vaultApplicationPropertiesPath = "/var/run/secrets/nais.io/vault/application.properties"
+
+val appConfig = if (System.getenv("APPLICATION_PROFILE") == "remote") {
+    EnvironmentVariables() overriding
+        systemProperties() overriding
+        ConfigurationProperties.fromFile(File(vaultApplicationPropertiesPath)) overriding
+        ConfigurationProperties.fromResource("local.properties")
+} else {
+    EnvironmentVariables() overriding
+        systemProperties() overriding
+        ConfigurationProperties.fromResource("local.properties")
+}
 
 object StsConfig {
     val stsValidUsername = appConfig[Key("sts.valid.username", stringType)]
