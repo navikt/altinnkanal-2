@@ -9,8 +9,6 @@ pipeline {
 
     environment {
         APPLICATION_NAME = 'altinnkanal-2'
-        APPLICATION_SERVICE = 'CMDB-32744'
-        APPLICATION_COMPONENT = 'CMDB-190474'
         FASIT_ENVIRONMENT = 'q1'
         ZONE = 'fss'
         DOCKER_SLUG = 'integrasjon'
