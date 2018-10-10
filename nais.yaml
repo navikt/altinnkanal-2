@@ -2,7 +2,7 @@ image: "repo.adeo.no:5443/integrasjon/altinnkanal-2"
 team: integrasjon
 replicas:
   min: 2
-  max: 2
+  max: 4
 port: 8080
 healthcheck:
   liveness:
@@ -23,7 +23,7 @@ ingress:
 resources:
   limits:
     cpu: 250m
-    memory: 512Mi
+    memory: 1Gi
   requests:
     cpu: 50m
     memory: 256Mi
