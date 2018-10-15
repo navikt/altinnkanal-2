@@ -6,6 +6,7 @@ import com.github.tomakehurst.wiremock.client.WireMock.get
 import com.github.tomakehurst.wiremock.client.WireMock.urlEqualTo
 import com.github.tomakehurst.wiremock.common.Slf4jNotifier
 import com.github.tomakehurst.wiremock.core.WireMockConfiguration.options
+import io.confluent.kafka.serializers.AbstractKafkaAvroSerDeConfig
 import io.ktor.http.HttpHeaders
 import java.util.Properties
 import no.nav.altinnkanal.avro.ExternalAttachment
@@ -19,6 +20,7 @@ import org.amshove.kluent.shouldThrow
 import org.amshove.kluent.withCause
 import org.apache.cxf.binding.soap.SoapFault
 import org.apache.http.entity.ContentType
+import org.apache.kafka.clients.CommonClientConfigs
 import org.apache.kafka.clients.producer.KafkaProducer
 import org.eclipse.jetty.http.HttpStatus
 import org.eclipse.jetty.server.Server
@@ -45,10 +47,10 @@ object OnlineBatchReceiverSoapITSpec : Spek({
     )
     val kafkaProperties = Properties().apply {
         load("/kafka.properties".getResourceStream())
-        setProperty("bootstrap.servers", kafkaEnvironment.brokersURL)
-        setProperty("schema.registry.url", kafkaEnvironment.serverPark.schemaregistry.url)
-        setProperty("request.timeout.ms", "1000")
-        remove("security.protocol")
+        setProperty(CommonClientConfigs.BOOTSTRAP_SERVERS_CONFIG, kafkaEnvironment.brokersURL)
+        setProperty(AbstractKafkaAvroSerDeConfig.SCHEMA_REGISTRY_URL_CONFIG, kafkaEnvironment.serverPark.schemaregistry.url)
+        setProperty(CommonClientConfigs.REQUEST_TIMEOUT_MS_CONFIG, "1000")
+        remove(CommonClientConfigs.SECURITY_PROTOCOL_CONFIG)
     }
     val producer = KafkaProducer<String, ExternalAttachment>(kafkaProperties)
 

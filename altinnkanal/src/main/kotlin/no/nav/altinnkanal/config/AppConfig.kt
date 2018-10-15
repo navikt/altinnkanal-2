@@ -6,6 +6,8 @@ import com.natpryce.konfig.EnvironmentVariables
 import com.natpryce.konfig.Key
 import com.natpryce.konfig.overriding
 import com.natpryce.konfig.stringType
+import org.apache.kafka.clients.CommonClientConfigs
+import org.apache.kafka.common.config.SaslConfigs
 import java.io.File
 import java.util.Properties
 
@@ -39,10 +41,12 @@ object KafkaConfig {
 
     val config = Properties().apply {
         load(KafkaConfig::class.java.getResourceAsStream("/kafka.properties"))
-        setProperty("sasl.jaas.config", "org.apache.kafka.common.security.plain.PlainLoginModule required " +
+        setProperty(SaslConfigs.SASL_JAAS_CONFIG, "org.apache.kafka.common.security.plain.PlainLoginModule required " +
             "username=\"${appConfig[KafkaConfig.username]}\" password=\"${appConfig[KafkaConfig.password]}\";")
         appConfig.getOrNull(KafkaConfig.servers)?.let {
-            setProperty("bootstrap.servers", it)
+            setProperty(CommonClientConfigs.BOOTSTRAP_SERVERS_CONFIG, it)
         }
+        if (appConfig[Key("application.profile", stringType)] == "local")
+            setProperty(CommonClientConfigs.SECURITY_PROTOCOL_CONFIG, "SASL_PLAINTEXT")
     }
 }
