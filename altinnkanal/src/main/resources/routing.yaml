@@ -42,3 +42,19 @@ routes:
   - topic: aapen-altinn-dokmot-Mottatt
     serviceCode: 5111
     serviceEditionCode: 1
+# Lønnstilskudd
+  - topic: aapen-altinn-dokmot-Mottatt
+    serviceCode: 5159
+    serviceEditionCode: 1
+# Inkluderingstilskudd
+  - topic: aapen-altinn-dokmot-Mottatt
+    serviceCode: 5212
+    serviceEditionCode: 1
+# Mentortilskudd
+  - topic: aapen-altinn-dokmot-Mottatt
+    serviceCode: 5216
+    serviceEditionCode: 1
+# Varig tilrettelagt arbeid i ordinær virksomhet
+  - topic: aapen-altinn-dokmot-Mottatt
+    serviceCode: 5224
+    serviceEditionCode: 1
