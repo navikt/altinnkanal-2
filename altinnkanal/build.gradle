@@ -14,16 +14,15 @@ buildscript {
     ext.jaxb_runtime_version = '2.4.0-b180830.0438'
     ext.javax_activation_version = '1.2.0'
 
-    ext.kafka_version = '1.1.1'
-    ext.confluent_version = '4.1.1'
+    ext.kafka_version = '2.0.0'
+    ext.confluent_version = '5.0.0'
 
     ext.kotlinlogging_version = '1.6.10'
     ext.logstash_encoder_version = '5.2'
     ext.logback_version = '1.2.3'
-    ext.slf4j_version = '1.7.25'
 
     // test dependencies
-    ext.kafka_embedded_version = '1.0.0'
+    ext.kafka_embedded_version = '2.0.0'
     ext.kluent_version = '1.41'
     ext.spek_version = '1.2.1'
     ext.mockito_kotlin_version = '2.0.0-RC2'
@@ -111,8 +110,7 @@ dependencies {
         exclude group: 'org.opensaml'
     }
 
-    runtimeOnly "ch.qos.logback:logback-classic:$logback_version",
-        "org.slf4j:log4j-over-slf4j:$slf4j_version"
+    runtimeOnly "ch.qos.logback:logback-classic:$logback_version"
 
     testImplementation "com.nhaarman.mockitokotlin2:mockito-kotlin:$mockito_kotlin_version"
     testImplementation ("org.jetbrains.spek:spek-api:$spek_version") {

@@ -42,13 +42,12 @@ object OnlineBatchReceiverSoapITSpec : Spek({
         noOfBrokers = 1,
         topics = listOf("aapen-altinn-bankkontonummer-Mottatt"),
         withSchemaRegistry = true,
-        withRest = false,
         autoStart = true
     )
     val kafkaProperties = Properties().apply {
         load("/kafka.properties".getResourceStream())
         setProperty(CommonClientConfigs.BOOTSTRAP_SERVERS_CONFIG, kafkaEnvironment.brokersURL)
-        setProperty(AbstractKafkaAvroSerDeConfig.SCHEMA_REGISTRY_URL_CONFIG, kafkaEnvironment.serverPark.schemaregistry.url)
+        setProperty(AbstractKafkaAvroSerDeConfig.SCHEMA_REGISTRY_URL_CONFIG, kafkaEnvironment.schemaRegistry!!.url)
         setProperty(CommonClientConfigs.REQUEST_TIMEOUT_MS_CONFIG, "1000")
         remove(CommonClientConfigs.SECURITY_PROTOCOL_CONFIG)
     }
@@ -145,7 +144,7 @@ object OnlineBatchReceiverSoapITSpec : Spek({
                     data("Kafka temporarily down", ServerBase::stop, expected = Status.FAILED),
                     data("Kafka back up again", ServerBase::start, expected = Status.OK)
                 ) { _, operation, expected ->
-                    kafkaEnvironment.serverPark.brokers.forEach(operation)
+                    kafkaEnvironment.brokers.forEach(operation)
 
                     it("should return a result equal to $expected for batch") {
                         val result = soapClient.receiveOnlineBatchExternalAttachment(null, null, null,
