@@ -4,10 +4,16 @@ import net.logstash.logback.encoder.org.apache.commons.lang.StringEscapeUtils
 import no.altinn.webservices.OnlineBatchReceiverSoap
 import org.apache.cxf.jaxws.JaxWsProxyFactoryBean
 import org.apache.cxf.ws.security.wss4j.WSS4JOutInterceptor
+import org.apache.kafka.common.acl.AccessControlEntry
+import org.apache.kafka.common.acl.AclBinding
+import org.apache.kafka.common.acl.AclOperation
+import org.apache.kafka.common.acl.AclPermissionType
+import org.apache.kafka.common.resource.PatternType
+import org.apache.kafka.common.resource.ResourcePattern
+import org.apache.kafka.common.resource.ResourceType
 import org.apache.wss4j.common.ext.WSPasswordCallback
 import org.apache.wss4j.dom.WSConstants
 import org.apache.wss4j.dom.handler.WSHandlerConstants
-import java.io.InputStream
 import java.io.StringReader
 import java.nio.charset.Charset
 import java.nio.file.Files
@@ -19,7 +25,6 @@ import javax.xml.stream.events.XMLEvent
 private object Utils
 private val xmlInputFactory = XMLInputFactory.newInstance()
 
-fun String.getResourceStream(): InputStream = Utils::class.java.getResourceAsStream(this)
 fun String.getResource(): String = String(Files.readAllBytes(Paths.get(Utils::class.java.getResource(this).toURI())),
         Charset.forName("UTF-8"))
 fun String.getResultCode(): String? =
@@ -58,3 +63,16 @@ fun createSoapClient(port: Int, username: String, password: String): OnlineBatch
         create() as OnlineBatchReceiverSoap
     }
 }
+
+fun createProducerAcl(topic: String, username: String): List<AclBinding> =
+    listOf(AclOperation.DESCRIBE, AclOperation.WRITE, AclOperation.CREATE, AclOperation.IDEMPOTENT_WRITE)
+        .map { operation ->
+            val (resource, name) = when (operation) {
+                AclOperation.IDEMPOTENT_WRITE -> ResourceType.CLUSTER to "kafka-cluster"
+                else -> ResourceType.TOPIC to topic
+            }
+            AclBinding(
+                ResourcePattern(resource, name, PatternType.LITERAL),
+                AccessControlEntry("User:$username", "*", operation, AclPermissionType.ALLOW)
+            )
+        }

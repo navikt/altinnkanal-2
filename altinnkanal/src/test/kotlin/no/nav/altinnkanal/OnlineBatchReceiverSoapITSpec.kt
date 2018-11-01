@@ -8,11 +8,13 @@ import com.github.tomakehurst.wiremock.common.Slf4jNotifier
 import com.github.tomakehurst.wiremock.core.WireMockConfiguration.options
 import io.confluent.kafka.serializers.AbstractKafkaAvroSerDeConfig
 import io.ktor.http.HttpHeaders
-import java.util.Properties
 import no.nav.altinnkanal.avro.ExternalAttachment
+import no.nav.altinnkanal.config.KafkaConfig
+import no.nav.altinnkanal.config.appConfig
 import no.nav.altinnkanal.services.TopicService
 import no.nav.altinnkanal.soap.Status
 import no.nav.altinnkanal.soap.OnlineBatchReceiverSoapImpl
+import no.nav.common.JAASCredential
 import no.nav.common.KafkaEnvironment
 import no.nav.common.embeddedutils.ServerBase
 import org.amshove.kluent.shouldEqual
@@ -21,6 +23,7 @@ import org.amshove.kluent.withCause
 import org.apache.cxf.binding.soap.SoapFault
 import org.apache.http.entity.ContentType
 import org.apache.kafka.clients.CommonClientConfigs
+import org.apache.kafka.clients.admin.AdminClient
 import org.apache.kafka.clients.producer.KafkaProducer
 import org.eclipse.jetty.http.HttpStatus
 import org.eclipse.jetty.server.Server
@@ -35,23 +38,24 @@ import java.net.HttpURLConnection
 import java.net.URL
 import java.util.Scanner
 
+private const val TOPIC = "aapen-altinn-bankkontonummer-Mottatt"
+
 object OnlineBatchReceiverSoapITSpec : Spek({
     val simpleBatch = "/data/basic_data_batch.xml".getResource()
 
     val kafkaEnvironment = KafkaEnvironment(
-        noOfBrokers = 1,
-        topics = listOf("aapen-altinn-bankkontonummer-Mottatt"),
+        noOfBrokers = 3,
+        topics = listOf(TOPIC),
         withSchemaRegistry = true,
+        withSecurity = true,
+        users = listOf(JAASCredential(appConfig[KafkaConfig.username], appConfig[KafkaConfig.password])),
         autoStart = true
     )
-    val kafkaProperties = Properties().apply {
-        load("/kafka.properties".getResourceStream())
-        setProperty(CommonClientConfigs.BOOTSTRAP_SERVERS_CONFIG, kafkaEnvironment.brokersURL)
-        setProperty(AbstractKafkaAvroSerDeConfig.SCHEMA_REGISTRY_URL_CONFIG, kafkaEnvironment.schemaRegistry!!.url)
-        setProperty(CommonClientConfigs.REQUEST_TIMEOUT_MS_CONFIG, "1000")
-        remove(CommonClientConfigs.SECURITY_PROTOCOL_CONFIG)
+
+    val adminClient: AdminClient? = kafkaEnvironment.adminClient
+    adminClient.use {
+        it!!.createAcls(createProducerAcl(TOPIC, appConfig[KafkaConfig.username])).all().get()
     }
-    val producer = KafkaProducer<String, ExternalAttachment>(kafkaProperties)
 
     val validUsername = "srvaltinnkanal"
     val validPassword = "supersecurepassword"
@@ -91,10 +95,17 @@ object OnlineBatchReceiverSoapITSpec : Spek({
         )
     }
 
+    val kafkaProperties = KafkaConfig.config.apply {
+        setProperty(CommonClientConfigs.BOOTSTRAP_SERVERS_CONFIG, kafkaEnvironment.brokersURL)
+        setProperty(AbstractKafkaAvroSerDeConfig.SCHEMA_REGISTRY_URL_CONFIG, kafkaEnvironment.schemaRegistry!!.url)
+        setProperty(CommonClientConfigs.REQUEST_TIMEOUT_MS_CONFIG, "1000")
+    }
+    val producer = KafkaProducer<String, ExternalAttachment>(kafkaProperties)
     val localServerPort = 47859
     val server = Server(localServerPort).apply {
         bootstrap(this, OnlineBatchReceiverSoapImpl(TopicService(), producer))
     }
+
     context("SOAP requests") {
         given("invalid username tokens") {
             val payload = createPayload(simpleBatch, "2896", "87")
@@ -181,6 +192,7 @@ object OnlineBatchReceiverSoapITSpec : Spek({
     }
 
     afterGroup {
+        adminClient?.close()
         kafkaEnvironment.tearDown()
         producer.run {
             flush()

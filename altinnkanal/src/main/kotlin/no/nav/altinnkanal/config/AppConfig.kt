@@ -35,9 +35,9 @@ object StsConfig {
 }
 
 object KafkaConfig {
-    private val username = Key("srvaltinnkanal.username", stringType)
-    private val password = Key("srvaltinnkanal.password", stringType)
-    private val servers = Key("kafka.bootstrap.servers.url", stringType)
+    val username = Key("srvaltinnkanal.username", stringType)
+    val password = Key("srvaltinnkanal.password", stringType)
+    val servers = Key("kafka.bootstrap.servers.url", stringType)
 
     val config = Properties().apply {
         load(KafkaConfig::class.java.getResourceAsStream("/kafka.properties"))

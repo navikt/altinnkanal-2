@@ -22,7 +22,7 @@ buildscript {
     ext.logback_version = '1.2.3'
 
     // test dependencies
-    ext.kafka_embedded_version = '2.0.0'
+    ext.kafka_embedded_version = '2.0.1'
     ext.kluent_version = '1.41'
     ext.spek_version = '1.2.1'
     ext.mockito_kotlin_version = '2.0.0-RC2'
