@@ -1,3 +1,5 @@
+import com.github.jengelman.gradle.plugins.shadow.transformers.ServiceFileTransformer
+
 buildscript {
     ext.kotlin_version = '1.2.71'
 
@@ -44,6 +46,7 @@ plugins {
     id 'com.github.ben-manes.versions' version '0.20.0'
     id 'org.jetbrains.kotlin.jvm' version '1.2.71'
     id 'application'
+    id 'com.github.johnrengelman.shadow' version '4.0.3'
 }
 
 mainClassName = 'no.nav.altinnkanal.JettyBootstrapKt'
@@ -56,6 +59,19 @@ wsdl2java {
 }
 
 compileKotlin.dependsOn wsdl2java
+
+jar {
+    manifest {
+        attributes 'Main-Class': 'no.nav.dsop.kontroll.BootstrapKt'
+    }
+}
+shadowJar {
+    classifier = ""
+    transform(ServiceFileTransformer) {
+        path = 'META-INF/cxf'
+        include 'bus-extensions.txt'
+    }
+}
 
 test {
     testLogging.showStandardStreams = true

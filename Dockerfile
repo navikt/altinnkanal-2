@@ -1,6 +1,5 @@
 FROM navikt/java:11
 
-COPY altinnkanal/build/install/altinnkanal/bin/altinnkanal bin/app
-COPY altinnkanal/build/install/altinnkanal/lib lib/
 ENV JAVA_OPTS="-XshowSettings:vm -Dlogback.configurationFile=logback-remote.xml -XX:MaxRAMPercentage=75"
 ENV APPLICATION_PROFILE="remote"
+COPY build/libs/*.jar app.jar
