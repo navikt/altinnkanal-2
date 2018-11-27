@@ -74,7 +74,7 @@ shadowJar {
 }
 
 test {
-    testLogging.showStandardStreams = true
+    testLogging.events("passed", "skipped", "failed")
     useJUnitPlatform {
         includeEngines 'spek'
     }
