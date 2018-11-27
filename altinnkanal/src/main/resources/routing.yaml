@@ -30,6 +30,9 @@ routes:
   - topic: aapen-altinn-dokmot-Mottatt
     serviceCode: 4936
     serviceEditionCode: 2
+  - topic: aapen-altinn-dokmot-Mottatt
+    serviceCode: 4936
+    serviceEditionCode: 3    
 # Melding om unndragelse
   - topic: aapen-altinn-dokmot-Mottatt
     serviceCode: 5161
