@@ -9,8 +9,6 @@ pipeline {
 
     environment {
         APPLICATION_NAME = 'altinnkanal-2'
-        FASIT_ENVIRONMENT = 'q1'
-        ZONE = 'fss'
         DOCKER_SLUG = 'integrasjon'
     }
 
@@ -60,13 +58,13 @@ pipeline {
         }
         stage('deploy to preprod') {
             steps {
-                deployApp action: 'jiraPreprod'
+                deployApp action: 'kubectlDeploy', cluster: 'preprod-fss'
             }
         }
         stage('deploy to production') {
             when { environment name: 'DEPLOY_TO', value: 'production' }
             steps {
-                deployApp action: 'jiraProd'
+                deployApp action: 'kubectlDeploy', cluster: 'prod-fss'
                 githubStatus action: 'tagRelease'
             }
         }

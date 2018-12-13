@@ -26,12 +26,7 @@ val appConfig = if (System.getenv("APPLICATION_PROFILE") == "remote") {
 
 object StsConfig {
     val stsValidUsername = appConfig[Key("sts.valid.username", stringType)]
-    val stsUrl = appConfig[Key("sts.url", stringType)].let {
-        if (System.getenv("FASIT_ENVIRONMENT_NAME") == "q1") {
-            return@let it.replace("default", "q1")
-        }
-        it
-    }
+    val stsUrl = appConfig[Key("sts.url", stringType)]
 }
 
 object KafkaConfig {

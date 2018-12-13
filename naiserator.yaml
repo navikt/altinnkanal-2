@@ -3,31 +3,32 @@ kind: "Application"
 metadata:
   name: altinnkanal-2
   namespace: default
+  labels:
+    team: integrasjon
 spec:
-  image: repo.adeo.no:5443/integrasjon/altinnkanal-2
+  image: repo.adeo.no:5443/integrasjon/altinnkanal-2:@@VERSION@@
   port: 8080
   team: integrasjon
   replicas:
     min: 2
-    max: 2
+    max: 4
     cpuThresholdPercentage: 50
-  healthcheck:
-    liveness:
-      path: /internal/is_alive
-      timeout: 1
-      initialDelay: 30
-      periodSeconds: 10
-      failureThreshold: 5
-    readiness:
-      path: /internal/is_ready
-      initialDelay: 20
-      timeout: 1
+  liveness:
+    path: /internal/is_alive
+    timeout: 1
+    initialDelay: 30
+    periodSeconds: 10
+    failureThreshold: 5
+  readiness:
+    path: /internal/is_ready
+    initialDelay: 20
+    timeout: 1
   leaderElection: false
   prometheus:
     enabled: true
     path: /internal/prometheus
   istio:
-    enabled: false # when true, envoy-proxy sidecar will be injected into pod and https urls envvars will be rewritten
+    enabled: false
   resources:
     limits:
       cpu: 250m
@@ -35,9 +36,4 @@ spec:
     requests:
       cpu: 50m
       memory: 200Mi
-  ingress:
-    disabled: true
-  secrets: true # Optional. If set to true fetch secrets from Secret Service and inject into the pods. todo link to doc.
-  configMaps:
-    env:
-    - 'KAFKA_BOOTSTRAP_SERVERS_URL="SSL://b27apvl00045.preprod.local:8443,SSL://b27apvl00046.preprod.local:8443,SSL://b27apvl00047.preprod.local:8443"'
+  secrets: true
