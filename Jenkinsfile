@@ -10,6 +10,7 @@ pipeline {
     environment {
         APPLICATION_NAME = 'altinnkanal-2'
         DOCKER_SLUG = 'integrasjon'
+        KUBECONFIG = 'kubeconfig'
     }
 
     stages {
