@@ -43,7 +43,7 @@ class OnlineBatchReceiverSoapImpl(
 
         Metrics.requestsTotal.inc()
         try {
-            val externalAttachment = toAvroObject(dataBatch, callId).also {
+            val externalAttachment = dataBatch.toAvroObject(callId).also {
                 serviceCode = it.getServiceCode()
                 serviceEditionCode = it.getServiceEditionCode()
                 archiveReference = it.getArchiveReference()
@@ -57,8 +57,8 @@ class OnlineBatchReceiverSoapImpl(
             if (topics == null) {
                 Metrics.requestsFailedMissing.inc()
                 with(Status.FAILED_DO_NOT_RETRY) {
-                    log(this, logDetails!!)
-                    return receiptResponse(this, archiveReference)
+                    log(logDetails!!)
+                    return receiptResponse(archiveReference)
                 }
             }
 
@@ -78,10 +78,10 @@ class OnlineBatchReceiverSoapImpl(
                     kv("partition", metadata.partition()),
                     kv("offset", metadata.offset())
                 ))
-                log(Status.OK, logDetailsCopy)
+                Status.OK.log(logDetailsCopy)
             }
             Metrics.requestsSuccess.labels("$serviceCode", "$serviceEditionCode").inc()
-            return receiptResponse(Status.OK, archiveReference)
+            return Status.OK.receiptResponse(archiveReference)
         } catch (e: Exception) {
             Metrics.requestsFailedError.inc()
             logDetails = logDetails ?: mutableListOf(
@@ -89,51 +89,50 @@ class OnlineBatchReceiverSoapImpl(
                 kv("recRef", receiversReference), kv("archRef", archiveReference), kv("seqNum", sequenceNumber)
             )
             with(Status.FAILED) {
-                log(this, logDetails, e)
-                return receiptResponse(this, archiveReference, e)
+                log(logDetails, e)
+                return receiptResponse(archiveReference, e)
             }
         }
     }
+}
 
-    private fun toAvroObject(dataBatch: String, callId: String): ExternalAttachment {
-        val xmlReader = xmlInputFactory.createXMLStreamReader(StringReader(dataBatch))
-        return try {
-            val builder = ExternalAttachment.newBuilder()
-            while (xmlReader.hasNext() && (!builder.hasArchiveReference() || !builder.hasServiceCode() || !builder.hasServiceEditionCode())) {
-                val eventType = xmlReader.next()
-                if (eventType == XMLEvent.START_ELEMENT) {
-                    when (xmlReader.localName) {
-                        "ServiceCode" -> builder.serviceCode = xmlReader.elementText
-                        "ServiceEditionCode" -> builder.serviceEditionCode = xmlReader.elementText
-                        "DataUnit" -> builder.archiveReference = xmlReader
-                            .getAttributeValue(null, "archiveReference")
-                    }
+private fun String.toAvroObject(callId: String): ExternalAttachment {
+    val xmlReader = xmlInputFactory.createXMLStreamReader(StringReader(this))
+    return try {
+        val builder = ExternalAttachment.newBuilder()
+        while (xmlReader.hasNext() && (!builder.hasArchiveReference() || !builder.hasServiceCode() || !builder.hasServiceEditionCode())) {
+            val eventType = xmlReader.next()
+            if (eventType == XMLEvent.START_ELEMENT) {
+                when (xmlReader.localName) {
+                    "ServiceCode" -> builder.serviceCode = xmlReader.elementText
+                    "ServiceEditionCode" -> builder.serviceEditionCode = xmlReader.elementText
+                    "DataUnit" -> builder.archiveReference = xmlReader
+                        .getAttributeValue(null, "archiveReference")
                 }
             }
-            builder.callId = callId
-            builder.setBatch(dataBatch).build()
-        } finally {
-            xmlReader.close()
         }
+        builder.callId = callId
+        builder.setBatch(this).build()
+    } finally {
+        xmlReader.close()
     }
+}
 
-    private fun log(resultCode: Status, logDetails: MutableList<StructuredArgument>, e: Exception? = null) {
-        logDetails.add(kv("status", resultCode))
-        val (logString, logArray) =
-            logDetails.joinToString { "{}" } to logDetails.toTypedArray()
-        when (resultCode) {
-            Status.OK -> log.info("Successfully published ROBEA request to Kafka: $logString", *logArray)
-            Status.FAILED_DO_NOT_RETRY -> log.warn("Denied ROBEA request due to missing/unknown codes: $logString", *logArray)
-            Status.FAILED -> log.error("Failed to send a ROBEA request to Kafka: $logString", *logArray, e)
-        }
+private fun Status.log(logDetails: MutableList<StructuredArgument>, e: Exception? = null) {
+    logDetails.add(kv("status", this))
+    val (logString, logArray) = logDetails.joinToString { "{}" } to logDetails.toTypedArray()
+    when (this) {
+        Status.OK -> log.info("Successfully published ROBEA request to Kafka: $logString", *logArray)
+        Status.FAILED_DO_NOT_RETRY -> log.warn("Denied ROBEA request due to missing/unknown codes: $logString", *logArray)
+        Status.FAILED -> log.error("Failed to send a ROBEA request to Kafka: $logString", *logArray, e)
     }
+}
 
-    private fun receiptResponse(resultCode: Status, archRef: String?, e: Exception? = null): String {
-        val message: String = when (resultCode) {
-            Status.OK -> "Message received OK (archiveReference=$archRef)"
-            Status.FAILED_DO_NOT_RETRY -> "Invalid combination of Service Code and Service Edition Code (archiveReference=$archRef)"
-            Status.FAILED -> "An error occurred: ${e?.message} (archiveReference=$archRef)"
-        }
-        return "&lt;OnlineBatchReceipt&gt;&lt;Result resultCode=&quot;$resultCode&quot;&gt;$message&lt;/Result&gt;&lt;/OnlineBatchReceipt&gt;"
+private fun Status.receiptResponse(archRef: String?, e: Exception? = null): String {
+    val message: String = when (this) {
+        Status.OK -> "Message received OK (archiveReference=$archRef)"
+        Status.FAILED_DO_NOT_RETRY -> "Invalid combination of Service Code and Service Edition Code (archiveReference=$archRef)"
+        Status.FAILED -> "An error occurred: ${e?.message} (archiveReference=$archRef)"
     }
+    return "&lt;OnlineBatchReceipt&gt;&lt;Result resultCode=&quot;$this&quot;&gt;$message&lt;/Result&gt;&lt;/OnlineBatchReceipt&gt;"
 }
