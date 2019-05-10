@@ -1,63 +1,83 @@
 routes:
-  - topic: aapen-altinn-bankkontonummer-Mottatt
+  - topics:
+    - aapen-altinn-bankkontonummer-Mottatt
     serviceCode: 2896
     serviceEditionCode: 87
-  - topic: aapen-altinn-oppfolgingsplan-Mottatt
+  - topics:
+    - aapen-altinn-oppfolgingsplan-Mottatt
     serviceCode: 2913
     serviceEditionCode: 2
-  - topic: aapen-altinn-oppfolgingsplan-Mottatt
+  - topics:
+    - aapen-altinn-oppfolgingsplan-Mottatt
     serviceCode: 2913
     serviceEditionCode: 3
-  - topic: aapen-altinn-oppfolgingsplan-Mottatt
+  - topics:
+    - aapen-altinn-oppfolgingsplan-Mottatt
     serviceCode: 2913
     serviceEditionCode: 4
-  - topic: aapen-altinn-oppfolgingsplan-Mottatt
+  - topics:
+    - aapen-altinn-oppfolgingsplan-Mottatt
     serviceCode: NavOppfPlan
     serviceEditionCode: rapportering-sykmeldte
-  - topic: privat-altinn-paop-Mottatt
+  - topics:
+    - privat-altinn-paop-Mottatt
     serviceCode: 9001
     serviceEditionCode: 1
-  - topic: aapen-altinn-maalekort-Mottatt
+  - topics:
+    - aapen-altinn-maalekort-Mottatt
     serviceCode: 4711
     serviceEditionCode: 1
-  - topic: aapen-altinn-barnehageliste-Mottatt
+  - topics:
+    - aapen-altinn-barnehageliste-Mottatt
     serviceCode: 4795
     serviceEditionCode: 1
 # Inntektsskjema
-  - topic: aapen-altinn-dokmot-Mottatt
+  - topics:
+    - aapen-altinn-dokmot-Mottatt
     serviceCode: 4936
     serviceEditionCode: 1
-  - topic: aapen-altinn-dokmot-Mottatt
+  - topics:
+    - aapen-altinn-dokmot-Mottatt
     serviceCode: 4936
     serviceEditionCode: 2
-  - topic: aapen-altinn-dokmot-Mottatt
+  - topics:
+    - aapen-altinn-dokmot-Mottatt
     serviceCode: 4936
     serviceEditionCode: 3    
 # Melding om unndragelse
-  - topic: aapen-altinn-dokmot-Mottatt
+  - topics:
+    - aapen-altinn-dokmot-Mottatt
+    - aapen-altinn-unndragelse-Mottatt
     serviceCode: 5161
     serviceEditionCode: 1
 # Melding om soning
-  - topic: aapen-altinn-dokmot-Mottatt
+  - topics:
+    - aapen-altinn-dokmot-Mottatt
+    - aapen-altinn-soning-Mottatt
     serviceCode: 5152
     serviceEditionCode: 1
 # FTT og BHT-honorarer for IA-virksomheter
-  - topic: aapen-altinn-dokmot-Mottatt
+  - topics:
+    - aapen-altinn-dokmot-Mottatt
     serviceCode: 5111
     serviceEditionCode: 1
 # Lønnstilskudd
-  - topic: aapen-altinn-dokmot-Mottatt
+  - topics:
+    - aapen-altinn-dokmot-Mottatt
     serviceCode: 5159
     serviceEditionCode: 1
 # Inkluderingstilskudd
-  - topic: aapen-altinn-dokmot-Mottatt
+  - topics:
+    - aapen-altinn-dokmot-Mottatt
     serviceCode: 5212
     serviceEditionCode: 1
 # Mentortilskudd
-  - topic: aapen-altinn-dokmot-Mottatt
+  - topics:
+    - aapen-altinn-dokmot-Mottatt
     serviceCode: 5216
     serviceEditionCode: 1
 # Varig tilrettelagt arbeid i ordinær virksomhet
-  - topic: aapen-altinn-dokmot-Mottatt
+  - topics:
+    - aapen-altinn-dokmot-Mottatt
     serviceCode: 5224
     serviceEditionCode: 1

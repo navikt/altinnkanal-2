@@ -11,13 +11,12 @@ import no.nav.altinnkanal.avro.ExternalAttachment
 import no.nav.altinnkanal.getResource
 import no.nav.altinnkanal.soap.OnlineBatchReceiverSoapImpl
 import org.amshove.kluent.shouldBe
+import org.amshove.kluent.shouldBeIn
 import org.apache.kafka.clients.producer.Producer
 import org.apache.kafka.clients.producer.ProducerRecord
 import org.apache.kafka.clients.producer.RecordMetadata
-import org.jetbrains.spek.api.Spek
-import org.jetbrains.spek.api.dsl.given
-import org.jetbrains.spek.api.dsl.it
-import org.jetbrains.spek.api.dsl.on
+import org.spekframework.spek2.Spek
+import org.spekframework.spek2.style.specification.describe
 
 object KafkaServiceSpec : Spek({
     val topicRepository = mock<TopicService>()
@@ -27,16 +26,16 @@ object KafkaServiceSpec : Spek({
     val captor = argumentCaptor<ProducerRecord<String, ExternalAttachment>>()
 
     val onlineBatchReceiver = OnlineBatchReceiverSoapImpl(topicRepository, kafkaProducer)
-    val expectedTopic = "test.test"
+    val expectedTopics = listOf("topic1", "topic2")
 
     whenever(recordMetadata.serializedValueSize()).thenReturn(0)
     whenever(future.get()).thenReturn(recordMetadata)
     whenever(kafkaProducer.send(captor.capture())).thenReturn(future)
-    whenever(topicRepository.getTopic(any(), any())).thenReturn(expectedTopic)
+    whenever(topicRepository.getTopics(any(), any())).thenReturn(expectedTopics)
 
-    given("a valid data batch") {
+    describe("a valid data batch") {
         val simpleBatch = "/data/basic_data_batch.xml".getResource()
-        on("receiveOnlineBatchExternalAttachment") {
+        context("receiveOnlineBatchExternalAttachment") {
             onlineBatchReceiver.receiveOnlineBatchExternalAttachment(
                 username = null,
                 passwd = null,
@@ -46,11 +45,15 @@ object KafkaServiceSpec : Spek({
                 attachments = ByteArray(0)
             )
             val record = captor.firstValue
-            it("should invoke the Kafka Producer once") {
-                verify(kafkaProducer, times(1)).send(any())
+            val record2 = captor.secondValue
+            it("should invoke the Kafka Producer twice") {
+                verify(kafkaProducer, times(2)).send(any())
             }
-            it("should send the message to the correct topic") {
-                record.topic() shouldBe expectedTopic
+            it("should send the message to the correct topics") {
+                record.topic() shouldBeIn expectedTopics
+                record2.topic() shouldBeIn expectedTopics
+                record.topic() shouldBe expectedTopics.first()
+                record2.topic() shouldBe expectedTopics[1]
             }
         }
     }

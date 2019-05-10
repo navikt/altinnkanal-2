@@ -1,15 +1,15 @@
 import com.github.jengelman.gradle.plugins.shadow.transformers.ServiceFileTransformer
 
 buildscript {
-    ext.kotlin_version = '1.2.71'
+    ext.kotlin_version = '1.3.31'
 
-    ext.jetty_version = "9.4.11.v20180605"
-    ext.cxf_version = '3.2.6'
+    ext.jetty_version = "9.4.18.v20190429"
+    ext.cxf_version = '3.3.1'
     ext.caffeine_version = '2.6.2'
-    ext.jackson_version = '2.9.7'
-    ext.prometheus_version = '0.5.0'
+    ext.jackson_version = '2.9.8'
+    ext.prometheus_version = '0.6.0'
     ext.konfig_version = '1.6.10.0'
-    ext.ktor_version = '0.9.5'
+    ext.ktor_version = '1.1.5'
     ext.jaxws_api_version = '2.3.1'
     ext.jaxws_tools_version = '2.3.1'
     ext.jaxb_api_version = '2.4.0-b180830.0359'
@@ -19,16 +19,16 @@ buildscript {
     ext.kafka_version = '2.0.0'
     ext.confluent_version = '5.0.0'
 
-    ext.kotlinlogging_version = '1.6.10'
-    ext.logstash_encoder_version = '5.2'
+    ext.kotlinlogging_version = '1.6.26'
+    ext.logstash_encoder_version = '5.3'
     ext.logback_version = '1.2.3'
 
     // test dependencies
     ext.kafka_embedded_version = '2.0.1'
-    ext.kluent_version = '1.41'
-    ext.spek_version = '1.2.1'
+    ext.kluent_version = '1.49'
+    ext.spek_version = '2.0.4'
     ext.mockito_kotlin_version = '2.0.0-RC2'
-    ext.wiremock_version = '2.19.0'
+    ext.wiremock_version = '2.23.2'
 
     dependencies {
         classpath "javax.xml.bind:jaxb-api:$jaxb_api_version"
@@ -42,11 +42,11 @@ buildscript {
 
 plugins {
     id 'no.nils.wsdl2java' version '0.10'
-    id 'org.jmailen.kotlinter' version '1.19.0'
-    id 'com.github.ben-manes.versions' version '0.20.0'
-    id 'org.jetbrains.kotlin.jvm' version '1.2.71'
+    id 'org.jmailen.kotlinter' version '1.25.0'
+    id 'com.github.ben-manes.versions' version '0.21.0'
+    id 'org.jetbrains.kotlin.jvm' version '1.3.31'
     id 'application'
-    id 'com.github.johnrengelman.shadow' version '4.0.3'
+    id 'com.github.johnrengelman.shadow' version '5.0.0'
 }
 
 mainClassName = 'no.nav.altinnkanal.JettyBootstrapKt'
@@ -62,7 +62,7 @@ compileKotlin.dependsOn wsdl2java
 
 jar {
     manifest {
-        attributes 'Main-Class': 'no.nav.dsop.kontroll.BootstrapKt'
+        attributes 'Main-Class': mainClassName
     }
 }
 shadowJar {
@@ -76,11 +76,9 @@ shadowJar {
 test {
     testLogging.events("passed", "skipped", "failed")
     useJUnitPlatform {
-        includeEngines 'spek'
+        includeEngines 'spek2'
     }
 }
-
-kotlin { experimental { coroutines "enable"} }
 
 repositories {
     mavenCentral()
@@ -129,18 +127,13 @@ dependencies {
     runtimeOnly "ch.qos.logback:logback-classic:$logback_version"
 
     testImplementation "com.nhaarman.mockitokotlin2:mockito-kotlin:$mockito_kotlin_version"
-    testImplementation ("org.jetbrains.spek:spek-api:$spek_version") {
+    testImplementation ("org.spekframework.spek2:spek-dsl-jvm:$spek_version") {
         exclude group: 'org.jetbrains.kotlin'
     }
-    testImplementation ("org.jetbrains.spek:spek-data-driven-extension:$spek_version") {
-        exclude group: 'org.jetbrains.kotlin'
-    }
-    testRuntime ("org.jetbrains.spek:spek-junit-platform-engine:$spek_version") {
-        exclude group: 'org.junit.platform'
+    testRuntime ("org.spekframework.spek2:spek-runner-junit5:$spek_version") {
         exclude group: 'org.jetbrains.kotlin'
     }
     testImplementation "org.amshove.kluent:kluent:$kluent_version",
-        "no.nav:kafka-embedded-env:$kafka_embedded_version",
-        'org.junit.platform:junit-platform-runner:1.2.0'
+        "no.nav:kafka-embedded-env:$kafka_embedded_version"
     testCompile "com.github.tomakehurst:wiremock:$wiremock_version"
 }

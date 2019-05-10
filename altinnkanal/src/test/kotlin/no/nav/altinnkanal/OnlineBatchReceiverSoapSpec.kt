@@ -11,11 +11,8 @@ import no.nav.altinnkanal.soap.Status
 import org.amshove.kluent.shouldEqual
 import org.apache.kafka.clients.producer.Producer
 import org.apache.kafka.clients.producer.RecordMetadata
-import org.jetbrains.spek.api.Spek
-import org.jetbrains.spek.api.dsl.describe
-import org.jetbrains.spek.api.dsl.it
-import org.jetbrains.spek.data_driven.data
-import org.jetbrains.spek.data_driven.on
+import org.spekframework.spek2.Spek
+import org.spekframework.spek2.style.specification.describe
 
 object OnlineBatchReceiverSoapSpec : Spek({
     val topicService = mock<TopicService>()
@@ -28,25 +25,23 @@ object OnlineBatchReceiverSoapSpec : Spek({
     whenever(kafkaProducer.send(any())).thenReturn(metadataFuture)
 
     describe("receiveOnlineBatchExternalAttachment") {
-
-        on("%s",
-            data<String, String?, String>("valid topic routing", "test", expected = Status.OK.name),
-            data<String, String?, String>("missing topic routing", null, expected = Status.FAILED_DO_NOT_RETRY.name)
-        ) { _, mockValue: String?, expected: String ->
-
-            whenever(topicService.getTopic(any(), any())).thenReturn(mockValue)
-
-            it("should return $expected for batch") {
-                val result = soapService.receiveOnlineBatchExternalAttachment(
-                    username = null,
-                    passwd = null,
-                    receiversReference = null,
-                    sequenceNumber = 0,
-                    dataBatch = simpleBatch,
-                    attachments = ByteArray(0)
-                ).getResultCode()
-
-                result shouldEqual expected
+        listOf(
+            Triple("valid topic routing", listOf("test"), Status.OK.name),
+            Triple("missing topic routing", null, Status.FAILED_DO_NOT_RETRY.name)
+        ).forEach { (description, validTopics, expected) ->
+            context(description) {
+                it("should return $expected for batch") {
+                    whenever(topicService.getTopics(any(), any())).thenReturn(validTopics)
+                    val result = soapService.receiveOnlineBatchExternalAttachment(
+                        username = null,
+                        passwd = null,
+                        receiversReference = null,
+                        sequenceNumber = 0,
+                        dataBatch = simpleBatch,
+                        attachments = ByteArray(0)
+                    ).getResultCode()
+                    result shouldEqual expected
+                }
             }
         }
     }

@@ -52,39 +52,46 @@ class OnlineBatchReceiverSoapImpl(
             logDetails = mutableListOf(kv("callId", callId), kv("SC", serviceCode), kv("SEC", serviceEditionCode),
                 kv("recRef", receiversReference), kv("archRef", archiveReference), kv("seqNum", sequenceNumber))
 
-            val topic = topicService.getTopic(serviceCode!!, serviceEditionCode!!)
+            val topics = topicService.getTopics(serviceCode!!, serviceEditionCode!!)
 
-            if (topic == null) {
+            if (topics == null) {
                 Metrics.requestsFailedMissing.inc()
-                logDetails.add(kv("status", Status.FAILED_DO_NOT_RETRY))
-
-                return receiptResponse(Status.FAILED_DO_NOT_RETRY, archiveReference, logDetails)
+                with(Status.FAILED_DO_NOT_RETRY) {
+                    log(this, logDetails!!)
+                    return receiptResponse(this, archiveReference)
+                }
             }
 
-            val metadata = kafkaProducer
-                .send(ProducerRecord(topic, externalAttachment))
-                .get()
+            topics.forEach { topic ->
+                val metadata = kafkaProducer
+                    .send(ProducerRecord(topic, externalAttachment))
+                    .get()
 
-            val latency = requestLatency.observeDuration()
-            Metrics.requestSize.observe(metadata.serializedValueSize().toDouble())
+                val latency = requestLatency.observeDuration()
+                Metrics.requestSize.observe(metadata.serializedValueSize().toDouble())
+
+                val logDetailsCopy = logDetails!!.toMutableList()
+                logDetailsCopy.addAll(arrayOf(
+                    kv("latency", "${(latency * 1000).toLong()} ms"),
+                    kv("size", String.format("%.2f", metadata.serializedValueSize() / 1024f) + " KB"),
+                    kv("topic", metadata.topic()),
+                    kv("partition", metadata.partition()),
+                    kv("offset", metadata.offset())
+                ))
+                log(Status.OK, logDetailsCopy)
+            }
             Metrics.requestsSuccess.labels("$serviceCode", "$serviceEditionCode").inc()
-
-            logDetails.addAll(arrayOf(
-                kv("latency", "${(latency * 1000).toLong()} ms"),
-                kv("size", String.format("%.2f", metadata.serializedValueSize() / 1024f) + " KB"),
-                kv("topic", metadata.topic()),
-                kv("partition", metadata.partition()),
-                kv("offset", metadata.offset()),
-                kv("status", Status.OK)
-            ))
-
-            return receiptResponse(Status.OK, archiveReference, logDetails)
+            return receiptResponse(Status.OK, archiveReference)
         } catch (e: Exception) {
             Metrics.requestsFailedError.inc()
-            logDetails = logDetails ?: mutableListOf(kv("callId", callId), kv("SC", serviceCode), kv("SEC", serviceEditionCode),
-                kv("recRef", receiversReference), kv("archRef", archiveReference), kv("seqNum", sequenceNumber))
-            logDetails.add(kv("status", Status.FAILED))
-            return receiptResponse(Status.FAILED, archiveReference, logDetails, e)
+            logDetails = logDetails ?: mutableListOf(
+                kv("callId", callId), kv("SC", serviceCode), kv("SEC", serviceEditionCode),
+                kv("recRef", receiversReference), kv("archRef", archiveReference), kv("seqNum", sequenceNumber)
+            )
+            with(Status.FAILED) {
+                log(this, logDetails, e)
+                return receiptResponse(this, archiveReference, e)
+            }
         }
     }
 
@@ -110,27 +117,22 @@ class OnlineBatchReceiverSoapImpl(
         }
     }
 
-    private fun receiptResponse(
-        resultCode: Status,
-        archRef: String?,
-        logDetails: MutableList<StructuredArgument>,
-        e: Exception? = null
-    ): String {
+    private fun log(resultCode: Status, logDetails: MutableList<StructuredArgument>, e: Exception? = null) {
+        logDetails.add(kv("status", resultCode))
         val (logString, logArray) =
             logDetails.joinToString { "{}" } to logDetails.toTypedArray()
+        when (resultCode) {
+            Status.OK -> log.info("Successfully published ROBEA request to Kafka: $logString", *logArray)
+            Status.FAILED_DO_NOT_RETRY -> log.warn("Denied ROBEA request due to missing/unknown codes: $logString", *logArray)
+            Status.FAILED -> log.error("Failed to send a ROBEA request to Kafka: $logString", *logArray, e)
+        }
+    }
+
+    private fun receiptResponse(resultCode: Status, archRef: String?, e: Exception? = null): String {
         val message: String = when (resultCode) {
-            Status.OK -> {
-                log.info("Successfully published ROBEA request to Kafka: $logString", *logArray)
-                "Message received OK (archiveReference=$archRef)"
-            }
-            Status.FAILED_DO_NOT_RETRY -> {
-                log.warn("Denied ROBEA request due to missing/unknown codes: $logString", *logArray)
-                "Invalid combination of Service Code and Service Edition Code (archiveReference=$archRef)"
-            }
-            Status.FAILED -> {
-                log.error("Failed to send a ROBEA request to Kafka: $logString", *logArray, e)
-                "An error occurred: ${e?.message} (archiveReference=$archRef)"
-            }
+            Status.OK -> "Message received OK (archiveReference=$archRef)"
+            Status.FAILED_DO_NOT_RETRY -> "Invalid combination of Service Code and Service Edition Code (archiveReference=$archRef)"
+            Status.FAILED -> "An error occurred: ${e?.message} (archiveReference=$archRef)"
         }
         return "&lt;OnlineBatchReceipt&gt;&lt;Result resultCode=&quot;$resultCode&quot;&gt;$message&lt;/Result&gt;&lt;/OnlineBatchReceipt&gt;"
     }

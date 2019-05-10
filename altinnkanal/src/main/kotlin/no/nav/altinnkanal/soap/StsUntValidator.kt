@@ -13,11 +13,11 @@ import io.ktor.client.response.HttpResponse
 import io.ktor.client.response.readText
 import io.ktor.http.HttpHeaders
 import io.ktor.http.isSuccess
-import io.ktor.util.decodeBase64
-import io.ktor.util.encodeBase64
-import kotlinx.coroutines.experimental.runBlocking
+import kotlinx.coroutines.runBlocking
 import mu.KotlinLogging
 import no.nav.altinnkanal.config.StsConfig
+import no.nav.altinnkanal.decodeBase64
+import no.nav.altinnkanal.encodeBase64
 import org.apache.wss4j.common.ext.WSSecurityException
 import org.apache.wss4j.dom.handler.RequestData
 import org.apache.wss4j.dom.validate.Credential
