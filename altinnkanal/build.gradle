@@ -15,6 +15,7 @@ buildscript {
     ext.jaxb_api_version = '2.4.0-b180830.0359'
     ext.jaxb_runtime_version = '2.4.0-b180830.0438'
     ext.javax_activation_version = '1.2.0'
+    ext.java_activation_version = '1.1.1'
 
     ext.kafka_version = '2.0.0'
     ext.confluent_version = '5.0.0'
@@ -109,7 +110,8 @@ dependencies {
         "com.natpryce:konfig:$konfig_version",
         "io.github.microutils:kotlin-logging:$kotlinlogging_version",
         "net.logstash.logback:logstash-logback-encoder:$logstash_encoder_version",
-        "javax.xml.ws:jaxws-api:$jaxws_api_version"
+        "javax.xml.ws:jaxws-api:$jaxws_api_version",
+        "javax.activation:activation:$java_activation_version"
 
     implementation ("com.sun.xml.ws:jaxws-tools:$jaxws_tools_version") {
         exclude group: 'com.sun.xml.ws', module: 'policy'
