@@ -36,4 +36,5 @@ spec:
     requests:
       cpu: 50m
       memory: 200Mi
-  secrets: true
+  vault:
+    enabled: true
