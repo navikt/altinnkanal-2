@@ -2,6 +2,8 @@ package no.nav.altinnkanal
 
 import io.prometheus.client.Counter
 import io.prometheus.client.Summary
+import no.nav.altinnkanal.config.loadTopicRouting
+import no.nav.altinnkanal.services.TopicService
 
 private const val NAMESPACE = "altinnkanal"
 
@@ -42,4 +44,12 @@ object Metrics {
         .name("request_time_ms")
         .help("Request time in milliseconds.")
         .register()
+
+    init {
+        with(loadTopicRouting()) {
+            routes.forEach { route ->
+                requestsSuccess.labels(route.serviceCode, route.serviceEditionCode)
+            }
+        }
+    }
 }

@@ -3,7 +3,6 @@ package no.nav.altinnkanal
 import io.prometheus.client.exporter.MetricsServlet
 import io.prometheus.client.hotspot.DefaultExports
 import no.altinn.webservices.OnlineBatchReceiverSoap
-import no.nav.altinnkanal.avro.ExternalAttachment
 import no.nav.altinnkanal.config.KafkaConfig
 import no.nav.altinnkanal.services.TopicService
 import no.nav.altinnkanal.soap.StsUntValidator
@@ -24,16 +23,21 @@ import org.eclipse.jetty.servlet.ServletHolder
 import javax.xml.ws.Endpoint
 import kotlin.reflect.jvm.jvmName
 
-fun main(args: Array<String>) {
+fun main() {
     Server(8080).run {
-        bootstrap(this, OnlineBatchReceiverSoapImpl(
-            TopicService(), KafkaProducer<String, ExternalAttachment>(KafkaConfig.config))
+        bootstrap(
+            this, OnlineBatchReceiverSoapImpl(
+                TopicService(), KafkaProducer(KafkaConfig.config)
+            )
         )
         join()
     }
 }
 
 fun bootstrap(server: Server, batchReceiver: OnlineBatchReceiverSoap) {
+    // Initialize metrics
+    Metrics
+
     // Configure Jax WS
     val cxfServlet = CXFNonSpringServlet().apply {
         bus = BusFactory.getDefaultBus(true)
@@ -56,10 +60,14 @@ fun bootstrap(server: Server, batchReceiver: OnlineBatchReceiverSoap) {
 
     Endpoint.publish("/OnlineBatchReceiverSoap", batchReceiver).let {
         it as EndpointImpl
-        it.server.endpoint.inInterceptors.add(WSS4JInInterceptor(mapOf(
-            WSHandlerConstants.ACTION to WSHandlerConstants.USERNAME_TOKEN,
-            WSHandlerConstants.PASSWORD_TYPE to WSConstants.PW_TEXT
-        )))
+        it.server.endpoint.inInterceptors.add(
+            WSS4JInInterceptor(
+                mapOf(
+                    WSHandlerConstants.ACTION to WSHandlerConstants.USERNAME_TOKEN,
+                    WSHandlerConstants.PASSWORD_TYPE to WSConstants.PW_TEXT
+                )
+            )
+        )
         it.properties = mapOf(SecurityConstants.USERNAME_TOKEN_VALIDATOR to StsUntValidator::class.jvmName)
     }
 
