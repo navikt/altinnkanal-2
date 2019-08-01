@@ -43,7 +43,7 @@ object OnlineBatchReceiverSoapITSpec : Spek({
 
     val kafkaEnvironment = KafkaEnvironment(
         noOfBrokers = 3,
-        topics = topics,
+        topicNames = topics,
         withSchemaRegistry = true,
         withSecurity = true,
         users = listOf(JAASCredential(appConfig[KafkaConfig.username], appConfig[KafkaConfig.password])),

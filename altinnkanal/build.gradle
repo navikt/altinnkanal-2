@@ -1,7 +1,7 @@
 import com.github.jengelman.gradle.plugins.shadow.transformers.ServiceFileTransformer
 
 buildscript {
-    ext.kotlin_version = '1.3.31'
+    ext.kotlin_version = '1.3.41'
 
     ext.jetty_version = "9.4.18.v20190429"
     ext.cxf_version = '3.3.1'
@@ -9,7 +9,7 @@ buildscript {
     ext.jackson_version = '2.9.8'
     ext.prometheus_version = '0.6.0'
     ext.konfig_version = '1.6.10.0'
-    ext.ktor_version = '1.1.5'
+    ext.ktor_version = '1.2.1'
     ext.jaxws_api_version = '2.3.1'
     ext.jaxws_tools_version = '2.3.1'
     ext.jaxb_api_version = '2.4.0-b180830.0359'
@@ -17,7 +17,7 @@ buildscript {
     ext.javax_activation_version = '1.2.0'
     ext.java_activation_version = '1.1.1'
 
-    ext.kafka_version = '2.0.0'
+    ext.kafka_version = '2.0.1'
     ext.confluent_version = '5.0.0'
 
     ext.kotlinlogging_version = '1.6.26'
@@ -25,9 +25,9 @@ buildscript {
     ext.logback_version = '1.2.3'
 
     // test dependencies
-    ext.kafka_embedded_version = '2.0.1'
-    ext.kluent_version = '1.49'
-    ext.spek_version = '2.0.4'
+    ext.kafka_embedded_version = '2.1.0'
+    ext.kluent_version = '1.52'
+    ext.spek_version = '2.0.6'
     ext.mockito_kotlin_version = '2.0.0-RC2'
     ext.wiremock_version = '2.23.2'
 
@@ -45,7 +45,7 @@ plugins {
     id 'no.nils.wsdl2java' version '0.10'
     id 'org.jmailen.kotlinter' version '1.25.0'
     id 'com.github.ben-manes.versions' version '0.21.0'
-    id 'org.jetbrains.kotlin.jvm' version '1.3.31'
+    id 'org.jetbrains.kotlin.jvm' version '1.3.41'
     id 'application'
     id 'com.github.johnrengelman.shadow' version '5.0.0'
 }
