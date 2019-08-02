@@ -3,7 +3,6 @@ package no.nav.altinnkanal
 import io.prometheus.client.Counter
 import io.prometheus.client.Summary
 import no.nav.altinnkanal.config.loadTopicRouting
-import no.nav.altinnkanal.services.TopicService
 
 private const val NAMESPACE = "altinnkanal"
 
