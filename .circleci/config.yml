@@ -96,6 +96,7 @@ workflows:
           requires:
             - build-and-push-docker
           deployments:
+            - checkout
             - create-deployment:
                 cluster: dev-fss
                 config_path: .nais/config-dev.json
@@ -113,6 +114,7 @@ workflows:
           requires:
             - build-and-push-docker
           deployments:
+            - checkout
             - create-deployment:
                 cluster: dev-fss
                 config_path: .nais/config-dev.json
