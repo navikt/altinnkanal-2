@@ -1,7 +1,7 @@
 version: 2.1
 
 orbs:
-  barkendeploy: navikt/barkendeploy@0.0.1
+  barkendeploy: navikt/barkendeploy@dev:junit-test-results-store
 
 executors:
   openjdk:
@@ -14,18 +14,7 @@ parameters:
     default: false
 
 commands:
-  save-test-results:
-    steps:
-      - run:
-          name: Save test results
-          command: |
-            mkdir -p ~/test-results/junit/
-            find . -type f -regex ".*/build/test-results/test/.*xml" -exec cp {} ~/test-results/junit/ \;
-          when: always
-      - store_test_results:
-          path: ~/test-results
-      - store_artifacts:
-          path: ~/test-results/junit
+
   create-deployment:
     parameters:
       cluster:
@@ -58,7 +47,7 @@ jobs:
       - run:
           name: Run tests
           command: ./gradlew clean test
-      - save-test-results
+      - barkendeploy/junit-test-results-store
       - barkendeploy/gradle-cache-persist
   build-and-push-docker:
     executor: openjdk
@@ -72,7 +61,7 @@ jobs:
       - run:
           name: Run tests and build JAR
           command: ./gradlew clean build shadowJar
-      - save-test-results
+      - barkendeploy/junit-test-results-store
       - barkendeploy/gradle-cache-persist
       - barkendeploy/docker-build
       - barkendeploy/docker-login
