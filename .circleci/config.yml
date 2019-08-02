@@ -35,7 +35,7 @@ commands:
         default: ${CIRCLE_PROJECT_REPONAME}
       team:
         type: string
-        default: $TEAM_NAME
+        default: integrasjon
       version:
         type: string
         default: ${IMAGE_VERSION}
