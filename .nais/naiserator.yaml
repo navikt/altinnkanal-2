@@ -6,7 +6,7 @@ metadata:
   labels:
     team: integrasjon
 spec:
-  image: repo.adeo.no:5443/integrasjon/altinnkanal-2:@@VERSION@@
+  image: "docker.pkg.github.com/navikt/altinnkanal-2:{{version}}"
   port: 8080
   team: integrasjon
   replicas:
@@ -29,8 +29,7 @@ spec:
     path: /internal/prometheus
   istio:
     enabled: false
-  ingresses:
-    - {{INGRESS_URL}}
+  ingresses: {{{ingresses}}}
   resources:
     limits:
       cpu: 250m
