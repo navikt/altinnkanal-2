@@ -45,7 +45,7 @@ jobs:
       - barkendeploy/gradle-cache-restore
       - run:
           name: Run tests
-          command: ./gradlew clean test
+          command: ./gradlew clean check
       - barkendeploy/junit-test-results-store
       - barkendeploy/gradle-cache-persist
   build-and-push-docker:
@@ -88,9 +88,9 @@ workflows:
             - create-deployment:
                 cluster: dev-fss
                 config_path: .nais/config-dev.json
-            #- deploy:
-            #    cluster: prod-fss
-            #    config_path: .nais/config-prod.json
+            - create-deployment:
+                cluster: prod-fss
+                config_path: .nais/config-prod.json
   build-and-deploy-branch:
     when: << pipeline.parameters.deploy_branch >>
     jobs:
