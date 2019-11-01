@@ -23,7 +23,7 @@ commands:
         default: ${CIRCLE_PROJECT_REPONAME}
       team:
         type: string
-        default: integrasjon
+        default: alf
       version:
         type: string
         default: ${IMAGE_VERSION}
