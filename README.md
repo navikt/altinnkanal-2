@@ -38,9 +38,4 @@ with startup scripts under:
 should be available at: http://localhost:8080/webservices/OnlineBatchReceiverSoap
 
 ### Contact us
-#### Code/project related questions can be sent to 
-* Kevin Sillerud, `kevin.sillerud@nav.no`
-* Trong Huu Nguyen, `trong.huu.nguyen@nav.no`
-
-#### For NAV employees
-We're available on Slack in the channel #integrasjon for any inquiries.
+NAV employees may reach us on Slack in the channel #team_altinn_difi.
