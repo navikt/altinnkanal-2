@@ -43,7 +43,7 @@ routes:
   - topics:
     - aapen-altinn-dokmot-Mottatt
     serviceCode: 4936
-    serviceEditionCode: 3    
+    serviceEditionCode: 3
 # Melding om unndragelse
   - topics:
     - aapen-altinn-dokmot-Mottatt
@@ -85,4 +85,9 @@ routes:
   - topics:
     - aapen-altinn-dokmot-Mottatt
     serviceCode: 5384
+    serviceEditionCode: 1
+# Refusjonskrav ekspertbistand
+  - topics:
+    - aapen-altinn-dokmot-Mottatt
+    serviceCode: 5453
     serviceEditionCode: 1
