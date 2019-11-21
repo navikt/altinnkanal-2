@@ -92,7 +92,6 @@ workflows:
                 cluster: prod-fss
                 config_path: .nais/config-prod.json
   build-and-deploy-branch:
-    when: << pipeline.parameters.deploy_branch >>
     jobs:
       - build-and-push-docker:
           filters:
