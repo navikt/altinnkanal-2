@@ -1,6 +1,6 @@
 # Altinnkanal 2
 
-[![CircleCI](https://circleci.com/gh/navikt/altinnkanal-2.svg?style=svg)](https://circleci.com/gh/navikt/altinnkanal-2)
+[![Github Actions](https://github.com/navikt/altinnkanal-2/workflows/Build,%20push,%20and%20deploy/badge.svg)](https://github.com/navikt/altinnkanal-2/actions?query=workflow%3A%22Build%2C+push%2C+and+deploy%22)
 
 Altinnkanal-2 is an application written in Kotlin that exposes a webservice endpoint, and handles routing
 of incoming messages from Altinn to internal systems by using Kafka.
