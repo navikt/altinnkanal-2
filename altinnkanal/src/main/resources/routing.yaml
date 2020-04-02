@@ -91,3 +91,8 @@ routes:
     - aapen-altinn-dokmot-Mottatt
     serviceCode: 5453
     serviceEditionCode: 1
+# Valg av hyppigere refusjonsutbetaling fra NAV
+  - topics:
+    - aapen-altinn-hyppigutbetaling-Mottatt
+    serviceCode: 5546
+    serviceEditionCode: 1
