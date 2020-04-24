@@ -94,5 +94,6 @@ routes:
 # Valg av hyppigere refusjonsutbetaling fra NAV
   - topics:
     - aapen-altinn-hyppigutbetaling-Mottatt
+    - aapen-altinn-pakkutbatch-Mottatt
     serviceCode: 5546
     serviceEditionCode: 1
