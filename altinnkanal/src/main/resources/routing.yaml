@@ -74,6 +74,7 @@ routes:
 # Mentortilskudd
   - topics:
     - aapen-altinn-dokmot-Mottatt
+    - aapen-altinn-pakkutbatch-Mottatt
     serviceCode: 5216
     serviceEditionCode: 1
 # Varig tilrettelagt arbeid i ordinær virksomhet
