@@ -24,8 +24,8 @@ publishing {
         maven {
             url = uri("https://maven.pkg.github.com/navikt/altinnkanal-2")
             credentials {
-                username = System.getenv("GITHUB_USERNAME")
-                password = System.getenv("GITHUB_PASSWORD")
+                username = System.getenv("GITHUB_ACTOR")
+                password = System.getenv("GITHUB_TOKEN")
             }
         }
     }
