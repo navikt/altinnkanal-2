@@ -2,10 +2,7 @@ buildscript {
     ext.avro_version = '1.8.2'
     repositories {
         mavenCentral()
-        maven {
-            name "JCenter Gradle Plugins"
-            url  "https://dl.bintray.com/gradle/gradle-plugins"
-        }
+        jcenter()
     }
 
     dependencies {
@@ -25,7 +22,7 @@ group 'no.nav.altinnkanal.avro'
 publishing {
     repositories {
         maven {
-            url = uri("https://maven.pkg.github.com/navikt/altinnkanal-2/altinnkanal-schemas")
+            url = uri("https://maven.pkg.github.com/navikt/altinnkanal-2")
             credentials {
                 username = System.getenv("GITHUB_USERNAME")
                 password = System.getenv("GITHUB_PASSWORD")
@@ -33,12 +30,11 @@ publishing {
         }
     }
     publications {
-        create<MavenPublication>("mavenJava") {
-
+        mavenJava(MavenPublication) {
             pom {
                 name.set("altinnkanal-schemas")
                 description.set("Topic skjema produsert av altinnkanal-2")
-                url.set("https://github.com/navikt/altinnkanal-2/altinnkanal-schemas")
+                url.set("https://github.com/navikt/altinnkanal-2")
                 licenses {
                     license {
                         name.set("MIT License")
@@ -49,10 +45,10 @@ publishing {
                 scm {
                     connection.set("scm:git:https://github.com/navikt/altinnkanal-2.git")
                     developerConnection.set("scm:git:https://github.com/navikt/altinnkanal-2.git")
-                    url.set("https://github.com/navikt/altinnkanal-2/altinnkanal-schemas")
+                    url.set("https://github.com/navikt/altinnkanal-2")
                 }
             }
-            from(components["java"])
+            from components.java
         }
     }
 }
