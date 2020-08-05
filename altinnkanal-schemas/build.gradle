@@ -20,16 +20,39 @@ dependencies {
     implementation "org.apache.avro:avro:$avro_version"
 }
 
-publishing {
-    publications {
-        mavenJava(MavenPublication) {
-            from components.java
-        }
-    }
+group 'no.nav.altinnkanal.avro'
 
+publishing {
     repositories {
         maven {
-            url = "https://repo.adeo.no/repository/maven-${project.version.endsWith('-SNAPSHOT') ? 'snapshots' : 'releases'}/"
+            url = uri("https://maven.pkg.github.com/navikt/altinnkanal-2/altinnkanal-schemas")
+            credentials {
+                username = System.getenv("GITHUB_USERNAME")
+                password = System.getenv("GITHUB_PASSWORD")
+            }
+        }
+    }
+    publications {
+        create<MavenPublication>("mavenJava") {
+
+            pom {
+                name.set("altinnkanal-schemas")
+                description.set("Topic skjema produsert av altinnkanal-2")
+                url.set("https://github.com/navikt/altinnkanal-2/altinnkanal-schemas")
+                licenses {
+                    license {
+                        name.set("MIT License")
+                        url.set("https://opensource.org/licenses/MIT")
+                    }
+                }
+
+                scm {
+                    connection.set("scm:git:https://github.com/navikt/altinnkanal-2.git")
+                    developerConnection.set("scm:git:https://github.com/navikt/altinnkanal-2.git")
+                    url.set("https://github.com/navikt/altinnkanal-2/altinnkanal-schemas")
+                }
+            }
+            from(components["java"])
         }
     }
 }
