@@ -2,7 +2,10 @@ buildscript {
     ext.avro_version = '1.8.2'
     repositories {
         mavenCentral()
-        jcenter()
+        maven {
+            name "JCenter Gradle Plugins"
+            url  "https://dl.bintray.com/gradle/gradle-plugins"
+        }
     }
 
     dependencies {
