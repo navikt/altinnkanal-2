@@ -18,6 +18,7 @@ dependencies {
 }
 
 group 'no.nav.altinnkanal.avro'
+version "${project.version}"
 
 publishing {
     repositories {
