@@ -1,0 +1,35 @@
+name: Publish altinnkanal avro schema
+on:
+  push:
+    branches:
+      - master
+    paths:
+      - 'altinnkanal-schemas/src/main/avro/external_attachment.avsc'
+      - 'altinnkanal-schemas/gradle.properties'
+
+jobs:
+  build_and_release:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v1
+      - name: Gradle wrapper validation
+        uses: gradle/wrapper-validation-action@v1
+      - uses: actions/cache@v1
+        with:
+          path: ~/.gradle/caches
+          key: ${{ runner.os }}-gradle-cache-${{ hashFiles('altinnkanal-schemas/build.gradle') }}
+          restore-keys: |
+            ${{ runner.os }}-gradle-cache-
+      - uses: actions/cache@v1
+        with:
+          path: ~/.gradle/wrapper
+          key: ${{ runner.os }}-gradle-wrapper-${{ hashFiles('gradle/wrapper/gradle-wrapper.properties') }}
+          restore-keys: |
+            ${{ runner.os }}-gradle-wrapper-
+      - name: Build
+        run: ./gradlew build
+      - name: Publish artifact
+        run: ./gradlew publish
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
