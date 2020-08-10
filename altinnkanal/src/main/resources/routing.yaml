@@ -1,22 +1,27 @@
 routes:
   - topics:
     - aapen-altinn-bankkontonummer-Mottatt
+    - aapen-altinn-pakkutbatch-Mottatt
     serviceCode: 2896
     serviceEditionCode: 87
   - topics:
     - aapen-altinn-oppfolgingsplan-Mottatt
+    - aapen-altinn-pakkutbatch-Mottatt
     serviceCode: 2913
     serviceEditionCode: 2
   - topics:
     - aapen-altinn-oppfolgingsplan-Mottatt
+    - aapen-altinn-pakkutbatch-Mottatt
     serviceCode: 2913
     serviceEditionCode: 3
   - topics:
     - aapen-altinn-oppfolgingsplan-Mottatt
+    - aapen-altinn-pakkutbatch-Mottatt
     serviceCode: 2913
     serviceEditionCode: 4
   - topics:
     - aapen-altinn-oppfolgingsplan-Mottatt
+    - aapen-altinn-pakkutbatch-Mottatt
     serviceCode: NavOppfPlan
     serviceEditionCode: rapportering-sykmeldte
   - topics:
@@ -34,14 +39,17 @@ routes:
 # Inntektsskjema
   - topics:
     - aapen-altinn-dokmot-Mottatt
+    - aapen-altinn-pakkutbatch-Mottatt
     serviceCode: 4936
     serviceEditionCode: 1
   - topics:
     - aapen-altinn-dokmot-Mottatt
+    - aapen-altinn-pakkutbatch-Mottatt
     serviceCode: 4936
     serviceEditionCode: 2
   - topics:
     - aapen-altinn-dokmot-Mottatt
+    - aapen-altinn-pakkutbatch-Mottatt
     serviceCode: 4936
     serviceEditionCode: 3
 # Melding om unndragelse
@@ -64,11 +72,13 @@ routes:
 # Lønnstilskudd
   - topics:
     - aapen-altinn-dokmot-Mottatt
+    - aapen-altinn-pakkutbatch-Mottatt
     serviceCode: 5159
     serviceEditionCode: 1
 # Inkluderingstilskudd
   - topics:
     - aapen-altinn-dokmot-Mottatt
+    - aapen-altinn-pakkutbatch-Mottatt
     serviceCode: 5212
     serviceEditionCode: 1
 # Mentortilskudd
@@ -85,6 +95,7 @@ routes:
 # Ekspertbistand
   - topics:
     - aapen-altinn-dokmot-Mottatt
+    - aapen-altinn-pakkutbatch-Mottatt
     serviceCode: 5384
     serviceEditionCode: 1
 # Refusjonskrav ekspertbistand
