@@ -30,6 +30,7 @@ routes:
     serviceEditionCode: 1
   - topics:
     - aapen-altinn-maalekort-Mottatt
+    - aapen-altinn-pakkutbatch-Mottatt
     serviceCode: 4711
     serviceEditionCode: 1
   - topics:
