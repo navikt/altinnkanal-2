@@ -110,6 +110,12 @@ routes:
     - aapen-altinn-pakkutbatch-Mottatt
     serviceCode: 5546
     serviceEditionCode: 1
+# Forsendelse av bedriftsundersøkelse
+  - topics:
+      - aapen-altinn-bedrundersokelse-Mottatt
+      - aapen-altinn-pakkutbatch-Mottatt
+    serviceCode: 5664
+    serviceEditionCode: 1
 # TT02 Test inbound
   - topics:
       - aapen-altinn-bedrundersokelse-Mottatt
