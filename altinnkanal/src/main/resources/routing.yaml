@@ -116,6 +116,12 @@ routes:
       - aapen-altinn-pakkutbatch-Mottatt
     serviceCode: 5664
     serviceEditionCode: 1
+# Nærmeste leder
+  - topics:
+      - aapen-altinn-narmeste-leder-Mottatt
+      - aapen-altinn-pakkutbatch-Mottatt
+    serviceCode: 4596
+    serviceEditionCode: 1
 # TT02 Test inbound
   - topics:
       - aapen-altinn-bedrundersokelse-Mottatt
