@@ -124,7 +124,6 @@ routes:
     serviceEditionCode: 1
 # TT02 Test inbound
   - topics:
-      - aapen-altinn-bedrundersokelse-Mottatt
       - aapen-altinn-pakkutbatch-Mottatt
     serviceCode: 4765
     serviceEditionCode: 4

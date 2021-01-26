@@ -5,6 +5,7 @@ import net.logstash.logback.argument.StructuredArgument
 import net.logstash.logback.argument.StructuredArguments.kv
 import no.altinn.webservices.OnlineBatchReceiverSoap
 import no.nav.altinnkanal.avro.ExternalAttachment
+import no.nav.altinnkanal.avro.ReceivedMessage
 import no.nav.altinnkanal.services.TopicService
 import no.nav.altinnkanal.Metrics
 import org.apache.kafka.clients.producer.Producer
@@ -13,6 +14,8 @@ import javax.xml.stream.XMLInputFactory
 import javax.xml.stream.events.XMLEvent
 import java.io.StringReader
 import java.util.UUID
+import no.nav.altinnkanal.batch.DataBatchExtractor
+import no.nav.altinnkanal.services.TopicService2
 
 enum class Status {
     OK, FAILED, FAILED_DO_NOT_RETRY
@@ -23,8 +26,12 @@ private val xmlInputFactory = XMLInputFactory.newInstance()
 
 class OnlineBatchReceiverSoapImpl(
     private val topicService: TopicService,
-    private val kafkaProducer: Producer<String, ExternalAttachment>
+    private val kafkaProducer: Producer<String, ExternalAttachment>,
+    private val producer: Producer<String, ReceivedMessage>
 ) : OnlineBatchReceiverSoap {
+    private val topicService2 = TopicService2()
+    private val dataBatchExtractor = DataBatchExtractor()
+
     override fun receiveOnlineBatchExternalAttachment(
         username: String?,
         passwd: String?,
@@ -53,8 +60,8 @@ class OnlineBatchReceiverSoapImpl(
                 kv("recRef", receiversReference), kv("archRef", archiveReference), kv("seqNum", sequenceNumber))
 
             val topics = topicService.getTopics(serviceCode!!, serviceEditionCode!!)
-
-            if (topics == null) {
+            val topics2 = topicService2.getTopics(serviceCode!!, serviceEditionCode!!)
+            if (topics == null && topics2 == null) {
                 Metrics.requestsFailedMissing.inc()
                 with(Status.FAILED_DO_NOT_RETRY) {
                     log(logDetails!!)
@@ -62,9 +69,29 @@ class OnlineBatchReceiverSoapImpl(
                 }
             }
 
-            topics.forEach { topic ->
+            topics?.forEach { topic ->
                 val metadata = kafkaProducer
                     .send(ProducerRecord(topic, externalAttachment))
+                    .get()
+
+                val latency = requestLatency.observeDuration()
+                Metrics.requestSize.observe(metadata.serializedValueSize().toDouble())
+
+                val logDetailsCopy = logDetails!!.toMutableList()
+                logDetailsCopy.addAll(arrayOf(
+                    kv("latency", "${(latency * 1000).toLong()} ms"),
+                    kv("size", String.format("%.2f", metadata.serializedValueSize() / 1024f) + " KB"),
+                    kv("topic", metadata.topic()),
+                    kv("partition", metadata.partition()),
+                    kv("offset", metadata.offset())
+                ))
+                Status.OK.log(logDetailsCopy)
+            }
+            topics2?.forEach { topic2 ->
+                val arData = dataBatchExtractor.toArMessage(externalAttachment.getBatch(), callId)
+                val rm = dataBatchExtractor.toReceivedMessage(arData)
+                val metadata = producer
+                    .send(ProducerRecord(topic2, rm))
                     .get()
 
                 val latency = requestLatency.observeDuration()

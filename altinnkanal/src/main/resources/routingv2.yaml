@@ -1,0 +1,83 @@
+routes:
+  - topics:
+    - aapen-altinn-metrics-Mottatt-v2
+    serviceCode: 2896
+    serviceEditionCode: 87
+  - topics:
+    - aapen-altinn-metrics-Mottatt-v2
+    serviceCode: 2913
+    serviceEditionCode: 2
+  - topics:
+    - aapen-altinn-metrics-Mottatt-v2
+    serviceCode: 2913
+    serviceEditionCode: 3
+  - topics:
+    - aapen-altinn-metrics-Mottatt-v2
+    serviceCode: 2913
+    serviceEditionCode: 4
+  - topics:
+    - aapen-altinn-metrics-Mottatt-v2
+    serviceCode: NavOppfPlan
+    serviceEditionCode: rapportering-sykmeldte
+  - topics:
+    - aapen-altinn-metrics-Mottatt-v2
+    serviceCode: 4711
+    serviceEditionCode: 1
+# Inntektsskjema
+  - topics:
+    - aapen-altinn-metrics-Mottatt-v2
+    serviceCode: 4936
+    serviceEditionCode: 1
+  - topics:
+    - aapen-altinn-metrics-Mottatt-v2
+    serviceCode: 4936
+    serviceEditionCode: 2
+  - topics:
+    - aapen-altinn-metrics-Mottatt-v2
+    serviceCode: 4936
+    serviceEditionCode: 3
+# Lønnstilskudd
+  - topics:
+    - aapen-altinn-metrics-Mottatt-v2
+    serviceCode: 5159
+    serviceEditionCode: 1
+# Inkluderingstilskudd
+  - topics:
+    - aapen-altinn-metrics-Mottatt-v2
+    serviceCode: 5212
+    serviceEditionCode: 1
+# Mentortilskudd
+  - topics:
+    - aapen-altinn-metrics-Mottatt-v2
+    serviceCode: 5216
+    serviceEditionCode: 1
+# Varig tilrettelagt arbeid i ordinær virksomhet
+  - topics:
+    - aapen-altinn-metrics-Mottatt-v2
+    serviceCode: 5224
+    serviceEditionCode: 1
+# Ekspertbistand
+  - topics:
+    - aapen-altinn-metrics-Mottatt-v2
+    serviceCode: 5384
+    serviceEditionCode: 1
+# Refusjonskrav ekspertbistand
+  - topics:
+    - aapen-altinn-metrics-Mottatt-v2
+    serviceCode: 5453
+    serviceEditionCode: 1
+# Forsendelse av bedriftsundersøkelse
+  - topics:
+      - aapen-altinn-metrics-Mottatt-v2
+    serviceCode: 5664
+    serviceEditionCode: 1
+# Nærmeste leder
+  - topics:
+      - aapen-altinn-metrics-Mottatt-v2
+    serviceCode: 4596
+    serviceEditionCode: 1
+# TT02 Test inbound
+  - topics:
+      - aapen-altinn-metrics-Mottatt-v2
+    serviceCode: 4765
+    serviceEditionCode: 4

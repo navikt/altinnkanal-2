@@ -27,7 +27,7 @@ fun main() {
     Server(8080).run {
         bootstrap(
             this, OnlineBatchReceiverSoapImpl(
-                TopicService(), KafkaProducer(KafkaConfig.config)
+                TopicService(), KafkaProducer(KafkaConfig.config), KafkaProducer(KafkaConfig.config)
             )
         )
         join()
