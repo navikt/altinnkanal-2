@@ -20,6 +20,7 @@ class DataBatchExtractor {
         val receivedMessage = ReceivedMessage()
         val attachments = mutableListOf<Attachment>()
         receivedMessage.setCallId(callId)
+        receivedMessage.setMetadata(emptyMap())
         try {
             while (xmlReader.hasNext()) {
                 val eventType = xmlReader.next()
