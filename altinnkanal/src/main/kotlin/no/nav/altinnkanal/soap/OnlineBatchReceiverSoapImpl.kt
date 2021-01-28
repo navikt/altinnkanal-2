@@ -88,8 +88,7 @@ class OnlineBatchReceiverSoapImpl(
                 Status.OK.log(logDetailsCopy)
             }
             topics2?.forEach { topic2 ->
-                val arData = dataBatchExtractor.toArMessage(externalAttachment.getBatch(), callId)
-                val rm = dataBatchExtractor.toReceivedMessage(arData)
+                val rm = dataBatchExtractor.toReceivedMessage(externalAttachment.getBatch(), callId)
                 val metadata = producer
                     .send(ProducerRecord(topic2, rm))
                     .get()
