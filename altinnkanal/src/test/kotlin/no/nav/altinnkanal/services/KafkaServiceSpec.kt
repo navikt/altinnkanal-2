@@ -8,6 +8,7 @@ import com.nhaarman.mockitokotlin2.verify
 import com.nhaarman.mockitokotlin2.whenever
 import java.util.concurrent.Future
 import no.nav.altinnkanal.avro.ExternalAttachment
+import no.nav.altinnkanal.avro.ReceivedMessage
 import no.nav.altinnkanal.getResource
 import no.nav.altinnkanal.soap.OnlineBatchReceiverSoapImpl
 import org.amshove.kluent.shouldBe
@@ -21,11 +22,12 @@ import org.spekframework.spek2.style.specification.describe
 object KafkaServiceSpec : Spek({
     val topicRepository = mock<TopicService>()
     val kafkaProducer = mock<Producer<String, ExternalAttachment>>()
+    val kafkaProducer2 = mock<Producer<String, ReceivedMessage>>()
     val future = mock<Future<RecordMetadata>>()
     val recordMetadata = mock<RecordMetadata>()
     val captor = argumentCaptor<ProducerRecord<String, ExternalAttachment>>()
 
-    val onlineBatchReceiver = OnlineBatchReceiverSoapImpl(topicRepository, kafkaProducer)
+    val onlineBatchReceiver = OnlineBatchReceiverSoapImpl(topicRepository, kafkaProducer, kafkaProducer2)
     val expectedTopics = listOf("topic1", "topic2")
 
     whenever(recordMetadata.serializedValueSize()).thenReturn(0)

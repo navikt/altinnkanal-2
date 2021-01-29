@@ -5,6 +5,7 @@ import com.nhaarman.mockitokotlin2.mock
 import com.nhaarman.mockitokotlin2.whenever
 import java.util.concurrent.Future
 import no.nav.altinnkanal.avro.ExternalAttachment
+import no.nav.altinnkanal.avro.ReceivedMessage
 import no.nav.altinnkanal.services.TopicService
 import no.nav.altinnkanal.soap.OnlineBatchReceiverSoapImpl
 import no.nav.altinnkanal.soap.Status
@@ -17,8 +18,9 @@ import org.spekframework.spek2.style.specification.describe
 object OnlineBatchReceiverSoapSpec : Spek({
     val topicService = mock<TopicService>()
     val kafkaProducer = mock<Producer<String, ExternalAttachment>>()
+    val kafkaProducer2 = mock<Producer<String, ReceivedMessage>>()
     val metadataFuture = mock<Future<RecordMetadata>>()
-    val soapService = OnlineBatchReceiverSoapImpl(topicService, kafkaProducer)
+    val soapService = OnlineBatchReceiverSoapImpl(topicService, kafkaProducer, kafkaProducer2)
     val simpleBatch = "/data/basic_data_batch.xml".getResource()
 
     whenever(metadataFuture.get()).thenReturn(mock())
