@@ -1,6 +1,16 @@
 name: Build, push, and deploy
 
-on: [push, pull_request]
+on:
+  push:
+    paths-ignore:
+      - '.nais/alerts.yaml'
+      - '.github/workflows/alerts.yml'
+      - '*.md'
+  pull_request:
+    paths-ignore:
+      - '.nais/alerts.yaml'
+      - '.github/workflows/alerts.yml'
+      - '*.md'
 
 env:
   IMAGE: docker.pkg.github.com/${{ github.repository }}/altinnkanal-2:${{ github.sha }}
