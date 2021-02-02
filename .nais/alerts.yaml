@@ -1,0 +1,24 @@
+apiVersion: "nais.io/v1"
+kind: "Alert"
+metadata:
+  name: altinnkanal-2-alerts
+  namespace: default
+  labels:
+    team: alf
+spec:
+  receivers:
+    slack:
+      channel: '#alf-alerts'
+      prependText: '<!here> | '
+  alerts:
+    - alert: altinnkanal-2 applikasjon er nede
+      expr: absent(kube_deployment_status_replicas_unavailable{deployment="altinnkanal-2"}) > 0
+      for: 3m
+      action: "Sjekk applikasjon altinnkanal-2 i clusteret, start re-deploy fra github hvis den er borte"
+      sla: respond within 1h, during office hours
+      severity: danger
+    - alert: altinnkanal-2 ingen mottatt melding
+      expr: ( 7 < hour() < 17 ) and ( 0 < day_of_week() < 6) and (sum(changes(altinnkanal_requests_total[10m])) < 1)
+      for: 3m
+      action: "Ingen melding mottatt fra Altinn på siste 10 minutter, sjekk mottaket. Alert kan være falsk alarm på helligdager."
+      severity: warning
