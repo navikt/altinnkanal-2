@@ -18,7 +18,7 @@ spec:
       sla: respond within 1h, during office hours
       severity: danger
     - alert: altinnkanal-2 ingen mottatt melding
-      expr: ( 7 < hour() < 17 ) and ( 0 < day_of_week() < 6) and (sum(changes(altinnkanal_requests_total[10m])) < 1)
+      expr: ( 7 < hour() < 15 ) and ( 0 < day_of_week() < 6) and (sum(changes(altinnkanal_requests_total[10m])) < 1)
       for: 3m
       action: "Ingen melding mottatt fra Altinn på siste 10 minutter, sjekk mottaket. Alert kan være falsk alarm på helligdager."
       severity: warning
