@@ -22,3 +22,8 @@ spec:
       for: 3m
       action: "Ingen melding mottatt fra Altinn på siste 10 minutter, sjekk mottaket. Alert kan være falsk alarm på helligdager."
       severity: warning
+    - alert: altinnkanal-2 mottatt hurtig refusjonsmelding
+      expr: changes(altinnkanal_requests_success{sc="5546",sec="1"}[1h]) > 0
+      for: 3m
+      action: "Mottatt søknad(er) om `Valg av hyppigere refusjonsutbetaling fra NAV` i altinnkanal-2"
+      severity: warning
