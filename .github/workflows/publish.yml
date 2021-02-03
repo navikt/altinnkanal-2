@@ -5,6 +5,7 @@ on:
       - master
     paths:
       - 'altinnkanal-schemas/src/main/avro/external_attachment.avsc'
+      - 'altinnkanal-schemas/src/main/avro/received_message.avsc'
       - 'altinnkanal-schemas/gradle.properties'
 
 jobs:
