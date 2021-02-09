@@ -27,3 +27,8 @@ spec:
       for: 3m
       action: "Mottatt søknad(er) om `Valg av hyppigere refusjonsutbetaling fra NAV` i altinnkanal-2"
       severity: warning
+    - alert: altinnkanal-2 mottatt lonnstilskudd
+      expr: changes(altinnkanal_requests_success{sc="5159",sec="1"}[1h]) > 0
+      for: 3m
+      action: "Mottatt søknad(er) om `Lønnstilskudd for Tiltak` i altinnkanal-2 (Enklere å følge med på her?)"
+      severity: warning
