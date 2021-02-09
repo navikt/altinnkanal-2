@@ -101,8 +101,3 @@ routes:
       - aapen-altinn-bedrundersokelse-Mottatt
     serviceCode: 5664
     serviceEditionCode: 1
-# Nærmeste leder
-  - topics:
-      - aapen-altinn-narmeste-leder-Mottatt
-    serviceCode: 4596
-    serviceEditionCode: 1
