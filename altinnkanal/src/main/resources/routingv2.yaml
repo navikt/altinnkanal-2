@@ -1,8 +1,11 @@
 routes:
+# Endre bankkontonummer
   - topics:
     - aapen-altinn-metrics-Mottatt-v2
+    - aapen-altinn-bankkontonummer-mottatt-v2
     serviceCode: 2896
     serviceEditionCode: 87
+# Oppfølgingsplan
   - topics:
     - aapen-altinn-metrics-Mottatt-v2
     serviceCode: 2913
