@@ -32,3 +32,8 @@ spec:
       for: 3m
       action: "Mottatt søknad(er) om `Lønnstilskudd for Tiltak` i altinnkanal-2 som ble deaktivert 21.1.2021"
       severity: warning
+    - alert: altinnkanal-2 mottatt bedriftsundersøkelse
+      expr: changes(altinnkanal_requests_success{sc="5664",sec="1"}[1h]) > 0
+      for: 3m
+      action: "Mottatt søknad(er) om `Forsendelse av bedriftsundersøkelse` i altinnkanal-2. App for utsending er tatt ned. Start opp `bedrift-undersokelse` innen 7 dager for å gjøre utsending av melding(er)."
+      severity: danger      
