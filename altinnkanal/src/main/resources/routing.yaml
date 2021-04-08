@@ -1,9 +1,5 @@
 routes:
   - topics:
-    - aapen-altinn-bankkontonummer-Mottatt
-    serviceCode: 2896
-    serviceEditionCode: 87
-  - topics:
     - aapen-altinn-oppfolgingsplan-Mottatt
     serviceCode: 2913
     serviceEditionCode: 2
