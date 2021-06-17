@@ -82,7 +82,7 @@ routes:
     serviceEditionCode: 1
 # Barnehageliste
   - topics:
-    - aapen-altinn-barnehageliste-Mottatt
+    - aapen-altinn-metrics-Mottatt-v2
     serviceCode: 4795
     serviceEditionCode: 1
 # TT02 Test inbound
