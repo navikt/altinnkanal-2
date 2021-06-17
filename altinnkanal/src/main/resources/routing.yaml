@@ -19,10 +19,12 @@ routes:
     - privat-altinn-paop-Mottatt
     serviceCode: 9001
     serviceEditionCode: 1
+# Målekort
   - topics:
     - aapen-altinn-maalekort-Mottatt
     serviceCode: 4711
     serviceEditionCode: 1
+# Barnehageliste
   - topics:
     - aapen-altinn-barnehageliste-Mottatt
     serviceCode: 4795
