@@ -1,6 +1,13 @@
 package no.nav.altinnkanal
 
-import net.logstash.logback.encoder.org.apache.commons.lang.StringEscapeUtils
+import java.io.StringReader
+import java.nio.charset.Charset
+import java.nio.file.Files
+import java.nio.file.Paths
+import javax.security.auth.callback.CallbackHandler
+import javax.xml.stream.XMLInputFactory
+import javax.xml.stream.events.XMLEvent
+import net.logstash.logback.encoder.org.apache.commons.lang3.StringEscapeUtils
 import no.altinn.webservices.OnlineBatchReceiverSoap
 import org.apache.cxf.jaxws.JaxWsProxyFactoryBean
 import org.apache.cxf.ws.security.wss4j.WSS4JOutInterceptor
@@ -14,19 +21,14 @@ import org.apache.kafka.common.resource.ResourceType
 import org.apache.wss4j.common.ext.WSPasswordCallback
 import org.apache.wss4j.dom.WSConstants
 import org.apache.wss4j.dom.handler.WSHandlerConstants
-import java.io.StringReader
-import java.nio.charset.Charset
-import java.nio.file.Files
-import java.nio.file.Paths
-import javax.security.auth.callback.CallbackHandler
-import javax.xml.stream.XMLInputFactory
-import javax.xml.stream.events.XMLEvent
 
 private object Utils
 private val xmlInputFactory = XMLInputFactory.newInstance()
 
-fun String.getResource(): String = String(Files.readAllBytes(Paths.get(Utils::class.java.getResource(this).toURI())),
-        Charset.forName("UTF-8"))
+fun String.getResource(): String = String(
+    Files.readAllBytes(Paths.get(Utils::class.java.getResource(this).toURI())),
+    Charset.forName("UTF-8")
+)
 fun String.getResultCode(): String? =
     xmlInputFactory.createXMLStreamReader(StringReader(StringEscapeUtils.unescapeXml(this))).run {
         try {
@@ -39,7 +41,7 @@ fun String.getResultCode(): String? =
             close()
         }
         null
-}
+    }
 
 fun createPayload(simpleBatch: String, serviceCode: String, serviceEditionCode: String): String {
     return simpleBatch

@@ -2,11 +2,13 @@ package no.nav.altinnkanal
 
 import io.prometheus.client.exporter.MetricsServlet
 import io.prometheus.client.hotspot.DefaultExports
+import javax.xml.ws.Endpoint
+import kotlin.reflect.jvm.jvmName
 import no.altinn.webservices.OnlineBatchReceiverSoap
 import no.nav.altinnkanal.config.KafkaConfig
 import no.nav.altinnkanal.services.TopicService
-import no.nav.altinnkanal.soap.StsUntValidator
 import no.nav.altinnkanal.soap.OnlineBatchReceiverSoapImpl
+import no.nav.altinnkanal.soap.StsUntValidator
 import org.apache.cxf.BusFactory
 import org.apache.cxf.jaxws.EndpointImpl
 import org.apache.cxf.transport.servlet.CXFNonSpringServlet
@@ -20,14 +22,15 @@ import org.eclipse.jetty.server.handler.ContextHandler
 import org.eclipse.jetty.server.handler.HandlerCollection
 import org.eclipse.jetty.servlet.ServletContextHandler
 import org.eclipse.jetty.servlet.ServletHolder
-import javax.xml.ws.Endpoint
-import kotlin.reflect.jvm.jvmName
 
 fun main() {
     Server(8080).run {
         bootstrap(
-            this, OnlineBatchReceiverSoapImpl(
-                TopicService(), KafkaProducer(KafkaConfig.config), KafkaProducer(KafkaConfig.config)
+            this,
+            OnlineBatchReceiverSoapImpl(
+                TopicService(),
+                KafkaProducer(KafkaConfig.config),
+                KafkaProducer(KafkaConfig.config)
             )
         )
         join()
