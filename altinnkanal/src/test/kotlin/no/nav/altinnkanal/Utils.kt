@@ -11,7 +11,6 @@ import net.logstash.logback.encoder.org.apache.commons.lang3.StringEscapeUtils
 import no.altinn.webservices.OnlineBatchReceiverSoap
 import org.apache.cxf.jaxws.JaxWsProxyFactoryBean
 import org.apache.cxf.ws.security.wss4j.WSS4JOutInterceptor
-import org.apache.kafka.clients.admin.AdminClient
 import org.apache.kafka.common.acl.AccessControlEntry
 import org.apache.kafka.common.acl.AclBinding
 import org.apache.kafka.common.acl.AclOperation
@@ -67,23 +66,8 @@ fun createSoapClient(port: Int, username: String, password: String): OnlineBatch
     }
 }
 
-fun createProducerACL(topicUser: Map<String, String>): Collection<AclBinding> =
-    topicUser.flatMap {
-        val (topic, user) = it
-
-        listOf(AclOperation.DESCRIBE, AclOperation.WRITE, AclOperation.CREATE).let { lOp ->
-
-            val tPattern = ResourcePattern(ResourceType.TOPIC, topic, PatternType.LITERAL)
-            val principal = "User:$user"
-            val host = "*"
-            val allow = AclPermissionType.ALLOW
-
-            lOp.map { op -> AclBinding(tPattern, AccessControlEntry(principal, host, op, allow)) }
-        }
-    }
-
 fun createProducerAcl(topic: String, username: String): List<AclBinding> =
-    listOf(AclOperation.DESCRIBE, AclOperation.WRITE, AclOperation.CREATE)
+    listOf(AclOperation.DESCRIBE, AclOperation.WRITE, AclOperation.CREATE, AclOperation.IDEMPOTENT_WRITE)
         .map { operation ->
             val (resource, name) = when (operation) {
                 AclOperation.IDEMPOTENT_WRITE -> ResourceType.CLUSTER to "kafka-cluster"
@@ -94,9 +78,3 @@ fun createProducerAcl(topic: String, username: String): List<AclBinding> =
                 AccessControlEntry("User:$username", "*", operation, AclPermissionType.ALLOW)
             )
         }
-
-fun AdminClient?.topics(): List<String> = try {
-    this?.listTopics()?.names()?.get()?.toList() ?: emptyList()
-} catch (e: Exception) {
-    emptyList()
-}

@@ -1,2 +1,1 @@
 ingresses: ["https://altinnkanal-2.nais.preprod.local"]
-kafka-pool: nav-dev

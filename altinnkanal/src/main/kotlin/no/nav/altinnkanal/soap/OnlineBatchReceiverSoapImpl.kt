@@ -27,8 +27,7 @@ private val xmlInputFactory = XMLInputFactory.newInstance()
 class OnlineBatchReceiverSoapImpl(
     private val topicService: TopicService,
     private val kafkaProducer: Producer<String, ExternalAttachment>,
-    private val producer: Producer<String, ReceivedMessage>,
-    private val aivenProducer: Producer<String, ReceivedMessage>,
+    private val producer: Producer<String, ReceivedMessage>
 ) : OnlineBatchReceiverSoap {
     private val topicService2 = TopicService2()
     private val dataBatchExtractor = DataBatchExtractor()
