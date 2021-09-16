@@ -17,15 +17,15 @@ buildscript {
     ext.javax_activation_version = '1.2.0'
     ext.java_activation_version = '1.1.1'
 
-    ext.kafka_version = '2.4.0'
-    ext.confluent_version = '5.0.0'
+    ext.kafka_version = '2.7.0'
+    ext.confluent_version = '6.1.0'
 
     ext.kotlinlogging_version = '2.0.8'
     ext.logstash_encoder_version = '6.6'
     ext.logback_version = '1.2.3'
 
     // test dependencies
-    ext.kafka_embedded_version = '2.4.0'
+    ext.kafka_embedded_version = '2.7.0'
     ext.kluent_version = '1.52'
     ext.spek_version = '2.0.14'
     ext.mockito_kotlin_version = '2.2.0'
@@ -85,11 +85,13 @@ test {
 repositories {
     mavenCentral()
     maven { url "https://dl.bintray.com/kotlin/ktor" }
+    jcenter()
     maven {
         name 'Confluent maven repo'
         url 'https://packages.confluent.io/maven/'
     }
-    jcenter()
+
+    maven { url "https://jitpack.io" }
 }
 
 dependencies {

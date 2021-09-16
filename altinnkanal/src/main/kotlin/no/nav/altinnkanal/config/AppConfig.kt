@@ -32,16 +32,16 @@ object StsConfig {
 object KafkaConfig {
     val username = Key("srvaltinnkanal.username", stringType)
     val password = Key("srvaltinnkanal.password", stringType)
-    val servers = Key("kafka.bootstrap.servers.url", stringType)
+    val servers = Key("bootstrap.servers", stringType)
 
     val config = Properties().apply {
-        load(KafkaConfig::class.java.getResourceAsStream("/kafka.properties"))
+        load(KafkaConfig::class.java.getResourceAsStream("/application.properties"))
         setProperty(
             SaslConfigs.SASL_JAAS_CONFIG,
             "org.apache.kafka.common.security.plain.PlainLoginModule required " +
-                "username=\"${appConfig[KafkaConfig.username]}\" password=\"${appConfig[KafkaConfig.password]}\";"
+                "username=\"$username\" password=\"$password\";"
         )
-        appConfig.getOrNull(KafkaConfig.servers)?.let {
+        appConfig.getOrNull(servers)?.let {
             setProperty(CommonClientConfigs.BOOTSTRAP_SERVERS_CONFIG, it)
         }
         if (appConfig[Key("application.profile", stringType)] == "local")

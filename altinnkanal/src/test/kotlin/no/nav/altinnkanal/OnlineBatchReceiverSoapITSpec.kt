@@ -6,11 +6,10 @@ import com.github.tomakehurst.wiremock.client.WireMock.get
 import com.github.tomakehurst.wiremock.client.WireMock.urlEqualTo
 import com.github.tomakehurst.wiremock.common.Slf4jNotifier
 import com.github.tomakehurst.wiremock.core.WireMockConfiguration.options
-import io.confluent.kafka.serializers.AbstractKafkaAvroSerDeConfig
+import io.confluent.kafka.serializers.AbstractKafkaSchemaSerDeConfig
+import io.confluent.kafka.serializers.KafkaAvroSerializer
 import io.ktor.http.HttpHeaders
-import java.net.HttpURLConnection
-import java.net.URL
-import java.util.Scanner
+import java.util.Properties
 import no.nav.altinnkanal.avro.ExternalAttachment
 import no.nav.altinnkanal.avro.ReceivedMessage
 import no.nav.altinnkanal.config.KafkaConfig
@@ -20,7 +19,11 @@ import no.nav.altinnkanal.soap.OnlineBatchReceiverSoapImpl
 import no.nav.altinnkanal.soap.Status
 import no.nav.common.JAASCredential
 import no.nav.common.KafkaEnvironment
+import no.nav.common.embeddedzookeeper.ZookeeperCMDRSP
+import org.amshove.kluent.shouldBeEqualTo
+import org.amshove.kluent.shouldContainAll
 import org.amshove.kluent.shouldEqual
+import org.amshove.kluent.shouldEqualTo
 import org.amshove.kluent.shouldThrow
 import org.amshove.kluent.withCause
 import org.apache.cxf.binding.soap.SoapFault
@@ -28,34 +31,31 @@ import org.apache.http.entity.ContentType
 import org.apache.kafka.clients.CommonClientConfigs
 import org.apache.kafka.clients.admin.AdminClient
 import org.apache.kafka.clients.producer.KafkaProducer
+import org.apache.kafka.clients.producer.ProducerConfig
+import org.apache.kafka.common.serialization.StringSerializer
 import org.eclipse.jetty.http.HttpStatus
 import org.eclipse.jetty.server.Server
 import org.spekframework.spek2.Spek
 import org.spekframework.spek2.style.specification.describe
 
-private val topics = listOf(
-    "aapen-altinn-dokmot-Mottatt",
-    "aapen-altinn-soning-Mottatt"
-)
-
 object OnlineBatchReceiverSoapITSpec : Spek({
     val simpleBatch = "/data/basic_data_batch.xml".getResource()
+    val topics = listOf(
+        "aapen-altinn-dokmot-Mottatt",
+        "aapen-altinn-soning-Mottatt"
+    )
 
+    val un = appConfig[KafkaConfig.username]
+    val ps = appConfig[KafkaConfig.password]
+    println(un + " :" + ps)
+    val prod = JAASCredential(un, ps)
     val kafkaEnvironment = KafkaEnvironment(
-        noOfBrokers = 3,
+        noOfBrokers = 1,
         topicNames = topics,
         withSchemaRegistry = true,
         withSecurity = true,
-        users = listOf(JAASCredential(appConfig[KafkaConfig.username], appConfig[KafkaConfig.password])),
-        autoStart = true
+        users = listOf(prod),
     )
-
-    val adminClient: AdminClient? = kafkaEnvironment.adminClient
-    adminClient.use {
-        topics.forEach { topic ->
-            it!!.createAcls(createProducerAcl(topic, appConfig[KafkaConfig.username])).all().get()
-        }
-    }
 
     val validUsername = "srvaltinnkanal"
     val validPassword = "supersecurepassword"
@@ -123,28 +123,82 @@ object OnlineBatchReceiverSoapITSpec : Spek({
                         )
                         .withBody(
                             """
-                            {
-                              "error": "invalid_client"
-                            }
+                    {
+                      "error": "invalid_client"
+                    }
                             """.trimIndent()
                         )
                 )
         )
     }
 
-    val kafkaProperties = KafkaConfig.config.apply {
+    var adminClient: AdminClient? = null
+//    println(adminClient.topics())
+//    adminClient.use {
+//        topics.forEach { topic ->
+//            it!!.createAcls(createProducerAcl(topic, un)).all().get()
+//        }
+//    }
+
+    var kafkaProperties: Properties? = null
+    kafkaProperties = KafkaConfig.config.apply {
         setProperty(CommonClientConfigs.BOOTSTRAP_SERVERS_CONFIG, kafkaEnvironment.brokersURL)
-        setProperty(AbstractKafkaAvroSerDeConfig.SCHEMA_REGISTRY_URL_CONFIG, kafkaEnvironment.schemaRegistry!!.url)
+        setProperty(AbstractKafkaSchemaSerDeConfig.SCHEMA_REGISTRY_URL_CONFIG, kafkaEnvironment.schemaRegistry!!.url)
         setProperty(CommonClientConfigs.REQUEST_TIMEOUT_MS_CONFIG, "1000")
+        setProperty(ProducerConfig.KEY_SERIALIZER_CLASS_CONFIG, StringSerializer::class.java.canonicalName)
+        setProperty(ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG, KafkaAvroSerializer::class.java.canonicalName)
     }
     val producer = KafkaProducer<String, ExternalAttachment>(kafkaProperties)
     val producer2 = KafkaProducer<String, ReceivedMessage>(kafkaProperties)
+    val producer3 = KafkaProducer<String, ReceivedMessage>(kafkaProperties)
     val localServerPort = 47859
     val server = Server(localServerPort).apply {
-        bootstrap(this, OnlineBatchReceiverSoapImpl(TopicService(), producer, producer2))
+        bootstrap(this, OnlineBatchReceiverSoapImpl(TopicService(), producer, producer2, producer3))
     }
 
     describe("SOAP requests") {
+        beforeGroup {
+            kafkaEnvironment.start()
+            adminClient = kafkaEnvironment.adminClient
+//            adminClient.use {
+//                topics.forEach { topic ->
+//                    it!!.createAcls(createProducerAcl(topic, un)).all().get()
+//                }
+//            }
+        }
+
+        context("basic verification") {
+            it("should have 1 zookeeper with status ok") {
+                kafkaEnvironment.zookeeper.send4LCommand(ZookeeperCMDRSP.RUOK.cmd) shouldBeEqualTo ZookeeperCMDRSP.RUOK.rsp
+            }
+
+            it("should have topic(s) '$topics' available") {
+                println(adminClient.topics())
+                adminClient.topics() shouldContainAll topics
+            }
+        }
+
+        it("should add producer ACL") {
+            adminClient?.let {
+                try {
+                    println(topics.first() + " to user " + un)
+                    it.createAcls(createProducerACL(mapOf(topics.first() to un))).all().get()
+                    true
+                } catch (e: Exception) {
+                    false
+                }
+            } ?: false shouldEqualTo true
+            adminClient?.let {
+                try {
+                    println(topics.last() + " to user " + un)
+                    it.createAcls(createProducerACL(mapOf(topics.last() to un))).all().get()
+                    true
+                } catch (e: Exception) {
+                    false
+                }
+            } ?: false shouldEqualTo true
+        }
+
         context("invalid username tokens") {
             val payload = createPayload(simpleBatch, "2896", "87")
             listOf(
@@ -238,35 +292,18 @@ object OnlineBatchReceiverSoapITSpec : Spek({
         }
     }
 
-    describe("self tests") {
-        listOf(
-            "is_alive" to APPLICATION_ALIVE,
-            "is_ready" to APPLICATION_READY
-        ).forEach { (path, expected) ->
-            context(path) {
-                val conn = URL("http://localhost:$localServerPort/internal/$path").let {
-                    it.openConnection() as HttpURLConnection
-                }
-
-                it("should return HTTP 200 OK") {
-                    conn.responseCode shouldEqual HttpURLConnection.HTTP_OK
-                }
-
-                it("should return $expected") {
-                    val response = Scanner(
-                        URL("http://localhost:$localServerPort/internal/$path").openStream(), "UTF-8"
-                    )
-                        .useDelimiter("\\n").next()
-                    response shouldEqual expected
-                }
-            }
-        }
-    }
-
     afterGroup {
         adminClient?.close()
         kafkaEnvironment.tearDown()
         producer.run {
+            flush()
+            close()
+        }
+        producer2.run {
+            flush()
+            close()
+        }
+        producer3.run {
             flush()
             close()
         }
