@@ -32,10 +32,9 @@ data class Environment(
         val maxBlockMs: String = config[Key("max.block.ms", stringType)],
         val retries: String = config[Key("retries", stringType)],
         var bootstrapServers: String = config[Key("bootstrap.servers", stringType)],
-        val groupId: String = config[Key("group.id", stringType)],
         val autoOffsetReset: String = config[Key("auto.offset.reset", stringType)],
-        var username: String = config[Key("serviceuser.username", stringType)],
-        var password: String = config[Key("serviceuser.password", stringType)],
+        var username: String = config[Key("srvaltinnkanal.username", stringType)],
+        var password: String = config[Key("srvaltinnkanal.password", stringType)],
         var schemaRegistryUrl: String = config[Key("schema.registry.url", stringType)],
         val saslMechanism: String = config[Key("sasl.mechanism", stringType)],
         val securityProtocol: String = config[Key("security.protocol", stringType)]
