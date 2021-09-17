@@ -23,11 +23,17 @@ object KafkaServiceSpec : Spek({
     val topicRepository = mock<TopicService>()
     val kafkaProducer = mock<Producer<String, ExternalAttachment>>()
     val kafkaProducer2 = mock<Producer<String, ReceivedMessage>>()
+    val kafkaProducer3 = mock<Producer<String, ReceivedMessage>>()
     val future = mock<Future<RecordMetadata>>()
     val recordMetadata = mock<RecordMetadata>()
     val captor = argumentCaptor<ProducerRecord<String, ExternalAttachment>>()
 
-    val onlineBatchReceiver = OnlineBatchReceiverSoapImpl(topicRepository, kafkaProducer, kafkaProducer2)
+    val onlineBatchReceiver = OnlineBatchReceiverSoapImpl(
+        topicRepository,
+        kafkaProducer,
+        kafkaProducer2,
+        kafkaProducer3
+    )
     val expectedTopics = listOf("topic1", "topic2")
 
     whenever(recordMetadata.serializedValueSize()).thenReturn(0)

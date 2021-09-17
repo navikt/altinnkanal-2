@@ -6,6 +6,7 @@ import javax.xml.ws.Endpoint
 import kotlin.reflect.jvm.jvmName
 import no.altinn.webservices.OnlineBatchReceiverSoap
 import no.nav.altinnkanal.config.KafkaConfig
+import no.nav.altinnkanal.config.gcpProducerConfig
 import no.nav.altinnkanal.services.TopicService
 import no.nav.altinnkanal.soap.OnlineBatchReceiverSoapImpl
 import no.nav.altinnkanal.soap.StsUntValidator
@@ -24,13 +25,15 @@ import org.eclipse.jetty.servlet.ServletContextHandler
 import org.eclipse.jetty.servlet.ServletHolder
 
 fun main() {
+    val environment = Environment()
     Server(8080).run {
         bootstrap(
             this,
             OnlineBatchReceiverSoapImpl(
                 TopicService(),
                 KafkaProducer(KafkaConfig.config),
-                KafkaProducer(KafkaConfig.config)
+                KafkaProducer(KafkaConfig.config),
+                KafkaProducer(gcpProducerConfig(environment.kafkaProducer))
             )
         )
         join()
