@@ -5,8 +5,8 @@ import io.prometheus.client.hotspot.DefaultExports
 import javax.xml.ws.Endpoint
 import kotlin.reflect.jvm.jvmName
 import no.altinn.webservices.OnlineBatchReceiverSoap
-import no.nav.altinnkanal.config.KafkaConfig
-import no.nav.altinnkanal.config.gcpProducerConfig
+import no.nav.altinnkanal.config.aivenProducerConfig
+import no.nav.altinnkanal.config.onPremProducerConfig
 import no.nav.altinnkanal.services.TopicService
 import no.nav.altinnkanal.soap.OnlineBatchReceiverSoapImpl
 import no.nav.altinnkanal.soap.StsUntValidator
@@ -31,9 +31,9 @@ fun main() {
             this,
             OnlineBatchReceiverSoapImpl(
                 TopicService(),
-                KafkaProducer(KafkaConfig.config),
-                KafkaProducer(KafkaConfig.config),
-                KafkaProducer(gcpProducerConfig(environment.kafkaProducer))
+                KafkaProducer(onPremProducerConfig(environment.kafkaProducer)),
+                KafkaProducer(onPremProducerConfig(environment.kafkaProducer)),
+                KafkaProducer(aivenProducerConfig(environment.kafkaProducer))
             )
         )
         join()

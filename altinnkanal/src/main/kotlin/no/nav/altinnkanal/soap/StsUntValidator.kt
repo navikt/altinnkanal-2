@@ -16,7 +16,7 @@ import io.ktor.http.isSuccess
 import java.util.concurrent.TimeUnit
 import kotlinx.coroutines.runBlocking
 import mu.KotlinLogging
-import no.nav.altinnkanal.config.StsConfig
+import no.nav.altinnkanal.Environment
 import no.nav.altinnkanal.decodeBase64
 import no.nav.altinnkanal.encodeBase64
 import org.apache.wss4j.common.ext.WSSecurityException
@@ -42,11 +42,12 @@ class StsUntValidator : UsernameTokenValidator() {
         val password = credential.usernametoken.password
         val credentialsBase64Encoded = "$username:$password".encodeBase64()
 
+        val env = Environment()
         // Lookup provided user in cache to avoid unnecessary LDAP lookups
         boundedCache.getIfPresent(username)?.run { if (password == this) return credential }
         try {
             val jwt = runBlocking {
-                httpClient.get<HttpStatement>(StsConfig.stsUrl) {
+                httpClient.get<HttpStatement>(env.stsConfig.stsUrl) {
                     header(HttpHeaders.Authorization, "Basic $credentialsBase64Encoded")
                 }.receive<HttpResponse>().let {
                     if (!it.status.isSuccess())
@@ -64,7 +65,7 @@ class StsUntValidator : UsernameTokenValidator() {
                 .decodeBase64()
                 .let { objectMapper.readTree(it).get("sub").asText() }
 
-            require(subject.equals(StsConfig.stsValidUsername, ignoreCase = true))
+            require(subject.equals(env.stsConfig.stsValidUsername, ignoreCase = true))
             boundedCache.put(username, password)
         } catch (e: Exception) {
             log.error(e) { }

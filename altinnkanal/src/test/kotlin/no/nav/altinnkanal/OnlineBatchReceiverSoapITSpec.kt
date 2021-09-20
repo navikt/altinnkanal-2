@@ -7,12 +7,11 @@ import com.github.tomakehurst.wiremock.client.WireMock.urlEqualTo
 import com.github.tomakehurst.wiremock.common.Slf4jNotifier
 import com.github.tomakehurst.wiremock.core.WireMockConfiguration.options
 import io.confluent.kafka.serializers.AbstractKafkaSchemaSerDeConfig
-import io.confluent.kafka.serializers.KafkaAvroSerializer
 import io.ktor.http.HttpHeaders
+import java.lang.System.setProperty
 import no.nav.altinnkanal.avro.ExternalAttachment
 import no.nav.altinnkanal.avro.ReceivedMessage
-import no.nav.altinnkanal.config.KafkaConfig
-import no.nav.altinnkanal.config.appConfig
+import no.nav.altinnkanal.config.onPremProducerConfig
 import no.nav.altinnkanal.services.TopicService
 import no.nav.altinnkanal.soap.OnlineBatchReceiverSoapImpl
 import no.nav.altinnkanal.soap.Status
@@ -31,7 +30,6 @@ import org.apache.kafka.clients.CommonClientConfigs
 import org.apache.kafka.clients.admin.AdminClient
 import org.apache.kafka.clients.producer.KafkaProducer
 import org.apache.kafka.clients.producer.ProducerConfig
-import org.apache.kafka.common.serialization.StringSerializer
 import org.eclipse.jetty.http.HttpStatus
 import org.eclipse.jetty.server.Server
 import org.spekframework.spek2.Spek
@@ -43,10 +41,8 @@ object OnlineBatchReceiverSoapITSpec : Spek({
         "aapen-altinn-dokmot-Mottatt",
         "aapen-altinn-soning-Mottatt"
     )
-
-    val un = appConfig[KafkaConfig.username]
-    val ps = appConfig[KafkaConfig.password]
-    val prod = JAASCredential(un, ps)
+    val env = Environment()
+    val prod = JAASCredential(env.application.username, env.application.password)
     val kafkaEnvironment = KafkaEnvironment(
         noOfBrokers = 1,
         topicNames = topics,
@@ -142,13 +138,12 @@ object OnlineBatchReceiverSoapITSpec : Spek({
         beforeGroup {
             kafkaEnvironment.start()
             adminClient = kafkaEnvironment.adminClient
-            val kafkaProperties = KafkaConfig.config.apply {
-                setProperty(CommonClientConfigs.BOOTSTRAP_SERVERS_CONFIG, kafkaEnvironment.brokersURL)
-                setProperty(AbstractKafkaSchemaSerDeConfig.SCHEMA_REGISTRY_URL_CONFIG, kafkaEnvironment.schemaRegistry!!.url)
-                setProperty(CommonClientConfigs.REQUEST_TIMEOUT_MS_CONFIG, "1000")
-                setProperty(CommonClientConfigs.CLIENT_ID_CONFIG, "altinnkanal")
-                setProperty(ProducerConfig.KEY_SERIALIZER_CLASS_CONFIG, StringSerializer::class.java.canonicalName)
-                setProperty(ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG, KafkaAvroSerializer::class.java.canonicalName)
+            val kafkaProperties = onPremProducerConfig(env.kafkaProducer).apply {
+                this[CommonClientConfigs.BOOTSTRAP_SERVERS_CONFIG] = kafkaEnvironment.brokersURL
+                this[AbstractKafkaSchemaSerDeConfig.SCHEMA_REGISTRY_URL_CONFIG] = kafkaEnvironment.schemaRegistry!!.url
+                this[CommonClientConfigs.REQUEST_TIMEOUT_MS_CONFIG] = "1000"
+                this[CommonClientConfigs.SECURITY_PROTOCOL_CONFIG] = "SASL_PLAINTEXT"
+                this[ProducerConfig.ENABLE_IDEMPOTENCE_CONFIG] = false
             }
 
             producer = KafkaProducer<String, ExternalAttachment>(kafkaProperties)
@@ -173,7 +168,7 @@ object OnlineBatchReceiverSoapITSpec : Spek({
         it("should add producer ACL") {
             adminClient?.let {
                 try {
-                    it.createAcls(createProducerACL(mapOf(topics.first() to un))).all().get()
+                    it.createAcls(createProducerACL(mapOf(topics.first() to env.application.username))).all().get()
                     true
                 } catch (e: Exception) {
                     false
@@ -181,7 +176,7 @@ object OnlineBatchReceiverSoapITSpec : Spek({
             } ?: false shouldEqualTo true
             adminClient?.let {
                 try {
-                    it.createAcls(createProducerACL(mapOf(topics.last() to un))).all().get()
+                    it.createAcls(createProducerACL(mapOf(topics.last() to env.application.username))).all().get()
                     true
                 } catch (e: Exception) {
                     false
