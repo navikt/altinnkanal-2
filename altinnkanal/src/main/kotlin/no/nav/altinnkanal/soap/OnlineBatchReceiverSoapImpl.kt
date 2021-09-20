@@ -12,6 +12,7 @@ import no.nav.altinnkanal.Metrics
 import no.nav.altinnkanal.avro.ExternalAttachment
 import no.nav.altinnkanal.avro.ReceivedMessage
 import no.nav.altinnkanal.batch.DataBatchExtractor
+import no.nav.altinnkanal.services.AivenTopiccService
 import no.nav.altinnkanal.services.TopicService
 import no.nav.altinnkanal.services.TopicService2
 import org.apache.kafka.clients.producer.Producer
@@ -31,6 +32,7 @@ class OnlineBatchReceiverSoapImpl(
     private val aivenProducer: Producer<String, ReceivedMessage>,
 ) : OnlineBatchReceiverSoap {
     private val topicService2 = TopicService2()
+    private val aivenService = AivenTopiccService()
     private val dataBatchExtractor = DataBatchExtractor()
 
     override fun receiveOnlineBatchExternalAttachment(
@@ -64,7 +66,8 @@ class OnlineBatchReceiverSoapImpl(
 
             val topics = topicService.getTopics(serviceCode!!, serviceEditionCode!!)
             val topics2 = topicService2.getTopics(serviceCode!!, serviceEditionCode!!)
-            if (topics == null && topics2 == null) {
+            val aivenTopics = aivenService.getTopics(serviceCode!!, serviceEditionCode!!)
+            if (topics == null && topics2 == null && aivenTopics == null) {
                 Metrics.requestsFailedMissing.inc()
                 with(Status.FAILED_DO_NOT_RETRY) {
                     log(logDetails!!)
@@ -95,6 +98,27 @@ class OnlineBatchReceiverSoapImpl(
                 val rm = dataBatchExtractor.toReceivedMessage(externalAttachment.getBatch(), callId)
                 val metadata = producer
                     .send(ProducerRecord(topic2, rm))
+                    .get()
+
+                val latency = requestLatency.observeDuration()
+                Metrics.requestSize.observe(metadata.serializedValueSize().toDouble())
+
+                val logDetailsCopy = logDetails!!.toMutableList()
+                logDetailsCopy.addAll(
+                    arrayOf(
+                        kv("latency", "${(latency * 1000).toLong()} ms"),
+                        kv("size", String.format("%.2f", metadata.serializedValueSize() / 1024f) + " KB"),
+                        kv("topic", metadata.topic()),
+                        kv("partition", metadata.partition()),
+                        kv("offset", metadata.offset())
+                    )
+                )
+                Status.OK.log(logDetailsCopy)
+            }
+            aivenTopics?.forEach { aivenTopic ->
+                val rm = dataBatchExtractor.toReceivedMessage(externalAttachment.getBatch(), callId)
+                val metadata = aivenProducer
+                    .send(ProducerRecord(aivenTopic, rm))
                     .get()
 
                 val latency = requestLatency.observeDuration()

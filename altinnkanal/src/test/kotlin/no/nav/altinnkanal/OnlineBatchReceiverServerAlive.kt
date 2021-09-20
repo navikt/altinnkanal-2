@@ -10,7 +10,6 @@ import com.nhaarman.mockitokotlin2.mock
 import io.ktor.http.HttpHeaders
 import java.net.HttpURLConnection
 import java.net.URL
-import java.util.Scanner
 import no.nav.altinnkanal.avro.ExternalAttachment
 import no.nav.altinnkanal.avro.ReceivedMessage
 import no.nav.altinnkanal.services.TopicService
@@ -136,10 +135,7 @@ object OnlineBatchReceiverServerAlive : Spek({
                 }
 
                 it("should return $expected") {
-                    val response = Scanner(
-                        URL("http://localhost:$localServerPort/internal/$path").openStream(), "UTF-8"
-                    )
-                        .useDelimiter("\\n").next()
+                    val response = URL("http://localhost:$localServerPort/internal/$path").readText().trim()
                     response shouldEqual expected
                 }
             }
