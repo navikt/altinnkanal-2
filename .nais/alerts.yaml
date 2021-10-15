@@ -32,8 +32,3 @@ spec:
       for: 3m
       action: "Mottatt søknad(er) om `Forsendelse av bedriftsundersøkelse` i altinnkanal-2. App for utsending er tatt ned. Start opp `bedrift-undersokelse` innen 7 dager for å gjøre utsending av melding(er)."
       severity: danger
-    - alert: altinnkanal-2 mottatt barnehageliste
-      expr: changes(altinnkanal_requests_success{sc="4795",sec="1"}[1h]) > 0
-      for: 3m
-      action: "Mottatt barnehageliste i kanalen, sjekk om melding gikk ok inn til MQ"
-      severity: warning

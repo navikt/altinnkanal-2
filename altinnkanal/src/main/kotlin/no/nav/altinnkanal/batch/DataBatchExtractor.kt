@@ -27,15 +27,12 @@ class DataBatchExtractor {
                 if (eventType == XMLEvent.START_ELEMENT) {
                     when (xmlReader.localName) {
                         "DataUnit" -> {
-                            receivedMessage.setArchiveReference(
-                                xmlReader.getAttributeValue(null, "archiveReference")
-                            )
-                            receivedMessage.setArchiveTimeStamp(
-                                xmlReader.getAttributeValue(null, "archiveTimeStamp")
-                            )
-                            receivedMessage.setReportee(
-                                xmlReader.getAttributeValue(null, "reportee")
-                            )
+                            receivedMessage.setArchiveReference(xmlReader
+                                .getAttributeValue(null, "archiveReference"))
+                            receivedMessage.setArchiveTimeStamp(xmlReader
+                                .getAttributeValue(null, "archiveTimeStamp"))
+                            receivedMessage.setReportee(xmlReader
+                                .getAttributeValue(null, "reportee"))
                         }
                         "ServiceCode" -> receivedMessage.setServiceCode(xmlReader.elementText)
                         "ServiceEditionCode" -> receivedMessage.setServiceEditionCode(xmlReader.elementText)
@@ -46,18 +43,14 @@ class DataBatchExtractor {
                         }
                         "Attachment" -> {
                             val attachment = Attachment()
-                            attachment.setFilename(
-                                xmlReader.getAttributeValue(null, "fileName")
-                            )
-                            attachment.setAttachmentType(
-                                xmlReader.getAttributeValue(null, "attachmentType")
-                            )
-                            attachment.setAttachmentTypeName(
-                                xmlReader.getAttributeValue(null, "attachmentTypeName") ?: ""
-                            )
-                            attachment.setEncrypted(
-                                xmlReader.getAttributeValue(null, "isEncrypted")!!.toBoolean()
-                            )
+                            attachment.setFilename(xmlReader
+                                .getAttributeValue(null, "fileName"))
+                            attachment.setAttachmentType(xmlReader
+                                .getAttributeValue(null, "attachmentType"))
+                            attachment.setAttachmentTypeName(xmlReader
+                                .getAttributeValue(null, "attachmentTypeName") ?: "")
+                            attachment.setEncrypted(xmlReader
+                                .getAttributeValue(null, "isEncrypted")!!.toBoolean())
                             attachment.setDataBase64(xmlReader.elementText)
                             attachments.add(attachment)
                         }

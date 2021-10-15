@@ -19,14 +19,8 @@ object OnlineBatchReceiverSoapSpec : Spek({
     val topicService = mock<TopicService>()
     val kafkaProducer = mock<Producer<String, ExternalAttachment>>()
     val kafkaProducer2 = mock<Producer<String, ReceivedMessage>>()
-    val avienProducer = mock<Producer<String, ReceivedMessage>>()
     val metadataFuture = mock<Future<RecordMetadata>>()
-    val soapService = OnlineBatchReceiverSoapImpl(
-        topicService,
-        kafkaProducer,
-        kafkaProducer2,
-        avienProducer,
-    )
+    val soapService = OnlineBatchReceiverSoapImpl(topicService, kafkaProducer, kafkaProducer2)
     val simpleBatch = "/data/basic_data_batch.xml".getResource()
 
     whenever(metadataFuture.get()).thenReturn(mock())

@@ -13,7 +13,7 @@ on:
       - '*.md'
 
 env:
-  IMAGE: ghcr.io/${{ github.repository }}/altinnkanal-2:${{ github.sha }}
+  IMAGE: docker.pkg.github.com/${{ github.repository }}/altinnkanal-2:${{ github.sha }}
 
 jobs:
   test:
@@ -68,7 +68,7 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           docker build . --pull --tag ${IMAGE}
-          echo "$GITHUB_TOKEN" | docker login ghcr.io --username "$GITHUB_REPOSITORY" --password-stdin
+          echo "$GITHUB_TOKEN" | docker login --username "$GITHUB_REPOSITORY" --password-stdin https://docker.pkg.github.com
           docker push ${IMAGE}
 
   deploy-dev:

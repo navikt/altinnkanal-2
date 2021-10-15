@@ -1,6 +1,0 @@
-routes:
-# TT02 Test inbound
-  - topics:
-      - alf.aapen-altinn-test-melding-mottatt
-    serviceCode: 4765
-    serviceEditionCode: 2
