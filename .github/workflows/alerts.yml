@@ -6,22 +6,22 @@ on:
       - '.github/workflows/alerts.yml'
 
 jobs:
-  apply-alerts-dev:
-    name: Apply alerts to NAIS dev
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v1
-      - name: deploy to dev-fss
-        uses: nais/deploy/actions/deploy@v1
-        env:
-          APIKEY: ${{ secrets.NAIS_DEPLOY_APIKEY }}
-          CLUSTER: dev-fss
-          RESOURCE: .nais/alerts.yaml
+#  apply-alerts-dev:
+#    name: Apply alerts to NAIS dev
+#    runs-on: ubuntu-latest
+#    steps:
+#      - name: Checkout code
+#        uses: actions/checkout@v1
+#      - name: deploy to dev-fss
+#        uses: nais/deploy/actions/deploy@v1
+#        env:
+#          APIKEY: ${{ secrets.NAIS_DEPLOY_APIKEY }}
+#          CLUSTER: dev-fss
+#          RESOURCE: .nais/alerts.yaml
 
   apply-alerts-prod:
     name: Apply alerts to NAIS prod
-    needs: apply-alerts-dev
+#    needs: apply-alerts-dev
     runs-on: ubuntu-latest
     if: github.ref == 'refs/heads/master'
     steps:
