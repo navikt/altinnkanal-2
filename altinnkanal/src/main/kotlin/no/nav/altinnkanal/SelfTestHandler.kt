@@ -1,9 +1,10 @@
 package no.nav.altinnkanal
 
-import javax.servlet.http.HttpServletRequest
-import javax.servlet.http.HttpServletResponse
 import org.eclipse.jetty.server.Request
 import org.eclipse.jetty.server.handler.AbstractHandler
+
+import javax.servlet.http.HttpServletRequest
+import javax.servlet.http.HttpServletResponse
 
 const val APPLICATION_ALIVE = "Application is alive"
 const val APPLICATION_READY = "Application is ready"
