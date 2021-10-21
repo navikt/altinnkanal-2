@@ -7,6 +7,7 @@ import java.io.InputStreamReader
 
 private const val PATH = "/routing.yaml"
 private const val PATH_V2 = "/routingv2.yaml"
+private const val AIVEN_PATH = "/aiven-routing.yaml"
 
 private val objectMapper = ObjectMapper(YAMLFactory()).registerKotlinModule()
 
@@ -18,4 +19,7 @@ data class TopicRouting(val routes: List<TopicRoute>) {
 }
 
 fun loadTopicRoutingV2(path: String = PATH_V2): TopicRouting = objectMapper
+    .readValue(InputStreamReader(TopicRouting::class.java.getResourceAsStream(path)), TopicRouting::class.java)
+
+fun loadAivenRouting(path: String = AIVEN_PATH): TopicRouting = objectMapper
     .readValue(InputStreamReader(TopicRouting::class.java.getResourceAsStream(path)), TopicRouting::class.java)

@@ -43,3 +43,5 @@ spec:
       memory: 200Mi
   vault:
     enabled: true
+  kafka:
+    pool: {{ kafka-pool }}
