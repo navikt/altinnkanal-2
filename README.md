@@ -38,4 +38,4 @@ with startup scripts under:
 should be available at: http://localhost:8080/webservices/OnlineBatchReceiverSoap
 
 ### Contact us
-NAV employees may reach us on Slack in the channel #team_altinn_difi.
+NAV employees may reach us on Slack in the channel #team_altinn
