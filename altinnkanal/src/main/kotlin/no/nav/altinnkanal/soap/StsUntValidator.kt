@@ -8,21 +8,21 @@ import io.ktor.client.HttpClient
 import io.ktor.client.engine.apache.Apache
 import io.ktor.client.request.get
 import io.ktor.client.request.header
-import io.ktor.client.request.url
-import io.ktor.client.response.HttpResponse
-import io.ktor.client.response.readText
+import io.ktor.client.statement.HttpResponse
+import io.ktor.client.statement.HttpStatement
+import io.ktor.client.statement.readText
 import io.ktor.http.HttpHeaders
 import io.ktor.http.isSuccess
+import java.util.concurrent.TimeUnit
 import kotlinx.coroutines.runBlocking
 import mu.KotlinLogging
-import no.nav.altinnkanal.config.StsConfig
+import no.nav.altinnkanal.Environment
 import no.nav.altinnkanal.decodeBase64
 import no.nav.altinnkanal.encodeBase64
 import org.apache.wss4j.common.ext.WSSecurityException
 import org.apache.wss4j.dom.handler.RequestData
 import org.apache.wss4j.dom.validate.Credential
 import org.apache.wss4j.dom.validate.UsernameTokenValidator
-import java.util.concurrent.TimeUnit
 
 private val log = KotlinLogging.logger { }
 private val boundedCache: Cache<String, String> = Caffeine.newBuilder()
@@ -42,18 +42,19 @@ class StsUntValidator : UsernameTokenValidator() {
         val password = credential.usernametoken.password
         val credentialsBase64Encoded = "$username:$password".encodeBase64()
 
+        val env = Environment()
         // Lookup provided user in cache to avoid unnecessary LDAP lookups
         boundedCache.getIfPresent(username)?.run { if (password == this) return credential }
         try {
             val jwt = runBlocking {
-                val response = httpClient.get<HttpResponse> {
-                    url(StsConfig.stsUrl)
+                httpClient.get<HttpStatement>(env.stsConfig.stsUrl) {
                     header(HttpHeaders.Authorization, "Basic $credentialsBase64Encoded")
-                }
-                if (!response.status.isSuccess())
-                    throw RuntimeException("Error response from STS: ${response.status.value} ${response.status.description}")
+                }.receive<HttpResponse>().let {
+                    if (!it.status.isSuccess())
+                        throw RuntimeException("Error response from STS: ${it.status.value} ${it.status.description}")
 
-                response.readText()
+                    it.readText()
+                }
             }
 
             val subject = objectMapper.readTree(jwt)
@@ -64,7 +65,7 @@ class StsUntValidator : UsernameTokenValidator() {
                 .decodeBase64()
                 .let { objectMapper.readTree(it).get("sub").asText() }
 
-            require(subject.equals(StsConfig.stsValidUsername, ignoreCase = true))
+            require(subject.equals(env.stsConfig.stsValidUsername, ignoreCase = true))
             boundedCache.put(username, password)
         } catch (e: Exception) {
             log.error(e) { }
