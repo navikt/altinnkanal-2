@@ -1,0 +1,263 @@
+apiVersion: kafka.nais.io/v1
+kind: Topic
+metadata:
+  name: aapen-altinn-dokmot-mottatt
+  namespace: alf
+  labels:
+    team: alf
+  annotations:
+    dcat.data.nav.no/title: "Flere typer meldinger på dette topic, inntektsmelding, mentor, ekspertbistand, inkluderingstilskudd, m.m."
+    dcat.data.nav.no/description: "Informasjonen er fylt ut i Altinn portal, eller maskininnsending via altinn.no. og overført inn til NAV."
+    dcat.data.nav.no/catalog: "internal"
+spec:
+  pool: {{kafka-pool}}
+  config:
+    cleanupPolicy: delete
+    minimumInSyncReplicas: 1
+    partitions: 1
+    replication: 3
+    retentionBytes: -1
+    retentionHours: 168
+  acl:
+    - team: alf
+      application: altinnkanal-2
+      access: readwrite
+    - team: teamdokumenthandtering
+      application: dokmotaltin
+      access: read
+
+#  --
+#
+#apiVersion: kafka.nais.io/v1
+#kind: Topic
+#metadata:
+#  name: aapen-altinn-oppfolgingsplan-mottatt
+#  namespace: alf
+#  labels:
+#    team: alf
+#  annotations:
+#    dcat.data.nav.no/title: "Oppfølginsplan"
+#    dcat.data.nav.no/description: "Informasjonen er fylt ut på altinn.no og sendt inn til NAV av personer som har aksess til tjenesten i Altinn."
+#    dcat.data.nav.no/catalog: "internal"
+#spec:
+#  pool: {{kafka-pool}}
+#  config:
+#    cleanupPolicy: delete
+#    minimumInSyncReplicas: 1
+#    partitions: 1
+#    replication: 3
+#    retentionBytes: -1
+#    retentionHours: 168
+#  acl:
+#    - team: alf
+#      application: altinnkanal-2
+#      access: readwrite
+#    - team: alf
+#      application: altinn-metrics
+#      access: read
+#
+#  --
+#
+#apiVersion: kafka.nais.io/v1
+#kind: Topic
+#metadata:
+#  name: aapen-altinn-maalekort-mottatt
+#  namespace: alf
+#  labels:
+#    team: alf
+#  annotations:
+#    dcat.data.nav.no/title: "Målekort fra NAV enhet"
+#    dcat.data.nav.no/description: "Informasjonen er maskininnsending via altinn.no og sendt inn til NAV."
+#    dcat.data.nav.no/catalog: "internal"
+#spec:
+#  pool: {{kafka-pool}}
+#  config:
+#    cleanupPolicy: delete
+#    minimumInSyncReplicas: 1
+#    partitions: 1
+#    replication: 3
+#    retentionBytes: -1
+#    retentionHours: 168
+#  acl:
+#    - team: alf
+#      application: altinnkanal-2
+#      access: readwrite
+#    - team: alf
+#      application: altinn-metrics
+#      access: read
+#
+#  --
+#
+#apiVersion: kafka.nais.io/v1
+#kind: Topic
+#metadata:
+#  name: aapen-altinn-barnehageliste-mottatt
+#  namespace: alf
+#  labels:
+#    team: alf
+#  annotations:
+#    dcat.data.nav.no/title: "Barnehageliste fra kommune"
+#    dcat.data.nav.no/description: "Informasjonen er maskininnsending via altinn.no og sendt inn til NAV."
+#    dcat.data.nav.no/catalog: "internal"
+#spec:
+#  pool: {{kafka-pool}}
+#  config:
+#    cleanupPolicy: delete
+#    minimumInSyncReplicas: 1
+#    partitions: 1
+#    replication: 3
+#    retentionBytes: -1
+#    retentionHours: 168
+#  acl:
+#    - team: alf
+#      application: altinnkanal-2
+#      access: readwrite
+#    - team: alf
+#      application: altinn-metrics
+#      access: read
+#
+#  --
+#
+#apiVersion: kafka.nais.io/v1
+#kind: Topic
+#metadata:
+#  name: aapen-altinn-dokmot-mottatt
+#  namespace: alf
+#  labels:
+#    team: alf
+#  annotations:
+#    dcat.data.nav.no/title: "Flere typer meldinger på dette topic, inntektsmelding, mentor, ekspertbistand, inkluderingstilskudd, m.m."
+#    dcat.data.nav.no/description: "Informasjonen er fylt ut i Altinn portal, eller maskininnsending via altinn.no. og overført inn til NAV."
+#    dcat.data.nav.no/catalog: "internal"
+#spec:
+#  pool: {{kafka-pool}}
+#  config:
+#    cleanupPolicy: delete
+#    minimumInSyncReplicas: 1
+#    partitions: 1
+#    replication: 3
+#    retentionBytes: -1
+#    retentionHours: 168
+#  acl:
+#    - team: alf
+#      application: altinnkanal-2
+#      access: readwrite
+#    - team: alf
+#      application: altinn-metrics
+#      access: read
+#
+#  --
+#
+#apiVersion: kafka.nais.io/v1
+#kind: Topic
+#metadata:
+#  name: aapen-altinn-hyppigutbetaling-mottatt
+#  namespace: alf
+#  labels:
+#    team: alf
+#  annotations:
+#    dcat.data.nav.no/title: "Søknad om hyppigere refusjonsubetaling fra NAV"
+#    dcat.data.nav.no/description: "Informasjonen er fylt ut i Altinn portal og sendt inn til NAV."
+#    dcat.data.nav.no/catalog: "internal"
+#spec:
+#  pool: {{kafka-pool}}
+#  config:
+#    cleanupPolicy: delete
+#    minimumInSyncReplicas: 1
+#    partitions: 1
+#    replication: 3
+#    retentionBytes: -1
+#    retentionHours: 168
+#  acl:
+#    - team: alf
+#      application: altinnkanal-2
+#      access: readwrite
+#    - team: alf
+#      application: altinn-metrics
+#      access: read
+#
+#  --
+#
+#apiVersion: kafka.nais.io/v1
+#kind: Topic
+#metadata:
+#  name: aapen-altinn-bedrundersokelse-mottatt
+#  namespace: alf
+#  labels:
+#    team: alf
+#  annotations:
+#    dcat.data.nav.no/title: "Utsending av bedriftsundersøkelse mottatt fra unik leverandør"
+#    dcat.data.nav.no/description: "Informasjonen er maskininnsending via altinn.no og sendt inn til NAV."
+#    dcat.data.nav.no/catalog: "internal"
+#spec:
+#  pool: {{kafka-pool}}
+#  config:
+#    cleanupPolicy: delete
+#    minimumInSyncReplicas: 1
+#    partitions: 1
+#    replication: 3
+#    retentionBytes: -1
+#    retentionHours: 168
+#  acl:
+#    - team: alf
+#      application: altinnkanal-2
+#      access: readwrite
+#    - team: alf
+#      application: altinn-metrics
+#      access: read
+#
+#  --
+#
+#apiVersion: kafka.nais.io/v1
+#kind: Topic
+#metadata:
+#  name: aapen-altinn-bankkontonummer-mottatt-v2
+#  namespace: alf
+#  labels:
+#    team: alf
+#  annotations:
+#    dcat.data.nav.no/title: "Innsending av ny(e) bankkontonummer(e) fra juridisk enhet til refusjonsutbetaling"
+#    dcat.data.nav.no/description: "Informasjonen er fylt ut i Altinn portal og sendt inn til NAV."
+#    dcat.data.nav.no/catalog: "internal"
+#spec:
+#  pool: {{kafka-pool}}
+#  config:
+#    cleanupPolicy: delete
+#    minimumInSyncReplicas: 1
+#    partitions: 1
+#    replication: 3
+#    retentionBytes: -1
+#    retentionHours: 168
+#  acl:
+#    - team: alf
+#      application: altinnkanal-2
+#      access: readwrite
+#    - team: alf
+#      application: altinn-metrics
+#      access: read
+#
+#  --
+#
+#apiVersion: kafka.nais.io/v1
+#kind: Topic
+#metadata:
+#  name: aapen-altinn-metrics-mottatt-v2
+#  namespace: alf
+#  labels:
+#    team: alf
+#spec:
+#  pool: {{kafka-pool}}
+#  config:
+#    cleanupPolicy: delete
+#    minimumInSyncReplicas: 1
+#    partitions: 1
+#    replication: 3
+#    retentionBytes: -1
+#    retentionHours: 168
+#  acl:
+#    - team: alf
+#      application: altinnkanal-2
+#      access: readwrite
+#    - team: alf
+#      application: altinn-metrics
+#      access: read

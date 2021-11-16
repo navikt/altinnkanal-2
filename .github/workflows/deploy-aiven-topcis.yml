@@ -1,0 +1,20 @@
+name: Deploy topics to dev
+
+on:
+  push:
+    paths:
+      - '.nais/aiven-topics.yaml'
+      - '.github/workflows/deploy-aiven-topic.yml'
+
+jobs:
+  deploy-topics-dev:
+    name: Deploy topics to dev
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@master
+      - uses: nais/deploy/actions/deploy@master
+        env:
+          APIKEY: ${{ secrets.NAIS_DEPLOY_APIKEY }}
+          CLUSTER: dev-gcp
+          RESOURCE: .nais/aiven-topics.yaml
+          VARS: .nais/config-dev.yaml
