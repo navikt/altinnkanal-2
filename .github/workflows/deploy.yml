@@ -5,11 +5,15 @@ on:
     paths-ignore:
       - '.nais/alerts.yaml'
       - '.github/workflows/alerts.yml'
+      - '.nais/aiven-topics.yaml'
+      - '.github/workflows/deploy-aiven-topcis.yml'
       - '*.md'
   pull_request:
     paths-ignore:
       - '.nais/alerts.yaml'
       - '.github/workflows/alerts.yml'
+      - '.nais/aiven-topics.yaml'
+      - '.github/workflows/deploy-aiven-topcis.yml'
       - '*.md'
 
 env:
