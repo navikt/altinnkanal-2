@@ -18,3 +18,17 @@ jobs:
           CLUSTER: dev-gcp
           RESOURCE: .nais/aiven-topics.yaml
           VARS: .nais/config-dev.yaml
+
+#  deploy-topcis-prod:
+#    name: Deploy topics to prod
+#    needs: deploy-topics-dev
+#    if: github.ref == 'refs/heads/master'
+#    runs-on: ubuntu-latest
+#    steps:
+#      - uses: actions/checkout@master
+#      - uses: nais/deploy/actions/deploy@master
+#        env:
+#          APIKEY: ${{ secrets.NAIS_DEPLOY_APIKEY }}
+#          CLUSTER: prod-gcp
+#          RESOURCE: .nais/aiven-topics.yaml
+#          VARS: .nais/config-prod.yaml
