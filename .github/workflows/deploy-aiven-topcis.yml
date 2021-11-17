@@ -4,7 +4,7 @@ on:
   push:
     paths:
       - '.nais/aiven-topics.yaml'
-      - '.github/workflows/deploy-aiven-topic.yml'
+      - '.github/workflows/deploy-aiven-topics.yml'
 
 jobs:
   deploy-topics-dev:
