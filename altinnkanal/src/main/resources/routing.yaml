@@ -44,13 +44,11 @@ routes:
     serviceEditionCode: 3
 # Melding om unndragelse
   - topics:
-    - aapen-altinn-dokmot-Mottatt
     - aapen-altinn-unndragelse-Mottatt
     serviceCode: 5161
     serviceEditionCode: 1
 # Melding om soning
   - topics:
-    - aapen-altinn-dokmot-Mottatt
     - aapen-altinn-soning-Mottatt
     serviceCode: 5152
     serviceEditionCode: 1
