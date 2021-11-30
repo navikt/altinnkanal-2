@@ -9,6 +9,8 @@ routes:
       - alf.aapen-altinn-dokmot-mottatt
     serviceCode: 4936
     serviceEditionCode: 1
+    metadata:
+      ytelse: "ytelse"
   - topics:
       - alf.aapen-altinn-dokmot-mottatt
     serviceCode: 4936

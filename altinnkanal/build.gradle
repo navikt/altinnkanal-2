@@ -84,7 +84,6 @@ test {
 
 repositories {
     mavenCentral()
-    maven { url "https://dl.bintray.com/kotlin/ktor" }
     maven {
         name 'Confluent maven repo'
         url 'https://packages.confluent.io/maven/'

@@ -12,6 +12,7 @@ import no.nav.altinnkanal.Metrics
 import no.nav.altinnkanal.avro.ExternalAttachment
 import no.nav.altinnkanal.avro.ReceivedMessage
 import no.nav.altinnkanal.batch.DataBatchExtractor
+import no.nav.altinnkanal.metadata.XmlMetaData
 import no.nav.altinnkanal.services.AivenTopiccService
 import no.nav.altinnkanal.services.TopicService
 import no.nav.altinnkanal.services.TopicService2
@@ -34,6 +35,7 @@ class OnlineBatchReceiverSoapImpl(
     private val topicService2 = TopicService2()
     private val aivenService = AivenTopiccService()
     private val dataBatchExtractor = DataBatchExtractor()
+    private val xmlMetaData = XmlMetaData()
 
     override fun receiveOnlineBatchExternalAttachment(
         username: String?,
@@ -117,6 +119,10 @@ class OnlineBatchReceiverSoapImpl(
             }
             aivenTopics?.forEach { aivenTopic ->
                 val rm = dataBatchExtractor.toReceivedMessage(externalAttachment.getBatch(), callId)
+                val metadataConfig = aivenService.getMetaData(rm.getServiceCode(), rm.getServiceEditionCode())
+                if (metadataConfig.isNotEmpty()) {
+                    xmlMetaData.extractDataFromMessage(rm, metadataConfig)
+                }
                 val metadata = aivenProducer
                     .send(ProducerRecord(aivenTopic, rm))
                     .get()

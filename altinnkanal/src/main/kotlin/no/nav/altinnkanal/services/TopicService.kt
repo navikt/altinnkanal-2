@@ -24,4 +24,7 @@ open class AivenTopiccService constructor(config: TopicRouting = loadAivenRoutin
 
     open fun getTopics(serviceCode: String, serviceEditionCode: String): List<String>? =
         routes.find { it.serviceCode == serviceCode && it.serviceEditionCode == serviceEditionCode }?.topics
+
+    open fun getMetaData(serviceCode: String, serviceEditionCode: String): Map<String, String> =
+        routes.find { it.serviceCode == serviceCode && it.serviceEditionCode == serviceEditionCode }?.metadata ?: emptyMap()
 }
