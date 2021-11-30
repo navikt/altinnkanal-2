@@ -21,7 +21,7 @@ open class XmlMetaData {
             val doc: Document = documentBuilder.parse(InputSource(xmlMessage.reader()))
             val metadata = mutableMapOf<String, String>()
             metaData.forEach {
-                logger.info { "Extracting data to metadata for path $it" }
+                logger.info { "Extracting data on service ${message.getServiceCode()}/${message.getServiceEditionCode()} to metadata for path $it" }
                 val xpath = it.value
                 if (xpath.contains("/")) {
                     metadata[it.key] = xPath.evaluate("/$xpath/text()", doc)

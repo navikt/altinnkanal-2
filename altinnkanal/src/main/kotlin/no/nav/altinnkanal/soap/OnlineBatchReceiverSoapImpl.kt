@@ -121,6 +121,7 @@ class OnlineBatchReceiverSoapImpl(
                 val rm = dataBatchExtractor.toReceivedMessage(externalAttachment.getBatch(), callId)
                 val metadataConfig = aivenService.getMetaData(rm.getServiceCode(), rm.getServiceEditionCode())
                 if (metadataConfig.isNotEmpty()) {
+                    log.debug { "Found metadata config on service ${rm.getServiceCode()}/${rm.getServiceEditionCode()}" }
                     xmlMetaData.extractDataFromMessage(rm, metadataConfig)
                 }
                 val metadata = aivenProducer
