@@ -23,7 +23,7 @@ spec:
       application: altinnkanal-2
       access: readwrite
     - team: teamdokumenthandtering
-      application: dokmotaltin
+      application: dokmotaltinn
       access: read
 
 #  --
