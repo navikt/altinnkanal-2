@@ -25,6 +25,9 @@ spec:
     - team: teamdokumenthandtering
       application: dokmotaltinn
       access: read
+    - team: teamdokumenthandtering
+      application: naisclioffset
+      access: read
 
 #  --
 #
