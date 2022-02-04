@@ -26,6 +26,7 @@ fun onPremProducerConfig(kafkaProp: Environment.KafkaProducer) = mutableMapOf<St
     ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG to KafkaAvroSerializer::class.java.canonicalName,
     ProducerConfig.MAX_IN_FLIGHT_REQUESTS_PER_CONNECTION to kafkaProp.maxInFlightRequest,
     ProducerConfig.MAX_REQUEST_SIZE_CONFIG to 15728640,
+    ProducerConfig.COMPRESSION_TYPE_CONFIG to "snappy",
     SaslConfigs.SASL_JAAS_CONFIG to "org.apache.kafka.common.security.plain.PlainLoginModule required " +
         "username=\"${kafkaProp.username}\" password=\"${kafkaProp.password}\";",
     AbstractKafkaSchemaSerDeConfig.SCHEMA_REGISTRY_URL_CONFIG to kafkaProp.schemaRegistryUrl,
