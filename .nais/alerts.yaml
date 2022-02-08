@@ -17,6 +17,18 @@ spec:
       action: "Sjekk applikasjon altinnkanal-2 i clusteret, start re-deploy fra github hvis den er borte"
       sla: respond within 1h, during office hours
       severity: danger
+    - alert: altinnkanal-2 error oppstod under prosessering av melding fra Altinn
+      expr: changes(altinnkanal_requests_error_total[1h]) > 0
+      for: 3m
+      action: "Sjekk log for feil for app altinnkanal-2 i clusteret"
+      sla: respond within 2-3 days, message might be in error queue at altinn
+      severity: danger
+    - alert: altinnkanal-2 fant ingen rute av melding fra Altinn
+      expr: changes(altinnkanal_requests_missing_total[1h]) > 0
+      for: 3m
+      action: "Sjekk log for feil for app altinnkanal-2 i clusteret"
+      sla: respond within 2-3 days, message is in error queue at altinn
+      severity: danger
     - alert: altinnkanal-2 ingen mottatt melding
       expr: ( 6 < hour() < 15 ) and ( 0 < day_of_week() < 6) and (sum(changes(altinnkanal_requests_total[10m])) < 1)
       for: 3m
