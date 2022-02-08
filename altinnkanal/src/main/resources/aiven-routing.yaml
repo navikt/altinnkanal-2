@@ -4,3 +4,22 @@ routes:
       - alf.aapen-altinn-test-melding-mottatt
     serviceCode: 4765
     serviceEditionCode: 2
+# Inntektsskjema
+  - topics:
+      - alf.aapen-altinn-dokmot-mottatt
+    serviceCode: 4936
+    serviceEditionCode: 1
+    metadata:
+      ytelse: "ytelse"
+  - topics:
+      - alf.aapen-altinn-dokmot-mottatt
+    serviceCode: 4936
+    serviceEditionCode: 2
+    metadata:
+      ytelse: "ytelse"
+  - topics:
+      - alf.aapen-altinn-dokmot-mottatt
+    serviceCode: 4936
+    serviceEditionCode: 3
+    metadata:
+      ytelse: "ytelse"
