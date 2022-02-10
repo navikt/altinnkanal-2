@@ -23,3 +23,23 @@ routes:
     serviceEditionCode: 3
     metadata:
       ytelse: "ytelse"
+  # Lønnstilskudd
+  - topics:
+      - alf.aapen-altinn-dokmot-mottatt
+    serviceCode: 5159
+    serviceEditionCode: 1
+  # Inkluderingstilskudd
+  - topics:
+      - alf.aapen-altinn-dokmot-mottatt
+    serviceCode: 5212
+    serviceEditionCode: 1
+  # Mentortilskudd
+  - topics:
+      - alf.aapen-altinn-dokmot-mottatt
+    serviceCode: 5216
+    serviceEditionCode: 1
+  # Ekspertbistand
+  - topics:
+      - alf.aapen-altinn-dokmot-mottatt
+    serviceCode: 5384
+    serviceEditionCode: 1
