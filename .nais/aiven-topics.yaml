@@ -54,9 +54,6 @@ spec:
     - team: alf
       application: altinn-metrics
       access: read
-    - team: alf
-      application: altinn-metrics-cronjob
-      access: read
 
 #  --
 #
