@@ -7,39 +7,83 @@ routes:
 # Inntektsskjema
   - topics:
       - alf.aapen-altinn-dokmot-mottatt
+      - alf.aapen-altinn-metrics-mottatt
     serviceCode: 4936
     serviceEditionCode: 1
     metadata:
       ytelse: "ytelse"
   - topics:
       - alf.aapen-altinn-dokmot-mottatt
+      - alf.aapen-altinn-metrics-mottatt
     serviceCode: 4936
     serviceEditionCode: 2
     metadata:
       ytelse: "ytelse"
   - topics:
       - alf.aapen-altinn-dokmot-mottatt
+      - alf.aapen-altinn-metrics-mottatt
     serviceCode: 4936
     serviceEditionCode: 3
     metadata:
       ytelse: "ytelse"
-  # Lønnstilskudd
+# Lønnstilskudd
   - topics:
       - alf.aapen-altinn-dokmot-mottatt
     serviceCode: 5159
     serviceEditionCode: 1
-  # Inkluderingstilskudd
+# Inkluderingstilskudd
   - topics:
       - alf.aapen-altinn-dokmot-mottatt
+      - alf.aapen-altinn-metrics-mottatt
     serviceCode: 5212
     serviceEditionCode: 1
-  # Mentortilskudd
+# Mentortilskudd
   - topics:
       - alf.aapen-altinn-dokmot-mottatt
+      - alf.aapen-altinn-metrics-mottatt
     serviceCode: 5216
     serviceEditionCode: 1
-  # Ekspertbistand
+# Ekspertbistand
   - topics:
       - alf.aapen-altinn-dokmot-mottatt
+      - alf.aapen-altinn-metrics-mottatt
     serviceCode: 5384
+    serviceEditionCode: 1
+# Endre bankkontonummer
+  - topics:
+      - alf.aapen-altinn-metrics-mottatt
+    serviceCode: 2896
+    serviceEditionCode: 87
+# Oppfølgingsplan
+  - topics:
+      - alf.aapen-altinn-metrics-mottatt
+    serviceCode: 2913
+    serviceEditionCode: 2
+  - topics:
+      - alf.aapen-altinn-metrics-mottatt
+    serviceCode: 2913
+    serviceEditionCode: 3
+  - topics:
+      - alf.aapen-altinn-metrics-mottatt
+    serviceCode: 2913
+    serviceEditionCode: 4
+# Målekort
+  - topics:
+      - alf.aapen-altinn-metrics-mottatt
+    serviceCode: 4711
+    serviceEditionCode: 1
+# Barnehageliste
+  - topics:
+      - alf.aapen-altinn-metrics-mottatt
+    serviceCode: 4795
+    serviceEditionCode: 1
+# Forsendelse av bedriftsundersøkelse
+  - topics:
+      - alf.aapen-altinn-metrics-mottatt
+    serviceCode: 5664
+    serviceEditionCode: 1
+# Valg av hyppigere refusjonsutbetaling fra NAV
+  - topics:
+      - alf.aapen-altinn-metrics-mottatt
+    serviceCode: 5546
     serviceEditionCode: 1
