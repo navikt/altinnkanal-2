@@ -42,16 +42,6 @@ routes:
     - aapen-altinn-dokmot-Mottatt
     serviceCode: 4936
     serviceEditionCode: 3
-# Melding om unndragelse
-  - topics:
-    - aapen-altinn-unndragelse-Mottatt
-    serviceCode: 5161
-    serviceEditionCode: 1
-# Melding om soning
-  - topics:
-    - aapen-altinn-soning-Mottatt
-    serviceCode: 5152
-    serviceEditionCode: 1
 # FTT og BHT-honorarer for IA-virksomheter
   - topics:
     - aapen-altinn-dokmot-Mottatt
