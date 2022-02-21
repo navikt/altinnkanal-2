@@ -45,6 +45,7 @@ fun aivenProducerConfig(kafkaProp: Environment.KafkaProducer) = mutableMapOf<Str
     ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG to KafkaAvroSerializer::class.java.canonicalName,
     ProducerConfig.MAX_IN_FLIGHT_REQUESTS_PER_CONNECTION to kafkaProp.maxInFlightRequest,
     ProducerConfig.MAX_REQUEST_SIZE_CONFIG to 15728640,
+    ProducerConfig.COMPRESSION_TYPE_CONFIG to "snappy",
     CommonClientConfigs.CLIENT_ID_CONFIG to kafkaProp.clientId
 ) +
     sslConfig() + schemaRegistryConfig()
