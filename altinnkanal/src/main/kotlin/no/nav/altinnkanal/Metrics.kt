@@ -2,7 +2,7 @@ package no.nav.altinnkanal
 
 import io.prometheus.client.Counter
 import io.prometheus.client.Summary
-import no.nav.altinnkanal.config.loadTopicRouting
+import no.nav.altinnkanal.config.loadAivenRouting
 
 private const val NAMESPACE = "altinnkanal"
 
@@ -45,7 +45,7 @@ object Metrics {
         .register()
 
     init {
-        with(loadTopicRouting()) {
+        with(loadAivenRouting()) {
             routes.forEach { route ->
                 requestsSuccess.labels(route.serviceCode, route.serviceEditionCode)
             }
