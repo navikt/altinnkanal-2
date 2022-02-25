@@ -15,10 +15,6 @@ routes:
     - aapen-altinn-oppfolgingsplan-Mottatt
     serviceCode: NavOppfPlan
     serviceEditionCode: rapportering-sykmeldte
-  - topics:
-    - privat-altinn-paop-Mottatt
-    serviceCode: 9001
-    serviceEditionCode: 1
 # Målekort
   - topics:
     - aapen-altinn-maalekort-Mottatt
@@ -28,54 +24,6 @@ routes:
   - topics:
     - aapen-altinn-barnehageliste-Mottatt
     serviceCode: 4795
-    serviceEditionCode: 1
-# Inntektsskjema
-  - topics:
-    - aapen-altinn-dokmot-Mottatt
-    serviceCode: 4936
-    serviceEditionCode: 1
-  - topics:
-    - aapen-altinn-dokmot-Mottatt
-    serviceCode: 4936
-    serviceEditionCode: 2
-  - topics:
-    - aapen-altinn-dokmot-Mottatt
-    serviceCode: 4936
-    serviceEditionCode: 3
-# FTT og BHT-honorarer for IA-virksomheter
-  - topics:
-    - aapen-altinn-dokmot-Mottatt
-    serviceCode: 5111
-    serviceEditionCode: 1
-# Lønnstilskudd
-  - topics:
-    - aapen-altinn-dokmot-Mottatt
-    serviceCode: 5159
-    serviceEditionCode: 1
-# Inkluderingstilskudd
-  - topics:
-    - aapen-altinn-dokmot-Mottatt
-    serviceCode: 5212
-    serviceEditionCode: 1
-# Mentortilskudd
-  - topics:
-    - aapen-altinn-dokmot-Mottatt
-    serviceCode: 5216
-    serviceEditionCode: 1
-# Varig tilrettelagt arbeid i ordinær virksomhet
-  - topics:
-    - aapen-altinn-dokmot-Mottatt
-    serviceCode: 5224
-    serviceEditionCode: 1
-# Ekspertbistand
-  - topics:
-    - aapen-altinn-dokmot-Mottatt
-    serviceCode: 5384
-    serviceEditionCode: 1
-# Refusjonskrav ekspertbistand
-  - topics:
-    - aapen-altinn-dokmot-Mottatt
-    serviceCode: 5453
     serviceEditionCode: 1
 # Valg av hyppigere refusjonsutbetaling fra NAV
   - topics:
