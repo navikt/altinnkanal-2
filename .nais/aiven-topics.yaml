@@ -55,36 +55,6 @@ spec:
       application: altinn-metrics
       access: read
 
----
-
-apiVersion: kafka.nais.io/v1
-kind: Topic
-metadata:
-  name: aapen-altinn-bankkontonummer-mottatt
-  namespace: alf
-  labels:
-    team: alf
-  annotations:
-    dcat.data.nav.no/title: "Innsending av ny(e) bankkontonummer(e) fra juridisk enhet til refusjonsutbetaling"
-    dcat.data.nav.no/description: "Informasjonen er fylt ut i Altinn portal og sendt inn til NAV."
-    dcat.data.nav.no/catalog: "internal"
-spec:
-  pool: {{kafka-pool}}
-  config:
-    cleanupPolicy: delete
-    minimumInSyncReplicas: 1
-    partitions: 1
-    replication: 3
-    retentionBytes: -1
-    retentionHours: 168
-  acl:
-    - team: alf
-      application: altinnkanal-2
-      access: readwrite
-    - team: alf
-      application: sokos-kontoregister-altinn2-adapter
-      access: read
-
 #  --
 #
 #apiVersion: kafka.nais.io/v1
@@ -180,6 +150,36 @@ spec:
 #apiVersion: kafka.nais.io/v1
 #kind: Topic
 #metadata:
+#  name: aapen-altinn-dokmot-mottatt
+#  namespace: alf
+#  labels:
+#    team: alf
+#  annotations:
+#    dcat.data.nav.no/title: "Flere typer meldinger på dette topic, inntektsmelding, mentor, ekspertbistand, inkluderingstilskudd, m.m."
+#    dcat.data.nav.no/description: "Informasjonen er fylt ut i Altinn portal, eller maskininnsending via altinn.no. og overført inn til NAV."
+#    dcat.data.nav.no/catalog: "internal"
+#spec:
+#  pool: {{kafka-pool}}
+#  config:
+#    cleanupPolicy: delete
+#    minimumInSyncReplicas: 1
+#    partitions: 1
+#    replication: 3
+#    retentionBytes: -1
+#    retentionHours: 168
+#  acl:
+#    - team: alf
+#      application: altinnkanal-2
+#      access: readwrite
+#    - team: alf
+#      application: altinn-metrics
+#      access: read
+#
+#  --
+#
+#apiVersion: kafka.nais.io/v1
+#kind: Topic
+#metadata:
 #  name: aapen-altinn-hyppigutbetaling-mottatt
 #  namespace: alf
 #  labels:
@@ -233,5 +233,35 @@ spec:
 #      access: readwrite
 #    - team: alf
 #      application: altinn-metrics
+#      access: read
+#
+#  --
+#
+#apiVersion: kafka.nais.io/v1
+#kind: Topic
+#metadata:
+#  name: aapen-altinn-bankkontonummer-mottatt
+#  namespace: alf
+#  labels:
+#    team: alf
+#  annotations:
+#    dcat.data.nav.no/title: "Innsending av ny(e) bankkontonummer(e) fra juridisk enhet til refusjonsutbetaling"
+#    dcat.data.nav.no/description: "Informasjonen er fylt ut i Altinn portal og sendt inn til NAV."
+#    dcat.data.nav.no/catalog: "internal"
+#spec:
+#  pool: {{kafka-pool}}
+#  config:
+#    cleanupPolicy: delete
+#    minimumInSyncReplicas: 1
+#    partitions: 1
+#    replication: 3
+#    retentionBytes: -1
+#    retentionHours: 168
+#  acl:
+#    - team: alf
+#      application: altinnkanal-2
+#      access: readwrite
+#    - team: alf
+#      application: sokos-kontoregister-altinn2-adapter
 #      access: read
 #

@@ -166,22 +166,22 @@ object OnlineBatchReceiverSoapITSpec : Spek({
         }
 
         it("should add producer ACL") {
-            adminClient!!.let {
+            adminClient?.let {
                 try {
                     it.createAcls(createProducerACL(mapOf(topics.first() to env.application.username))).all().get()
                     true
                 } catch (e: Exception) {
                     false
                 }
-            } shouldEqualTo true
-            adminClient!!.let {
+            } ?: false shouldEqualTo true
+            adminClient?.let {
                 try {
                     it.createAcls(createProducerACL(mapOf(topics.last() to env.application.username))).all().get()
                     true
                 } catch (e: Exception) {
                     false
                 }
-            } shouldEqualTo true
+            } ?: false shouldEqualTo true
         }
 
         context("invalid username tokens") {
