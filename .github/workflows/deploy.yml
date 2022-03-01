@@ -8,6 +8,7 @@ on:
       - '.nais/aiven-topics.yaml'
       - '.github/workflows/deploy-aiven-topics.yml'
       - '*.md'
+      - 'altinnkanal/documents/**'
   pull_request:
     paths-ignore:
       - '.nais/alerts.yaml'
@@ -15,6 +16,7 @@ on:
       - '.nais/aiven-topics.yaml'
       - '.github/workflows/deploy-aiven-topics.yml'
       - '*.md'
+      - 'altinnkanal/documents/**'
 
 env:
   IMAGE: ghcr.io/${{ github.repository }}/altinnkanal-2:${{ github.sha }}
