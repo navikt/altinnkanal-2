@@ -80,6 +80,7 @@ routes:
     serviceEditionCode: 1
 # Forsendelse av bedriftsundersøkelse
   - topics:
+      - alf.aapen-altinn-bedrundersokelse-mottatt
       - alf.aapen-altinn-metrics-mottatt
     serviceCode: 5664
     serviceEditionCode: 1
