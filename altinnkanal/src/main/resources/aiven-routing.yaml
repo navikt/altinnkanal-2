@@ -51,6 +51,7 @@ routes:
     serviceEditionCode: 1
 # Endre bankkontonummer
   - topics:
+      - alf.aapen-altinn-bankkontonummer-mottatt
       - alf.aapen-altinn-metrics-mottatt
     serviceCode: 2896
     serviceEditionCode: 87
@@ -79,6 +80,7 @@ routes:
     serviceEditionCode: 1
 # Forsendelse av bedriftsundersøkelse
   - topics:
+      - alf.aapen-altinn-bedrundersokelse-mottatt
       - alf.aapen-altinn-metrics-mottatt
     serviceCode: 5664
     serviceEditionCode: 1
