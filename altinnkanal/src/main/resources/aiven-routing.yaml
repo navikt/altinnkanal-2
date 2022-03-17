@@ -51,7 +51,6 @@ routes:
     serviceEditionCode: 1
 # Endre bankkontonummer
   - topics:
-      - alf.aapen-altinn-bankkontonummer-mottatt
       - alf.aapen-altinn-metrics-mottatt
     serviceCode: 2896
     serviceEditionCode: 87
