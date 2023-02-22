@@ -25,18 +25,3 @@ routes:
     - aapen-altinn-barnehageliste-Mottatt
     serviceCode: 4795
     serviceEditionCode: 1
-# Valg av hyppigere refusjonsutbetaling fra NAV
-  - topics:
-    - aapen-altinn-hyppigutbetaling-Mottatt
-    serviceCode: 5546
-    serviceEditionCode: 1
-# Forsendelse av bedriftsundersøkelse
-  - topics:
-      - aapen-altinn-bedrundersokelse-Mottatt
-    serviceCode: 5664
-    serviceEditionCode: 1
-# Kun brukt i unit test Melding om soning
-  - topics:
-      - aapen-altinn-soning-Mottatt
-    serviceCode: 5152
-    serviceEditionCode: 1
