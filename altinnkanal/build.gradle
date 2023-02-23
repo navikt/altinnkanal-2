@@ -42,7 +42,7 @@ buildscript {
 }
 
 plugins {
-    id 'no.nils.wsdl2java' version '0.10'
+    id 'com.yupzip.wsdl2java' version '3.0.0'
     id 'org.jmailen.kotlinter' version '3.2.0'
     id 'com.github.ben-manes.versions' version '0.39.0'
     id 'org.jetbrains.kotlin.jvm' version '1.5.20'
@@ -57,9 +57,12 @@ wsdl2java {
     wsdlsToGenerate = [
         ["$projectDir/src/main/resources/OnlineBatchReceiver.wsdl"]
     ]
+
+    cxfVersion = cxf_version
+    cxfPluginVersion = cxf_version
 }
 
-compileKotlin.dependsOn wsdl2java
+compileKotlin.dependsOn 'wsdl2javaTask'
 
 jar {
     manifest {
