@@ -56,14 +56,17 @@ routes:
     serviceEditionCode: 87
 # Oppfølgingsplan
   - topics:
+      - alf.aapen-altinn-oppfolgingsplan-mottatt-v2
       - alf.aapen-altinn-metrics-mottatt
     serviceCode: 2913
     serviceEditionCode: 2
   - topics:
+      - alf.aapen-altinn-oppfolgingsplan-mottatt-v2
       - alf.aapen-altinn-metrics-mottatt
     serviceCode: 2913
     serviceEditionCode: 3
   - topics:
+      - alf.aapen-altinn-oppfolgingsplan-mottatt-v2
       - alf.aapen-altinn-metrics-mottatt
     serviceCode: 2913
     serviceEditionCode: 4
