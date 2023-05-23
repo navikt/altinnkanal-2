@@ -91,3 +91,8 @@ routes:
       - alf.aapen-altinn-metrics-mottatt
     serviceCode: 5546
     serviceEditionCode: 1
+  # Barnehageliste
+  - topics:
+      - alf.aapen-altinn-barnehageliste-mottatt
+    serviceCode: 4795
+    serviceEditionCode: 1
