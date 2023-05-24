@@ -174,36 +174,39 @@ spec:
 #    - team: alf
 #      application: altinn-metrics
 #      access: read
-#
-#  --
-#
-#apiVersion: kafka.nais.io/v1
-#kind: Topic
-#metadata:
-#  name: aapen-altinn-barnehageliste-mottatt
-#  namespace: alf
-#  labels:
-#    team: alf
-#  annotations:
-#    dcat.data.nav.no/title: "Barnehageliste fra kommune"
-#    dcat.data.nav.no/description: "Informasjonen er maskininnsending via altinn.no og sendt inn til NAV."
-#    dcat.data.nav.no/catalog: "internal"
-#spec:
-#  pool: {{kafka-pool}}
-#  config:
-#    cleanupPolicy: delete
-#    minimumInSyncReplicas: 1
-#    partitions: 1
-#    replication: 3
-#    retentionBytes: -1
-#    retentionHours: 168
-#  acl:
-#    - team: alf
-#      application: altinnkanal-2
-#      access: readwrite
-#    - team: alf
-#      application: altinn-metrics
-#      access: read
+
+---
+
+apiVersion: kafka.nais.io/v1
+kind: Topic
+metadata:
+  name: aapen-altinn-barnehageliste-mottatt
+  namespace: alf
+  labels:
+    team: alf
+  annotations:
+    dcat.data.nav.no/title: "Barnehageliste fra kommune"
+    dcat.data.nav.no/description: "Informasjonen er maskininnsending via altinn.no og sendt inn til NAV."
+    dcat.data.nav.no/catalog: "internal"
+spec:
+  pool: {{kafka-pool}}
+  config:
+    cleanupPolicy: delete
+    minimumInSyncReplicas: 2
+    partitions: 1
+    replication: 3
+    retentionBytes: -1
+    retentionHours: 1440
+  acl:
+    - team: alf
+      application: altinnkanal-2
+      access: readwrite
+    - team: teamfamilie
+      application: familie-ks-sak
+      access: read
+    - team: teamfamilie
+      application: familie-ks-kafka-manager
+      access: read
 #
 #  --
 #
