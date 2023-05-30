@@ -1,51 +1,90 @@
-apiVersion: "nais.io/v1"
-kind: "Alert"
+apiVersion: monitoring.coreos.com/v1
+kind: PrometheusRule
 metadata:
   name: altinnkanal-2-alerts
   namespace: alf
   labels:
     team: alf
 spec:
-  receivers:
-    slack:
-      channel: '#alf-alerts'
-      prependText: '<!here> | '
-  alerts:
-    - alert: altinnkanal-2 applikasjon er nede
-      expr: absent(kube_deployment_status_replicas_unavailable{deployment="altinnkanal-2"}) > 0
-      for: 3m
-      action: "Sjekk applikasjon altinnkanal-2 i clusteret, start re-deploy fra github hvis den er borte"
-      sla: respond within 1h, during office hours
-      severity: danger
-    - alert: altinnkanal-2 error oppstod under prosessering av melding fra Altinn
-      expr: changes(altinnkanal_requests_error_total[1h]) > 0
-      for: 3m
-      action: "Sjekk log for feil for app altinnkanal-2 i clusteret"
-      sla: respond within 2-3 days, message might be in error queue at altinn
-      severity: danger
-    - alert: altinnkanal-2 fant ingen rute av melding fra Altinn
-      expr: changes(altinnkanal_requests_missing_total[1h]) > 0
-      for: 3m
-      action: "Sjekk log for feil for app altinnkanal-2 i clusteret"
-      sla: respond within 2-3 days, message is in error queue at altinn
-      severity: danger
-    - alert: altinnkanal-2 ingen mottatt melding
-      expr: ( 6 < hour() < 15 ) and ( 0 < day_of_week() < 6) and (sum(changes(altinnkanal_requests_total[10m])) < 1)
-      for: 3m
-      action: "Ingen melding mottatt fra Altinn på siste 10 minutter, sjekk mottaket. Alert kan være falsk alarm på helligdager."
-      severity: warning
-    - alert: altinnkanal-2 mottatt lonnstilskudd
-      expr: changes(altinnkanal_requests_success_total{sc="5159",sec="1"}[1h]) > 0
-      for: 3m
-      action: "Mottatt søknad(er) om `Lønnstilskudd for Tiltak` i altinnkanal-2 som ble deaktivert 21.1.2021"
-      severity: warning
-    - alert: altinnkanal-2 mottatt bedriftsundersøkelse
-      expr: changes(altinnkanal_requests_success_total{sc="5664",sec="1"}[1h]) > 0
-      for: 3m
-      action: "Mottatt søknad(er) om `Forsendelse av bedriftsundersøkelse` i altinnkanal-2. App for utsending er tatt ned. Start opp `bedrift-undersokelse` innen 7 dager for å gjøre utsending av melding(er)."
-      severity: danger
-    - alert: altinnkanal-2 mottatt barnehageliste
-      expr: changes(altinnkanal_requests_success_total{sc="4795",sec="1"}[1h]) > 0
-      for: 3m
-      action: "Mottatt barnehageliste i kanalen, sjekk om melding gikk ok inn til MQ"
-      severity: warning
+  groups:
+    - name: alf-alerts
+      rules:
+        - alert: altinnkanal-2 applikasjon er nede
+          expr: absent(kube_deployment_status_replicas_unavailable{deployment="altinnkanal-2"}) > 0
+          for: 3m
+          annotations:
+            consequence: Application is unavailable
+            action: "Sjekk applikasjon altinnkanal-2 i clusteret, start re-deploy fra github hvis den er borte"
+            summary: "{{ $labels.deployment }} er nede"
+            labels:
+              namespace: alf
+              severity: danger
+        - alert: altinnkanal-2 error oppstod under prosessering av melding fra Altinn
+          expr: changes(altinnkanal_requests_error_total[1h]) > 0
+          for: 3m
+          annotations:
+            consequence: Application is running with an error
+            action: "Sjekk log for feil for app altinnkanal-2 i clusteret"
+            summary: |-
+              Feil under prossering av melding fra Altinn.
+              Sjekk innen 2-3 dager, meldingen kan ligge som feilet oppgae hos Altinn
+            labels:
+              namespace: alf
+              severity: danger
+        - alert: altinnkanal-2 fant ingen rute av melding fra Altinn
+          expr: changes(altinnkanal_requests_missing_total[1h]) > 0
+          for: 3m
+          annotations:
+            consequence: Application is running with an error
+            action: "Sjekk log for feil for app altinnkanal-2 i clusteret"
+            summary: |-
+              Altinnkanal-2 fant ingen rute av melding fra Altinn
+              Sjekk innen 2-3 dager, meldingen kan ligge som feilet oppgae hos Altinn
+            labels:
+              namespace: alf
+              severity: danger
+        - alert: altinnkanal-2 ingen mottatt melding
+          expr: ( 6 < hour() < 15 ) and ( 0 < day_of_week() < 6) and (sum(changes(altinnkanal_requests_total[10m])) < 1)
+          for: 3m
+          annotations:
+            consequence: Application is running with a warning
+            action: "Ingen melding mottatt fra Altinn på siste 10 minutter, sjekk mottaket. Alert kan være falsk alarm på helligdager."
+            summary: |-
+              Altinnkanal-2 har ikke mottat noen meldinger fra Altinn de siste 10 minuttene, sjekk mottaket.
+              Alert kan være falsk alarm på helligdager.
+            labels:
+              namespace: alf
+              severity: warning
+        - alert: altinnkanal-2 mottatt lonnstilskudd
+          expr: changes(altinnkanal_requests_success_total{sc="5159",sec="1"}[1h]) > 0
+          for: 3m
+          annotations:
+            consequence: Application is running with an error
+            action: "Mottatt søknad(er) om `Lønnstilskudd for Tiltak` i altinnkanal-2 som ble deaktivert 21.1.2021"
+            summary: "Mottatt søknader om Lønnstilskudd for Tiltak, som ikke lenger er aktiv"
+            labels:
+              namespace: alf
+              severity: warning
+        - alert: altinnkanal-2 mottatt bedriftsundersøkelse
+          expr: changes(altinnkanal_requests_success_total{sc="5664",sec="1"}[1h]) > 0
+          for: 3m
+          annotations:
+            consequence: Application might lose messages from Altinn
+            action: "Mottatt søknad(er) om `Forsendelse av bedriftsundersøkelse` i altinnkanal-2. App for utsending er tatt ned. Start opp `bedrift-undersokelse` innen 7 dager for å gjøre utsending av melding(er)."
+            summary: |-
+              Mottatt søknad(er) om `Forsendelse av bedriftsundersøkelse` i altinnkanal-2. 
+              App for utsending er tatt ned. Start opp `bedrift-undersokelse` innen 7 dager 
+              for å gjøre utsending av melding(er).
+            labels:
+              namespace: alf
+              severity: danger
+        - alert: altinnkanal-2 mottatt barnehageliste
+          expr: changes(altinnkanal_requests_success_total{sc="4795",sec="1"}[1h]) > 0
+          for: 3m
+          annotations:
+            consequence: Application might lose messages from Altinn
+            action: "Mottatt barnehageliste i kanalen, sjekk om melding gikk ok inn til MQ"
+            summary: "Skjema om barnehageliste er mottatt. Sjekk at den havner på MQ"
+            labels:
+              namespace: alf
+              severity: warning
