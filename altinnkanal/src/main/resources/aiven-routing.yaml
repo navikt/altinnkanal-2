@@ -73,6 +73,7 @@ routes:
 # Målekort
   - topics:
       - alf.aapen-altinn-metrics-mottatt
+      - styringsinformasjon.aapen-altinn-maalekort-mottatt-v2
     serviceCode: 4711
     serviceEditionCode: 1
 # Barnehageliste
