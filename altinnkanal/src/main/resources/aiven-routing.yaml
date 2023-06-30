@@ -72,6 +72,7 @@ routes:
     serviceEditionCode: 4
 # Målekort
   - topics:
+      - styringsinformasjon.aapen-altinn-maalekort-mottatt-v2
       - alf.aapen-altinn-metrics-mottatt
     serviceCode: 4711
     serviceEditionCode: 1
