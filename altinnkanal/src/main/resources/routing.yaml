@@ -1,9 +1,4 @@
 routes:
-# Målekort
-  - topics:
-    - aapen-altinn-maalekort-Mottatt
-    serviceCode: 4711
-    serviceEditionCode: 1
 # Barnehageliste
   - topics:
     - aapen-altinn-barnehageliste-Mottatt
