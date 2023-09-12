@@ -60,7 +60,7 @@ spec:
 apiVersion: kafka.nais.io/v1
 kind: Topic
 metadata:
-  name: aapen-altinn-bankkontonummer-mottatt
+  name: aapen-altinn-bankkontonummer-mottatt-v3
   namespace: alf
   labels:
     team: alf
@@ -81,7 +81,10 @@ spec:
     - team: alf
       application: altinnkanal-2
       access: readwrite
-    - team: alf
+    - team: okonomi
+      application: sokos-kontoregister-altinn2-adapter-q2
+      access: read
+    - team: okonomi
       application: sokos-kontoregister-altinn2-adapter
       access: read
 
