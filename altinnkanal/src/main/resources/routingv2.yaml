@@ -1,6 +1,0 @@
-routes:
-# Endre bankkontonummer
-  - topics:
-    - aapen-altinn-bankkontonummer-mottatt-v2
-    serviceCode: 2896
-    serviceEditionCode: 87

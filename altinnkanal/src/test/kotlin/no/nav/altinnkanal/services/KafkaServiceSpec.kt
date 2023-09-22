@@ -22,7 +22,6 @@ import org.spekframework.spek2.style.specification.describe
 object KafkaServiceSpec : Spek({
     val topicRepository = mock<TopicService>()
     val kafkaProducer = mock<Producer<String, ExternalAttachment>>()
-    val kafkaProducer2 = mock<Producer<String, ReceivedMessage>>()
     val kafkaProducer3 = mock<Producer<String, ReceivedMessage>>()
     val future = mock<Future<RecordMetadata>>()
     val recordMetadata = mock<RecordMetadata>()
@@ -31,7 +30,6 @@ object KafkaServiceSpec : Spek({
     val onlineBatchReceiver = OnlineBatchReceiverSoapImpl(
         topicRepository,
         kafkaProducer,
-        kafkaProducer2,
         kafkaProducer3
     )
     val expectedTopics = listOf("topic1", "topic2")
