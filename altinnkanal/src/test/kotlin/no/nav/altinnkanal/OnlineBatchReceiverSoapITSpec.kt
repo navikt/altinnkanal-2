@@ -130,7 +130,6 @@ object OnlineBatchReceiverSoapITSpec : Spek({
 
     val localServerPort = 47859
     var producer: KafkaProducer<String, ExternalAttachment>? = null
-    var producer2: KafkaProducer<String, ReceivedMessage>? = null
     var producer3: KafkaProducer<String, ReceivedMessage>? = null
     var server: Server? = null
 
@@ -147,11 +146,10 @@ object OnlineBatchReceiverSoapITSpec : Spek({
             }
 
             producer = KafkaProducer<String, ExternalAttachment>(kafkaProperties)
-            producer2 = KafkaProducer<String, ReceivedMessage>(kafkaProperties)
             producer3 = KafkaProducer<String, ReceivedMessage>(kafkaProperties)
 
             server = Server(localServerPort).apply {
-                bootstrap(this, OnlineBatchReceiverSoapImpl(TopicService(), producer!!, producer2!!, producer3!!))
+                bootstrap(this, OnlineBatchReceiverSoapImpl(TopicService(), producer!!, producer3!!))
             }
         }
 
@@ -281,10 +279,6 @@ object OnlineBatchReceiverSoapITSpec : Spek({
         adminClient?.close()
         kafkaEnvironment.tearDown()
         producer?.run {
-            flush()
-            close()
-        }
-        producer2?.run {
             flush()
             close()
         }

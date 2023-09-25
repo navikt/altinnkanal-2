@@ -32,7 +32,6 @@ fun main() {
             OnlineBatchReceiverSoapImpl(
                 TopicService(),
                 KafkaProducer(onPremProducerConfig(environment.kafkaProducer)),
-                KafkaProducer(onPremProducerConfig(environment.kafkaProducer)),
                 KafkaProducer(aivenProducerConfig(environment.kafkaProducer))
             )
         )

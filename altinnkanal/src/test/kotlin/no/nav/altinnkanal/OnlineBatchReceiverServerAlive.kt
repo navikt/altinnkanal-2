@@ -106,7 +106,6 @@ object OnlineBatchReceiverServerAlive : Spek({
         beforeGroup {
             val topicService = mock<TopicService>()
             val kafkaProducer = mock<Producer<String, ExternalAttachment>>()
-            val kafkaProducer2 = mock<Producer<String, ReceivedMessage>>()
             val avienProducer = mock<Producer<String, ReceivedMessage>>()
             server = Server(localServerPort).apply {
                 bootstrap(
@@ -114,7 +113,6 @@ object OnlineBatchReceiverServerAlive : Spek({
                     OnlineBatchReceiverSoapImpl(
                         topicService,
                         kafkaProducer,
-                        kafkaProducer2,
                         avienProducer
                     )
                 )
