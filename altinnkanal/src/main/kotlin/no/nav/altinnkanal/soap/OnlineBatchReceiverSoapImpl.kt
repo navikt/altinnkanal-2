@@ -14,7 +14,6 @@ import no.nav.altinnkanal.avro.ReceivedMessage
 import no.nav.altinnkanal.batch.DataBatchExtractor
 import no.nav.altinnkanal.metadata.XmlMetaData
 import no.nav.altinnkanal.services.AivenTopiccService
-import no.nav.altinnkanal.services.TopicService
 import org.apache.kafka.clients.producer.Producer
 import org.apache.kafka.clients.producer.ProducerRecord
 
@@ -26,8 +25,6 @@ private val log = KotlinLogging.logger { }
 private val xmlInputFactory = XMLInputFactory.newInstance()
 
 class OnlineBatchReceiverSoapImpl(
-    private val topicService: TopicService,
-    private val kafkaProducer: Producer<String, ExternalAttachment>,
     private val aivenProducer: Producer<String, ReceivedMessage>,
 ) : OnlineBatchReceiverSoap {
     private val aivenService = AivenTopiccService()
@@ -63,36 +60,15 @@ class OnlineBatchReceiverSoapImpl(
                 kv("recRef", receiversReference), kv("archRef", archiveReference), kv("seqNum", sequenceNumber)
             )
 
-            val topics = topicService.getTopics(serviceCode!!, serviceEditionCode!!)
             val aivenTopics = aivenService.getTopics(serviceCode!!, serviceEditionCode!!)
-            if (topics == null && aivenTopics == null) {
+            if (aivenTopics == null) {
                 Metrics.requestsFailedMissing.inc()
                 with(Status.FAILED_DO_NOT_RETRY) {
                     log(logDetails!!)
                     return receiptResponse(archiveReference)
                 }
             }
-            topics?.forEach { topic ->
-                val metadata = kafkaProducer
-                    .send(ProducerRecord(topic, externalAttachment))
-                    .get()
-
-                val latency = requestLatency.observeDuration()
-                Metrics.requestSize.observe(metadata.serializedValueSize().toDouble())
-
-                val logDetailsCopy = logDetails!!.toMutableList()
-                logDetailsCopy.addAll(
-                    arrayOf(
-                        kv("latency", "${(latency * 1000).toLong()} ms"),
-                        kv("size", String.format("%.2f", metadata.serializedValueSize() / 1024f) + " KB"),
-                        kv("topic", metadata.topic()),
-                        kv("partition", metadata.partition()),
-                        kv("offset", metadata.offset())
-                    )
-                )
-                Status.OK.log(logDetailsCopy)
-            }
-            aivenTopics?.forEach { aivenTopic ->
+            aivenTopics.forEach { aivenTopic ->
                 val rm = dataBatchExtractor.toReceivedMessage(externalAttachment.getBatch(), callId)
                 val metadataConfig = aivenService.getMetaData(rm.getServiceCode(), rm.getServiceEditionCode())
                 if (metadataConfig.isNotEmpty()) {

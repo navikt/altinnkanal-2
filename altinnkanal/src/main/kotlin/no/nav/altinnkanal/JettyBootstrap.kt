@@ -6,8 +6,6 @@ import javax.xml.ws.Endpoint
 import kotlin.reflect.jvm.jvmName
 import no.altinn.webservices.OnlineBatchReceiverSoap
 import no.nav.altinnkanal.config.aivenProducerConfig
-import no.nav.altinnkanal.config.onPremProducerConfig
-import no.nav.altinnkanal.services.TopicService
 import no.nav.altinnkanal.soap.OnlineBatchReceiverSoapImpl
 import no.nav.altinnkanal.soap.StsUntValidator
 import org.apache.cxf.BusFactory
@@ -30,8 +28,6 @@ fun main() {
         bootstrap(
             this,
             OnlineBatchReceiverSoapImpl(
-                TopicService(),
-                KafkaProducer(onPremProducerConfig(environment.kafkaProducer)),
                 KafkaProducer(aivenProducerConfig(environment.kafkaProducer))
             )
         )
