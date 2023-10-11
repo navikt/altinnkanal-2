@@ -78,13 +78,3 @@ spec:
           labels:
             namespace: alf
             severity: danger
-        - alert: altinnkanal-2 mottatt barnehageliste
-          expr: changes(altinnkanal_requests_success_total{sc="4795",sec="1"}[1h]) > 0
-          for: 3m
-          annotations:
-            consequence: Application might lose messages from Altinn
-            action: "Mottatt barnehageliste i kanalen, sjekk om melding gikk ok inn til MQ"
-            summary: "Skjema om barnehageliste er mottatt. Sjekk at den havner på MQ"
-          labels:
-            namespace: alf
-            severity: warning
