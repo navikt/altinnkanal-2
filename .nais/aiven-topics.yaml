@@ -147,6 +147,9 @@ spec:
     - team: team-esyfo
       application: syfooppfolgingsplanservice
       access: read
+    - team: team-esyfo
+      application: lps-oppfolgingsplan-mottak
+      access: read
 #
 #  --
 #
