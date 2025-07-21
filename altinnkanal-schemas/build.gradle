@@ -1,23 +1,24 @@
 buildscript {
-    ext.avro_version = '1.8.2'
+    ext.avro_version = '1.11.1'
     repositories {
         mavenCentral()
+        gradlePluginPortal()
         maven {
             url "https://plugins.gradle.org/m2/"
         }
         maven {
             name "JCenter Gradle Plugins"
-            url  "https://dl.bintray.com/gradle/gradle-plugins"
+            url "https://jcenter.bintray.com"
         }
-    }
-
-    dependencies {
-        classpath "com.commercehub.gradle.plugin:gradle-avro-plugin:0.14.0"
     }
 }
 
-apply plugin: "com.commercehub.gradle.plugin.avro"
-apply plugin: 'maven-publish'
+plugins {
+    id 'java'
+    id 'com.github.davidmc24.gradle.plugin.avro' version '1.9.1'
+    id 'maven-publish'
+}
+
 
 dependencies {
     implementation "org.apache.avro:avro:$avro_version"
