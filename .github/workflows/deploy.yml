@@ -16,8 +16,8 @@ on:
       - '.github/workflows/deploy-aiven-topics.yml'
       - '*.md'
 
-env:
-  IMAGE: ghcr.io/${{ github.repository }}/altinnkanal-2:${{ github.sha }}
+#env:
+#  IMAGE: ghcr.io/${{ github.repository }}/altinnkanal-2:${{ github.sha }}
 
 jobs:
   test:
@@ -79,13 +79,15 @@ jobs:
         id: docker-build-push
         with:
           team: alf
-      - name: Build and publish Docker image
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: |
-          docker build . --pull --tag ${IMAGE}
-          echo "$GITHUB_TOKEN" | docker login ghcr.io --username "$GITHUB_REPOSITORY" --password-stdin
-          docker push ${IMAGE}
+    outputs:
+      image: ${{ steps.docker-build-push.outputs.image }}
+#      - name: Build and publish Docker image
+#        env:
+#          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+#        run: |
+#          docker build . --pull --tag ${IMAGE}
+#          echo "$GITHUB_TOKEN" | docker login ghcr.io --username "$GITHUB_REPOSITORY" --password-stdin
+#          docker push ${IMAGE}
 
   deploy-dev:
     name: Deploy to NAIS dev
@@ -102,6 +104,7 @@ jobs:
           CLUSTER: dev-fss
           RESOURCE: .nais/naiserator.yaml
           VARS: .nais/config-dev.yaml
+          IMAGE: ${{ needs.build.outputs.image }}
 
   deploy-prod:
     name: Deploy to NAIS prod
@@ -119,3 +122,4 @@ jobs:
           CLUSTER: prod-fss
           RESOURCE: .nais/naiserator.yaml
           VARS: .nais/config-prod.yaml
+          IMAGE: ${{ needs.build.outputs.image }}
