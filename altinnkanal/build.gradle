@@ -3,7 +3,7 @@ import com.github.jengelman.gradle.plugins.shadow.transformers.ServiceFileTransf
 buildscript {
     ext.kotlin_version = '1.5.20'
 
-    ext.jetty_version = "9.4.43.v20210629"
+    ext.jetty_version = "9.4.54.v20240208"
     ext.cxf_version = '3.6.7'
     ext.caffeine_version = '3.0.3'
     ext.jackson_version = '2.15.3'
@@ -128,7 +128,9 @@ dependencies {
     }
     implementation ("org.apache.cxf:cxf-rt-ws-security:$cxf_version") {
         exclude group: 'org.opensaml'
+        exclude group: 'commons-collections', module: 'commons-collections'
     }
+    implementation "commons-collections:commons-collections:3.2.2" // patched version
 
     runtimeOnly "ch.qos.logback:logback-classic:$logback_version"
 
