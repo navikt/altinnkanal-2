@@ -19,6 +19,6 @@ subprojects {
         }
     }
     configurations {
-        all { resolutionStrategy { force 'org.apache.commons:commons-compress:1.18' } }
+        all { resolutionStrategy { force 'org.apache.commons:commons-compress:1.27.1' } }
     }
 }
