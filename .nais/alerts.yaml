@@ -44,7 +44,7 @@ spec:
             namespace: alf
             severity: danger
         - alert: altinnkanal-2 ingen mottatt melding
-          expr: ( 6 < hour() < 15 ) and ( 0 < day_of_week() < 6) and (sum(changes(altinnkanal_requests_total[10m])) < 1)
+          expr: ( 6 < hour() < 16 ) and ( 0 < day_of_week() < 6) and (sum(changes(altinnkanal_requests_total[3h])) < 1)
           for: 3m
           annotations:
             consequence: Application is running with a warning
